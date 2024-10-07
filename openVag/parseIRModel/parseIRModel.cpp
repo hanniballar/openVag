@@ -160,14 +160,14 @@ IRXmlRep parseIRModel(const char* xmlContent, size_t nBytes) {
         return {};
     }
 
-    XMLElement* root = doc.RootElement();
-    if (root == nullptr) {
+    XMLElement* net = doc.RootElement();
+    if (net == nullptr) {
         std::cerr << "No root element" << std::endl;
         return {};
     }
-    XMLElement* net = root->FirstChildElement("net");
-    if (net == nullptr) {
-        std::cerr << "No net element" << std::endl;
+
+    if (std::string(net->Value()) != "net") {
+        std::cerr << "IR should start with net element" << std::endl;
         return {};
     }
 
@@ -185,5 +185,5 @@ IRXmlRep parseIRModel(const std::string& fileName) {
     buffer << file.rdbuf();
     std::string xmlContent = buffer.str();
 
-    return parseIRModel(xmlContent.c_str());
+    return parseIRModel(xmlContent.c_str(), xmlContent.size());
 }
