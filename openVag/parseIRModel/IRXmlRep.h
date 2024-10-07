@@ -6,8 +6,8 @@
 
 class LayerPort {
 public:
-	LayerPort(const std::string& id) : id(id) {}
-	std::string id;
+	LayerPort(const std::string& portID) : portID(portID) {}
+	std::string portID;
 };
 
 class LayerNode {
