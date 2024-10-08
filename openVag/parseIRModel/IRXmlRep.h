@@ -21,13 +21,16 @@ public:
 	std::vector<LayerPort> vecOutputPort;
 };
 
-class Edges {
-public:
-	std::map<LayerPort, LayerPort> mapEdge;
+struct Edge {
+	Edge(std::string from_layer, std::string from_port, std::string to_layer, std::string to_port) : from_layer(from_layer), from_port(from_port), to_layer(to_layer), to_port(to_port) {}
+	std::string from_layer;
+	std::string from_port;
+	std::string to_layer;
+	std::string to_port;
 };
 
 class IRXmlRep {
 public:
 	std::vector<LayerNode> vecLayerNode;
-	Edges edges;
+	std::vector<Edge> vecEdge;
 };

@@ -88,15 +88,7 @@ std::vector<LayerNode> parseLayers(XMLElement* layers) {
     return vecLayerNode;
 }
 
-struct EdgeRaw {
-    EdgeRaw(std::string from_layer, std::string from_port, std::string to_layer, std::string to_port) : from_layer(from_layer), from_port(from_port), to_layer(to_layer), to_port(to_port) {}
-    std::string from_layer;
-    std::string from_port;
-    std::string to_layer;
-    std::string to_port;
-};
-
-EdgeRaw parseEdge(XMLElement* edge) {
+Edge parseEdge(XMLElement* edge) {
     assert(edge != nullptr);
 
    auto from_layer = edge->Attribute("from-layer");
@@ -123,14 +115,14 @@ EdgeRaw parseEdge(XMLElement* edge) {
         throw ParseIRModelException(msg.c_str());
     }
 
-    return EdgeRaw(from_layer, from_port, to_layer, to_port);
+    return Edge(from_layer, from_port, to_layer, to_port);
 }
 
-std::vector<EdgeRaw> parseEdges(XMLElement* edges) {
+std::vector<Edge> parseEdges(XMLElement* edges) {
     if (edges == nullptr) {
         return {};
     }
-    std::vector<EdgeRaw> vecEdgeRaw;
+    std::vector<Edge> vecEdgeRaw;
 
     XMLElement* edge = edges->FirstChildElement("edge");
     while (edge != nullptr) {
@@ -147,10 +139,9 @@ IRXmlRep parseNet(XMLElement* net) {
     XMLElement* layers = net->FirstChildElement("layers");
     irXmlRep.vecLayerNode = parseLayers(layers);
     XMLElement* edges = net->FirstChildElement("edges");
-    std::vector<EdgeRaw> vecEdgeRaw = parseEdges(edges);
+    irXmlRep.vecEdge = parseEdges(edges);
 
-    //ToDo SeNe: complete IRXmlRep
-    return {};
+    return irXmlRep;
 }
 
 IRXmlRep parseIRModel(const char* xmlContent, size_t nBytes) {
