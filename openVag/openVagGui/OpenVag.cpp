@@ -9,6 +9,7 @@
 #include "imgui_node_editor.h"
 
 #include "parseIRModel.h"
+#include "CreateLayerNodeGui.h"
 
 #ifdef _DEBUG
 #define DX12_ENABLE_DEBUG_LAYER
@@ -20,8 +21,6 @@
 #endif
 
 #include "imgui_internal.h"
-
-namespace ed = ax::NodeEditor;
 
 struct FrameContext
 {
@@ -60,7 +59,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 static HWND hwnd;
 static WNDCLASSEXW wc;
-static ed::EditorContext* m_Context = nullptr;
+static ax::NodeEditor::EditorContext* m_Context = nullptr;
 
 // Helper functions
 bool CreateDeviceD3D(HWND hWnd)
@@ -314,9 +313,9 @@ bool OpenVag::Create()
         return false;
     }
 
-    ed::Config config;
+    ax::NodeEditor::Config config;
     config.SettingsFile = "openVagConf.json";
-    m_Context = ed::CreateEditor(&config);
+    m_Context = ax::NodeEditor::CreateEditor(&config);
 
     // Show the window
     ::ShowWindow(hwnd, SW_SHOWDEFAULT);
@@ -399,22 +398,13 @@ bool OpenVag::Run()
         ImGuiID did = ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_AutoHideTabBar);
         {
             ImGui::Begin("Canvas");
-            ed::SetCurrentEditor(m_Context);
-            ed::Begin("My Editor", ImVec2(0.0, 0.0f));
+            ax::NodeEditor::SetCurrentEditor(m_Context);
+            ax::NodeEditor::Begin("My Editor", ImVec2(0.0, 0.0f));
             int uniqueId = 1;
             // Start drawing nodes.
-            ed::BeginNode(uniqueId++);
-            ImGui::Text("Node A");
-            ed::BeginPin(uniqueId++, ed::PinKind::Input);
-            ImGui::Text("-> In");
-            ed::EndPin();
-            ImGui::SameLine();
-            ed::BeginPin(uniqueId++, ed::PinKind::Output);
-            ImGui::Text("Out ->");
-            ed::EndPin();
-            ed::EndNode();
-            ed::End();
-            ed::SetCurrentEditor(nullptr);
+            //CreateLayerNode(LayerNode(1));
+            ax::NodeEditor::End();
+            ax::NodeEditor::SetCurrentEditor(nullptr);
             ImGui::End();
         }
         ImGui::ShowMetricsWindow();

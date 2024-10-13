@@ -1,6 +1,5 @@
 set(Sources
 	IRXmlRep.h
-	LayerNode.h
 	parseIRModel.cpp
 	parseIRModel.h
 )
