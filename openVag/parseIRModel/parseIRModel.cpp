@@ -1,3 +1,4 @@
+#include "parseIRModel.h"
 #include "IRXmlRep.h"
 #include "tinyxml2.h"
 

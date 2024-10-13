@@ -8,6 +8,8 @@
 #include <tchar.h>
 #include "imgui_node_editor.h"
 
+#include "parseIRModel.h"
+
 #ifdef _DEBUG
 #define DX12_ENABLE_DEBUG_LAYER
 #endif
@@ -357,8 +359,13 @@ bool OpenVag::Create()
     return true;
 }
 
+static bool firstFrame = true;
 bool OpenVag::Run()
 {
+    if (firstFrame) {
+        auto res = parseIRModel("D:/work/openVag/test/example.xml");
+        firstFrame = false;
+    }
     static ImVec4 clear_color = ImVec4(0.12f, 0.12f, 0.12f, 1.00f);
     // Main loop
     bool done = false;
