@@ -6,6 +6,7 @@ set(Sources
 	OpenVag.cpp
 	CreateLayerNodeGui.cpp
 	CreateLayerNodeGui.h
+	LayerNodeGui.h
 )
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${Sources})

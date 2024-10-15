@@ -402,7 +402,7 @@ bool OpenVag::Run()
             ax::NodeEditor::Begin("My Editor", ImVec2(0.0, 0.0f));
             int uniqueId = 1;
             // Start drawing nodes.
-            //CreateLayerNode(LayerNode(1));
+            CreateLayerNode(LayerNode("1"));
             ax::NodeEditor::End();
             ax::NodeEditor::SetCurrentEditor(nullptr);
             ImGui::End();
