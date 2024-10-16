@@ -10,6 +10,7 @@
 
 #include "parseIRModel.h"
 #include "CreateLayerNodeGui.h"
+#include "IRModelGui.h"
 
 #ifdef _DEBUG
 #define DX12_ENABLE_DEBUG_LAYER
@@ -60,6 +61,10 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 static HWND hwnd;
 static WNDCLASSEXW wc;
 static ax::NodeEditor::EditorContext* m_Context = nullptr;
+
+static IRModelGui irModelGui;
+IRXmlRep irXmlRep; //ToDo please remove it from here
+
 
 // Helper functions
 bool CreateDeviceD3D(HWND hWnd)
@@ -361,10 +366,7 @@ bool OpenVag::Create()
 static bool firstFrame = true;
 bool OpenVag::Run()
 {
-    if (firstFrame) {
-        auto res = parseIRModel("D:/work/openVag/test/example.xml");
-        firstFrame = false;
-    }
+
     static ImVec4 clear_color = ImVec4(0.12f, 0.12f, 0.12f, 1.00f);
     // Main loop
     bool done = false;
@@ -402,7 +404,18 @@ bool OpenVag::Run()
             ax::NodeEditor::Begin("My Editor", ImVec2(0.0, 0.0f));
             int uniqueId = 1;
             // Start drawing nodes.
-            CreateLayerNode(LayerNode("1"));
+            if (firstFrame) {
+                irXmlRep = parseIRModel("D:/work/openVag/test/example.xml");
+                for (auto layerNode : irXmlRep.vecLayerNode) {
+                    irModelGui.vecLayerNodeGui.push_back(createLayerNode(layerNode));
+                }
+                firstFrame = false;
+            }
+            else {
+                for (auto layerNodeGui : irModelGui.vecLayerNodeGui) {
+                    drawLayerNode(layerNodeGui);
+                }
+            }
             ax::NodeEditor::End();
             ax::NodeEditor::SetCurrentEditor(nullptr);
             ImGui::End();

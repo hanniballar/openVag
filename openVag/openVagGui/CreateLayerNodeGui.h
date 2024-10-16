@@ -1,6 +1,7 @@
-#include "LayerNodeGui.h"
+#include "IRModelGui.h"
 #include "IRXmlRep.h"
 
 #include <cstdint>
 
-LayerNodeGui CreateLayerNode(LayerNode layerNdoeXml);
+void drawLayerNode(LayerNodeGui layerNodeGui);
+LayerNodeGui createLayerNode(LayerNode layerNdoeXml);

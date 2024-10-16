@@ -1,24 +1,55 @@
 #include "CreateLayerNodeGui.h"
 
-static int64_t uniqueId = 0;
-LayerNodeGui CreateLayerNode(LayerNode layerNdoeXml) {
+static int64_t uniqueId = 1;
 
-    uniqueId = 1;
+void drawLayerNode(LayerNodeGui layerNodeGui) {
+    ax::NodeEditor::BeginNode(layerNodeGui.id_gui);
+    for (const auto& inputPort : layerNodeGui.vecInputPort) {
+        ax::NodeEditor::BeginPin(inputPort.pinId_gui, ax::NodeEditor::PinKind::Input);
+            ImGui::Text(inputPort.layerPort->portID.c_str());
+        ax::NodeEditor::EndPin();
+        if (&inputPort != &(layerNodeGui.vecInputPort.back())) {
+            ImGui::SameLine();
+        }
+    }
+
+    ImGui::Text(layerNodeGui.layerNode.name.c_str());
+    ImGui::Text(layerNodeGui.layerNode.type.c_str());
+
+    for (const auto& outputPort : layerNodeGui.vecOutputPort) {
+        ax::NodeEditor::BeginPin(outputPort.pinId_gui, ax::NodeEditor::PinKind::Input);
+        ImGui::Text(outputPort.layerPort->portID.c_str());
+        ax::NodeEditor::EndPin();
+        if (&outputPort != &(layerNodeGui.vecOutputPort.back())) {
+            ImGui::SameLine();
+        }
+    }
+    ax::NodeEditor::EndNode();
+}
+
+LayerNodeGui createLayerNode(LayerNode layerNodeXml) {
     ax::NodeEditor::NodeId nodeId = uniqueId++;
 
-    ax::NodeEditor::BeginNode(nodeId);
-    ImGui::Text("Node A");
-    ax::NodeEditor::BeginPin(uniqueId++, ax::NodeEditor::PinKind::Input);
-    ImGui::Text("-> In");
-    ax::NodeEditor::EndPin();
-    ImGui::SameLine();
-    ax::NodeEditor::BeginPin(uniqueId++, ax::NodeEditor::PinKind::Output);
-    ImGui::Text("Out ->");
-    ax::NodeEditor::EndPin();
-    ax::NodeEditor::EndNode();
+    std::vector<LayerPortGui> vecInputPort;
+    for (auto& layerPort : layerNodeXml.vecInputPort) {
+        ax::NodeEditor::PinId pinId = uniqueId++;
+        vecInputPort.emplace_back(pinId, &layerPort);
+    }
+
+    std::vector<LayerPortGui> vecOutputPort;
+    for (auto& layerPort : layerNodeXml.vecOutputPort) {
+        ax::NodeEditor::PinId pinId = uniqueId++;
+        vecOutputPort.emplace_back(pinId, &layerPort);
+    }
+
+    LayerNodeGui layerNodeGui(nodeId, layerNodeXml, vecInputPort, vecOutputPort);
+    drawLayerNode(layerNodeGui);
 
     auto nodeSize = ax::NodeEditor::GetNodeSize(nodeId);
     auto nodePosition = ax::NodeEditor::GetNodePosition(nodeId);
 
-    return LayerNodeGui();
+    layerNodeGui.size = nodeSize;
+    layerNodeGui.pos = nodePosition;
+
+    return layerNodeGui;
 }
