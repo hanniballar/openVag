@@ -4,8 +4,8 @@ set(Sources
 	main.cpp
 	OpenVag.h
 	OpenVag.cpp
-	CreateLayerNodeGui.cpp
-	CreateLayerNodeGui.h
+	createLayerNodeGui.cpp
+	createLayerNodeGui.h
 	IRModelGui.h
 )
 
