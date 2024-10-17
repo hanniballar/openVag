@@ -14,8 +14,9 @@ void drawLayerNode(LayerNodeGui layerNodeGui) {
         }
     }
 
-    ImGui::Text(layerNodeGui.layerNode.name.c_str());
-    ImGui::Text(layerNodeGui.layerNode.type.c_str());
+    ImGui::Text((std::string("Name: ") + layerNodeGui.layerNode.name).c_str());
+    ImGui::Text((std::string("ID: ") + layerNodeGui.layerNode.layerID).c_str());
+    ImGui::Text((std::string("Type: ") + layerNodeGui.layerNode.type).c_str());
 
     for (const auto& outputPort : layerNodeGui.vecOutputPort) {
         ax::NodeEditor::BeginPin(outputPort->pinId_gui, ax::NodeEditor::PinKind::Input);
