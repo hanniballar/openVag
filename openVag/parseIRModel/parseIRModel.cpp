@@ -66,10 +66,20 @@ LayerNode parseLayer(XMLElement* layer) {
 
     LayerNode layerNode(layerID, name, type);
     auto inputs = layer->FirstChildElement("input");
-    layerNode.vecInputPort = parseLayerPorts(inputs);
+    {
+        auto ports = parseLayerPorts(inputs);
+        for (auto port : ports) {
+            layerNode.vecInputPort.emplace_back(std::make_shared<LayerPort>(port));
+        }
+    }
 
     auto outputs = layer->FirstChildElement("output");
-    layerNode.vecOutputPort = parseLayerPorts(outputs);
+    {
+        auto ports = parseLayerPorts(outputs);
+        for (auto port : ports) {
+            layerNode.vecOutputPort.emplace_back(std::make_shared<LayerPort>(port));
+        }
+    }
     return layerNode;
 }
 

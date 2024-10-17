@@ -5,9 +5,11 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <memory>
 
 class LayerPort {
 public:
+	LayerPort(const LayerPort& obj) : portID(obj.portID) {}
 	LayerPort(const std::string& portID) : portID(portID) {}
 	std::string portID;
 };
@@ -19,8 +21,8 @@ public:
 	std::string layerID;
 	std::string name;
 	std::string type;
-	std::vector<LayerPort> vecInputPort;
-	std::vector<LayerPort> vecOutputPort;
+	std::vector< std::shared_ptr<LayerPort>> vecInputPort;
+	std::vector< std::shared_ptr<LayerPort>> vecOutputPort;
 };
 
 struct Edge {
