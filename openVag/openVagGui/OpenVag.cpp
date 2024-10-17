@@ -9,7 +9,7 @@
 #include "imgui_node_editor.h"
 
 #include "parseIRModel.h"
-#include "CreateLayerNodeGui.h"
+#include "createLayerNodeGui.h"
 #include "IRModelGui.h"
 
 #ifdef _DEBUG
