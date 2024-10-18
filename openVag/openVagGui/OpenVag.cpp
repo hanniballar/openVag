@@ -418,6 +418,7 @@ bool OpenVag::Run()
                 for (auto layerNodeGui : irModelGui.vecLayerNodeGui) {
                     drawLayerNode(layerNodeGui);
                 }
+                drawModelEdges(irModelGui.vecLayerNodeGui);
             }
             ax::NodeEditor::End();
             ax::NodeEditor::SetCurrentEditor(nullptr);

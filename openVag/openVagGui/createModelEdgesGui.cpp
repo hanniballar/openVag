@@ -3,12 +3,18 @@
 #include <map>
 #include <iostream>
 #include <memory>
+#include <set>
 
 #include "IRXmlRep.h"
 #include "OpenVag.h"
 
 void drawModelEdges(std::vector<LayerNodeGui>& vecLayerNodeGui) {
-
+    for (auto& layerNodeGui : vecLayerNodeGui) {
+        for (auto& portGui : layerNodeGui.vecOutputPort) {
+            for (auto& edge : portGui->vecEdgeGui)
+                ax::NodeEditor::Link(edge->linkId, edge->outputPort->pinId_gui, edge->inputPort->pinId_gui);
+        }
+    }
 }
 
 bool createModelEdgesGui(std::vector<LayerNodeGui>& vecLayerNodeGui, const std::vector<Edge> vecEdge) {
@@ -61,25 +67,25 @@ bool createModelEdgesGui(std::vector<LayerNodeGui>& vecLayerNodeGui, const std::
         }
     }
 
-    //std::map<Port, Port> mapOutputPortToInputPort;
+    std::set<Edge> setEdge;
     for (auto& edge : vecEdge) {
+        if (setEdge.count(edge)) {
+            std::cerr << "Error: Duplicated edge: " << edge.toString() << std::endl;
+            continue;
+        }
+        else {
+            setEdge.insert(edge);
+        }
         Port outputPort(edge.from_layer, edge.from_port);
         Port inputPort(edge.to_layer, edge.to_port);
-        //if (mapOutputPortToInputPort.count(outputPort)) {
-        //    std::cerr << "Error: Edge from: " << outputPort.toString() << " to " << inputPort.toString() << " already exists" << std::endl;
-        //    continue;
-        //}
-        //else {
-        //    mapOutputPortToInputPort[outputPort] = inputPort;
-        //}
+
         auto inputLayerPort = mapInputPorttoLayerPort[inputPort];
         auto outputLayerPort = mapOutputPorttoLayerPort[outputPort];
         ax::NodeEditor::LinkId linkID = GetNextId();
         std::shared_ptr<EdgeGui> edgeGui = std::make_shared<EdgeGui>(linkID, outputLayerPort, inputLayerPort);
 
-
-        //inputLayerPort->vecEdge.push_back(edgeGui);
-        //outputLayerPort->vecEdge.push_back(edgeGui);
+        inputLayerPort->vecEdgeGui.push_back(edgeGui);
+        outputLayerPort->vecEdgeGui.push_back(edgeGui);
     }
 
     return true;
