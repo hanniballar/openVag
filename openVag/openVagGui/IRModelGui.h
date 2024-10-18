@@ -7,11 +7,15 @@
 
 #include "IRXmlRep.h"
 
-class LayerPortGuiA {
+class LayerNodeGui;
+class LayerPortGui;
+
+class EdgeGui {
 public:
-	LayerPortGuiA(ax::NodeEditor::PinId pinId_gui, std::weak_ptr<LayerPort> layerPort) : pinId_gui(pinId_gui), layerPort(layerPort) {};
-	ax::NodeEditor::PinId pinId_gui;
-	std::weak_ptr<LayerPort> layerPort;
+	EdgeGui(ax::NodeEditor::LinkId linkId, std::shared_ptr<LayerPortGui> outputPort, std::shared_ptr<LayerPortGui> inputPort) : linkId(linkId), outputPort(outputPort), inputPort(inputPort) {}
+	ax::NodeEditor::LinkId linkId;
+	std::shared_ptr<LayerPortGui> outputPort;
+	std::shared_ptr<LayerPortGui> inputPort;
 };
 
 class LayerPortGui {
@@ -20,6 +24,7 @@ public:
 	LayerPortGui(ax::NodeEditor::PinId pinId_gui, std::weak_ptr<LayerPort> layerPort) : pinId_gui(pinId_gui), layerPort(layerPort) {};
 	ax::NodeEditor::PinId pinId_gui;
 	std::weak_ptr<LayerPort> layerPort;
+	std::vector<std::shared_ptr<EdgeGui>> vecEdge;
 };
 
 class LayerNodeGui {

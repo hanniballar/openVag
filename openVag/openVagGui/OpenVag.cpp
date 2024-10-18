@@ -9,8 +9,9 @@
 #include "imgui_node_editor.h"
 
 #include "parseIRModel.h"
-#include "createLayerNodeGui.h"
 #include "IRModelGui.h"
+#include "createLayerNodeGui.h"
+#include "createModelEdgesGui.h"
 
 #ifdef _DEBUG
 #define DX12_ENABLE_DEBUG_LAYER
@@ -64,8 +65,9 @@ static ax::NodeEditor::EditorContext* m_Context = nullptr;
 
 static IRModelGui irModelGui;
 IRXmlRep irXmlRep; //ToDo please remove it from here
+static int64_t uniqueId = 1;
 
-
+int64_t GetNextId() { return uniqueId++; }
 // Helper functions
 bool CreateDeviceD3D(HWND hWnd)
 {
@@ -409,6 +411,7 @@ bool OpenVag::Run()
                 for (auto layerNode : irXmlRep.vecLayerNode) {
                     irModelGui.vecLayerNodeGui.push_back(createLayerNode(layerNode));
                 }
+                createModelEdgesGui(irModelGui.vecLayerNodeGui, irXmlRep.vecEdge);
                 firstFrame = false;
             }
             else {

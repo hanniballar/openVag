@@ -7,6 +7,8 @@ set(Sources
 	createLayerNodeGui.cpp
 	createLayerNodeGui.h
 	IRModelGui.h
+	createModelEdgesGui.cpp
+	createModelEdgesGui.h
 )
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${Sources})
