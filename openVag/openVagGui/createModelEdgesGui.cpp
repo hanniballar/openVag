@@ -37,8 +37,8 @@ bool createModelEdgesGui(std::vector<LayerNodeGui>& vecLayerNodeGui, const std::
 
     };
     std::map<std::string, LayerNodeGui*> mapXMLLayerIDtoGuiLayer;
-    std::map<Port, std::shared_ptr<LayerPortGui>> mapInputPorttoLayerPort;
-    std::map<Port, std::shared_ptr<LayerPortGui>> mapOutputPorttoLayerPort;
+    std::map<Port, std::shared_ptr<LayerInputPortGui>> mapInputPorttoLayerPort;
+    std::map<Port, std::shared_ptr<LayerOutputPortGui>> mapOutputPorttoLayerPort;
 
     for (auto& layerNodeGui : vecLayerNodeGui) {
         if (mapXMLLayerIDtoGuiLayer.count(layerNodeGui.layerNode.layerID)) {
@@ -84,7 +84,6 @@ bool createModelEdgesGui(std::vector<LayerNodeGui>& vecLayerNodeGui, const std::
         ax::NodeEditor::LinkId linkID = GetNextId();
         std::shared_ptr<EdgeGui> edgeGui = std::make_shared<EdgeGui>(linkID, outputLayerPort, inputLayerPort);
 
-        inputLayerPort->vecEdgeGui.push_back(edgeGui);
         outputLayerPort->vecEdgeGui.push_back(edgeGui);
     }
 
