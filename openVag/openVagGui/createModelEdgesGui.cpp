@@ -47,7 +47,7 @@ bool createModelEdgesGui(std::vector<LayerNodeGui>& vecLayerNodeGui, const std::
         else {
             mapXMLLayerIDtoGuiLayer[layerNodeGui.layerNode.layerID] = &layerNodeGui;
             for (auto& layerPort : layerNodeGui.vecInputPort) {
-                Port port(layerNodeGui.layerNode.layerID, layerPort->layerPort.lock()->portID);
+                Port port(layerNodeGui.layerNode.layerID, layerPort->layerPort->portID);
                 if (mapInputPorttoLayerPort.count(port)) {
                     std::cerr << "Duplicate port: " << layerNodeGui.layerNode.layerID << std::endl;
                 }
@@ -56,7 +56,7 @@ bool createModelEdgesGui(std::vector<LayerNodeGui>& vecLayerNodeGui, const std::
                 }
             }
             for (auto& layerPort : layerNodeGui.vecOutputPort) {
-                Port port(layerNodeGui.layerNode.layerID, layerPort->layerPort.lock()->portID);
+                Port port(layerNodeGui.layerNode.layerID, layerPort->layerPort->portID);
                 if (mapOutputPorttoLayerPort.count(port)) {
                     std::cerr << "Duplicate port: " << layerNodeGui.layerNode.layerID << std::endl;
                 }

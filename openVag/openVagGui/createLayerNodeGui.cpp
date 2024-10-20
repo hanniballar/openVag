@@ -7,7 +7,7 @@ void drawLayerNode(LayerNodeGui layerNodeGui) {
     ax::NodeEditor::BeginNode(layerNodeGui.id_gui);
     for (const auto& inputPort : layerNodeGui.vecInputPort) {
         ax::NodeEditor::BeginPin(inputPort->pinId_gui, ax::NodeEditor::PinKind::Input);
-            ImGui::Text(inputPort->layerPort.lock()->portID.c_str());
+            ImGui::Text(inputPort->layerPort->portID.c_str());
         ax::NodeEditor::EndPin();
         if (&inputPort != &(layerNodeGui.vecInputPort.back())) {
             ImGui::SameLine();
@@ -20,7 +20,7 @@ void drawLayerNode(LayerNodeGui layerNodeGui) {
 
     for (const auto& outputPort : layerNodeGui.vecOutputPort) {
         ax::NodeEditor::BeginPin(outputPort->pinId_gui, ax::NodeEditor::PinKind::Input);
-        ImGui::Text(outputPort->layerPort.lock()->portID.c_str());
+        ImGui::Text(outputPort->layerPort->portID.c_str());
         ax::NodeEditor::EndPin();
         if (&outputPort != &(layerNodeGui.vecOutputPort.back())) {
             ImGui::SameLine();

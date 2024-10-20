@@ -20,8 +20,8 @@ public:
 	std::string layerID;
 	std::string name;
 	std::string type;
-	std::vector< std::shared_ptr<LayerPort>> vecInputPort;
-	std::vector< std::shared_ptr<LayerPort>> vecOutputPort;
+	std::vector<std::shared_ptr<LayerPort>> vecInputPort;
+	std::vector<std::shared_ptr<LayerPort>> vecOutputPort;
 };
 
 class Edge {

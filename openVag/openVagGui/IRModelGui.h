@@ -21,9 +21,9 @@ public:
 class LayerPortGui {
 public:
 	LayerPortGui(ax::NodeEditor::PinId pinId_gui) : pinId_gui(pinId_gui) {};
-	LayerPortGui(ax::NodeEditor::PinId pinId_gui, std::weak_ptr<LayerPort> layerPort) : pinId_gui(pinId_gui), layerPort(layerPort) {};
+	LayerPortGui(ax::NodeEditor::PinId pinId_gui, std::shared_ptr<LayerPort> layerPort) : pinId_gui(pinId_gui), layerPort(layerPort) {};
 	ax::NodeEditor::PinId pinId_gui;
-	std::weak_ptr<LayerPort> layerPort;
+	std::shared_ptr<LayerPort> layerPort;
 	std::vector<std::shared_ptr<EdgeGui>> vecEdgeGui;
 };
 
