@@ -32,16 +32,16 @@ void drawLayerNode(LayerNodeGui layerNodeGui) {
 LayerNodeGui createLayerNode(LayerNode layerNodeXml) {
     ax::NodeEditor::NodeId nodeId = GetNextId();
 
-    std::vector<std::shared_ptr<LayerPortGui>> vecInputPort;
+    std::vector<std::shared_ptr<LayerInputPortGui>> vecInputPort;
     for (auto layerPort : layerNodeXml.vecInputPort) {
         ax::NodeEditor::PinId pinId = GetNextId();
-        vecInputPort.emplace_back(std::make_shared<LayerPortGui>(pinId, layerPort));
+        vecInputPort.emplace_back(std::make_shared<LayerInputPortGui>(pinId, layerPort));
     }
 
-    std::vector<std::shared_ptr<LayerPortGui>> vecOutputPort;
+    std::vector<std::shared_ptr<LayerOutputPortGui>> vecOutputPort;
     for (auto& layerPort : layerNodeXml.vecOutputPort) {
         ax::NodeEditor::PinId pinId = GetNextId();
-        vecOutputPort.emplace_back(std::make_shared<LayerPortGui>(pinId, layerPort));
+        vecOutputPort.emplace_back(std::make_shared<LayerOutputPortGui>(pinId, layerPort));
     }
 
     LayerNodeGui layerNodeGui(nodeId, layerNodeXml, vecInputPort, vecOutputPort);
