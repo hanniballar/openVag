@@ -5,7 +5,7 @@
 #include <vector>
 #include <memory>
 
-#include "IRXmlRep.h"
+#include "tinyxml2.h"
 
 class LayerNodeGui;
 class LayerPortGui;
@@ -21,39 +21,43 @@ public:
 class LayerPortGui {
 public:
 	LayerPortGui(ax::NodeEditor::PinId pinId_gui) : pinId_gui(pinId_gui) {};
-	LayerPortGui(ax::NodeEditor::PinId pinId_gui, std::shared_ptr<LayerPort> layerPort) : pinId_gui(pinId_gui), layerPort(layerPort) {};
+	LayerPortGui(ax::NodeEditor::PinId pinId_gui, tinyxml2::XMLElement* xmlPort) : pinId_gui(pinId_gui), xmlPort(xmlPort) {};
 	ax::NodeEditor::PinId pinId_gui;
-	std::shared_ptr<LayerPort> layerPort;
+	tinyxml2::XMLElement * xmlPort;
 };
 
 class LayerInputPortGui : public LayerPortGui {
 public:
 	LayerInputPortGui(ax::NodeEditor::PinId pinId_gui) : LayerPortGui(pinId_gui) {};
-	LayerInputPortGui(ax::NodeEditor::PinId pinId_gui, std::shared_ptr<LayerPort> layerPort) : LayerPortGui(pinId_gui, layerPort) {};
+	LayerInputPortGui(ax::NodeEditor::PinId pinId_gui, tinyxml2::XMLElement* port) : LayerPortGui(pinId_gui, xmlPort) {};
 };
 
 class LayerOutputPortGui : public LayerPortGui {
 public:
 	LayerOutputPortGui(ax::NodeEditor::PinId pinId_gui) : LayerPortGui(pinId_gui) {};
-	LayerOutputPortGui(ax::NodeEditor::PinId pinId_gui, std::shared_ptr<LayerPort> layerPort) : LayerPortGui(pinId_gui, layerPort) {};
+	LayerOutputPortGui(ax::NodeEditor::PinId pinId_gui, tinyxml2::XMLElement* port) : LayerPortGui(pinId_gui, xmlPort) {};
 	std::vector<std::shared_ptr<EdgeGui>> vecEdgeGui;
 };
 
 
 class LayerNodeGui {
 public:
-	LayerNodeGui(ax::NodeEditor::NodeId id_gui, LayerNode layerNode) : id_gui(id_gui), layerNode(layerNode) {}
-	LayerNodeGui(ax::NodeEditor::NodeId id_gui, LayerNode layerNode, ImVec2 size, ImVec2 pos) : id_gui(id_gui), layerNode(layerNode), size(size), pos(pos) {}
-	LayerNodeGui(ax::NodeEditor::NodeId id_gui, LayerNode layerNode, std::vector<std::shared_ptr<LayerInputPortGui>> vecInputPort, std::vector<std::shared_ptr<LayerOutputPortGui>> vecOutputPort) : id_gui(id_gui), layerNode(layerNode), vecInputPort(vecInputPort), vecOutputPort(vecOutputPort) {}
+	LayerNodeGui(ax::NodeEditor::NodeId id_gui) : id_gui(id_gui) {} //Todo remove
+	LayerNodeGui(ax::NodeEditor::NodeId id_gui, tinyxml2::XMLElement* xmlLayer) : id_gui(id_gui), xmlLayer(xmlLayer) {}
+	LayerNodeGui(ax::NodeEditor::NodeId id_gui, tinyxml2::XMLElement* xmlLayer, std::vector<std::shared_ptr<LayerInputPortGui>> vecInputPort, std::vector<std::shared_ptr<LayerOutputPortGui>> vecOutputPort) :
+		id_gui(id_gui), xmlLayer(xmlLayer), vecInputPort(vecInputPort), vecOutputPort(vecOutputPort) {}
 	ax::NodeEditor::NodeId id_gui;
-	ImVec2 size;
-	ImVec2 pos;
+	const char* getXmlId() const { const auto id = xmlLayer->Attribute("id"); return id ? id : ""; }
+	const char* getName() const { const auto name = xmlLayer->Attribute("name"); return name ? name : ""; }
+	const char* getType() const { const auto type = xmlLayer->Attribute("type"); return type ? type : ""; }
+ 	ImVec2 getSize();
+	ImVec2 getPos();
 	std::vector<std::shared_ptr<LayerInputPortGui>> vecInputPort;
 	std::vector<std::shared_ptr<LayerOutputPortGui>> vecOutputPort;
-	LayerNode layerNode;
+	tinyxml2::XMLElement* xmlLayer;
 };
 
 class IRModelGui {
 public:
-	std::vector<LayerNodeGui> vecLayerNodeGui;
+	std::vector<std::shared_ptr<LayerNodeGui>> vecLayerNodeGui;
 };

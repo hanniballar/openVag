@@ -1,2 +1,1 @@
 add_subdirectory(openVagGui)
-add_subdirectory(parseIRModel)

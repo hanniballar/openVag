@@ -1,5 +1,7 @@
 project(openVagGUI)
 
+find_package(tinyxml2 REQUIRED)
+
 set(Sources
 	main.cpp
 	OpenVag.h
@@ -7,8 +9,11 @@ set(Sources
 	createLayerNodeGui.cpp
 	createLayerNodeGui.h
 	IRModelGui.h
+	IRModelGui.cpp
 	createModelEdgesGui.cpp
 	createModelEdgesGui.h
+	parseIRModel.cpp
+	parseIRModel.h
 )
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${Sources})
@@ -20,4 +25,4 @@ find_package(imgui_node_editor REQUIRED)
 
 target_link_libraries(openVagGUI PRIVATE imgui imgui_node_editor)
 target_link_libraries(openVagGUI PRIVATE d3d12.lib d3dcompiler.lib dxgi.lib)
-target_link_libraries(openVagGUI PRIVATE parseIRModel)
+target_link_libraries(openVagGUI PRIVATE tinyxml2)

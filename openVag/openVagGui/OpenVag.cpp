@@ -64,7 +64,6 @@ static WNDCLASSEXW wc;
 static ax::NodeEditor::EditorContext* m_Context = nullptr;
 
 static IRModelGui irModelGui;
-IRXmlRep irXmlRep; //ToDo please remove it from here
 static int64_t uniqueId = 1;
 
 int64_t GetNextId() { return uniqueId++; }
@@ -407,18 +406,18 @@ bool OpenVag::Run()
             int uniqueId = 1;
             // Start drawing nodes.
             if (firstFrame) {
-                irXmlRep = parseIRModel("D:/work/openVag/test/example.xml");
-                for (auto layerNode : irXmlRep.vecLayerNode) {
-                    irModelGui.vecLayerNodeGui.push_back(createLayerNode(layerNode));
-                }
-                createModelEdgesGui(irModelGui.vecLayerNodeGui, irXmlRep.vecEdge);
+                auto irXmlRep = parseIRModel("D:/work/openVag/test/example.xml");
+                //for (auto layerNode : irXmlRep.vecLayerNode) {
+                //    irModelGui.vecLayerNodeGui.push_back(createLayerNode(layerNode));
+                //}
+                //createModelEdgesGui(irModelGui.vecLayerNodeGui, irXmlRep.vecEdge);
                 firstFrame = false;
             }
             else {
-                for (auto layerNodeGui : irModelGui.vecLayerNodeGui) {
-                    drawLayerNode(layerNodeGui);
-                }
-                drawModelEdges(irModelGui.vecLayerNodeGui);
+                //for (auto layerNodeGui : irModelGui.vecLayerNodeGui) {
+                //    drawLayerNode(layerNodeGui);
+                //}
+                //drawModelEdges(irModelGui.vecLayerNodeGui);
             }
             ax::NodeEditor::End();
             ax::NodeEditor::SetCurrentEditor(nullptr);
