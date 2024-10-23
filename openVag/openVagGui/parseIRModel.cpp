@@ -6,12 +6,12 @@
 #include <string>
 #include <cassert>
 #include <memory>
+#include <map>
+#include <set>
 
 #include "IRModelGui.h"
 #include "tinyxml2.h"
 #include "OpenVag.h"
-
-
 
 using namespace tinyxml2;
 
@@ -62,7 +62,8 @@ std::shared_ptr<LayerPortGuiType> parsePort(XMLElement* port) {
         throw ParseIRModelException(msg.c_str());
     }
 
-    return std::make_shared<LayerPortGuiType>(portID);
+    ax::NodeEditor::PinId id_gui = GetNextId();
+    return std::make_shared<LayerPortGuiType>(id_gui, port);
 }
 
 template <class LayerPortGuiType>
@@ -74,7 +75,7 @@ std::vector<std::shared_ptr<LayerPortGuiType>> parseLayerPorts(XMLElement* ports
     std::vector<std::shared_ptr<LayerPortGuiType>> vecLayerPort;
     XMLElement* port = ports->FirstChildElement("port");
     while (port != nullptr) {
-        vecLayerPort.push_back(parsePort(port));
+        vecLayerPort.push_back(parsePort<LayerPortGuiType>(port));
         port = port->NextSiblingElement();
     }
 
@@ -178,7 +179,7 @@ IRModelGui parseNet(XMLElement* net) {
     XMLElement* layers = net->FirstChildElement("layers");
     irModelGui.vecLayerNodeGui = parseLayers(layers);
     XMLElement* edges = net->FirstChildElement("edges");
-    irModelGui.vecEdge = parseEdges(edges);
+    auto vecEdge = parseEdges(edges);
 
     return irModelGui;
 }
@@ -204,6 +205,78 @@ IRModelGui parseIRModel(const char* xmlContent, size_t nBytes) {
     return parseNet(net);
 }
 
+bool createModelEdgesGui(std::vector<LayerNodeGui>& vecLayerNodeGui, const std::vector<Edge> vecEdge) {
+    struct Port {
+        Port(std::string layerID, std::string portID) : layerID(layerID), portID(portID) {}
+
+        std::string layerID;
+        std::string portID;
+
+        bool operator<(const Port& other) const {
+            if (this->layerID != other.layerID) return this->layerID < other.layerID;
+            if (this->portID != other.portID) return this->portID < other.portID;
+
+            return false;
+        }
+
+        std::string toString() {
+            return this->layerID + ", " + this->portID;
+        }
+    };
+    std::map<std::string, LayerNodeGui*> mapXMLLayerIDtoGuiLayer;
+    std::map<Port, std::shared_ptr<LayerInputPortGui>> mapInputPorttoLayerPort;
+    std::map<Port, std::shared_ptr<LayerOutputPortGui>> mapOutputPorttoLayerPort;
+
+    for (auto& layerNodeGui : vecLayerNodeGui) {
+        if (mapXMLLayerIDtoGuiLayer.count(layerNodeGui.getXmlId())) {
+            std::cerr << "Duplicate layer id " << layerNodeGui.getXmlId() << std::endl;
+        }
+        else {
+            mapXMLLayerIDtoGuiLayer[layerNodeGui.getXmlId()] = &layerNodeGui;
+            for (auto& layerPort : layerNodeGui.vecInputPort) {
+                Port port(layerNodeGui.getXmlId(), layerPort->getXmlId());
+                if (mapInputPorttoLayerPort.count(port)) {
+                    std::cerr << "Duplicate port: " << layerNodeGui.getXmlId() << std::endl;
+                }
+                else {
+                    mapInputPorttoLayerPort[port] = layerPort;
+                }
+            }
+            for (auto& layerPort : layerNodeGui.vecOutputPort) {
+                Port port(layerNodeGui.getXmlId(), layerPort->getXmlId());
+                if (mapOutputPorttoLayerPort.count(port)) {
+                    std::cerr << "Duplicate port: " << layerNodeGui.getXmlId() << std::endl;
+                }
+                else {
+                    mapOutputPorttoLayerPort[port] = layerPort;
+                }
+            }
+        }
+    }
+
+    std::set<Edge> setEdge;
+    for (auto& edge : vecEdge) {
+        if (setEdge.count(edge)) {
+            std::cerr << "Error: Duplicated edge: " << edge.toString() << std::endl;
+            continue;
+        }
+        else {
+            setEdge.insert(edge);
+        }
+        Port outputPort(edge.from_layer, edge.from_port);
+        Port inputPort(edge.to_layer, edge.to_port);
+
+        auto inputLayerPort = mapInputPorttoLayerPort[inputPort];
+        auto outputLayerPort = mapOutputPorttoLayerPort[outputPort];
+        ax::NodeEditor::LinkId linkID = GetNextId();
+        std::shared_ptr<EdgeGui> edgeGui = std::make_shared<EdgeGui>(linkID, outputLayerPort, inputLayerPort);
+
+        outputLayerPort->vecEdgeGui.push_back(edgeGui);
+    }
+
+    return true;
+
+}
 IRModelGui parseIRModel(const std::string& fileName) {
     std::ifstream file(fileName);
     if (!file) {

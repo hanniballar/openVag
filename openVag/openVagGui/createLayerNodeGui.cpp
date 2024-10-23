@@ -48,5 +48,5 @@ LayerNodeGui createLayerNode(LayerNodeGui layerNodeXml) {
     //drawLayerNode(layerNodeGui);
 
     //return layerNodeGui;
-    return LayerNodeGui(1);
+    return LayerNodeGui(1, nullptr);
 }
