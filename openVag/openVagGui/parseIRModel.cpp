@@ -174,38 +174,7 @@ std::vector<Edge> parseEdges(XMLElement* edges) {
     return vecEdgeRaw;
 }
 
-IRModelGui parseNet(XMLElement* net) {
-    IRModelGui irModelGui;
-    XMLElement* layers = net->FirstChildElement("layers");
-    irModelGui.vecLayerNodeGui = parseLayers(layers);
-    XMLElement* edges = net->FirstChildElement("edges");
-    auto vecEdge = parseEdges(edges);
-
-    return irModelGui;
-}
-
-IRModelGui parseIRModel(const char* xmlContent, size_t nBytes) {
-    XMLDocument doc;
-    if (doc.Parse(xmlContent) != XML_SUCCESS) {
-        std::cerr << "Failed to parse XML" << std::endl;
-        return {};
-    }
-
-    XMLElement* net = doc.RootElement();
-    if (net == nullptr) {
-        std::cerr << "No root element" << std::endl;
-        return {};
-    }
-
-    if (std::string(net->Value()) != "net") {
-        std::cerr << "IR should start with net element" << std::endl;
-        return {};
-    }
-
-    return parseNet(net);
-}
-
-bool createModelEdgesGui(std::vector<LayerNodeGui>& vecLayerNodeGui, const std::vector<Edge> vecEdge) {
+bool processEdges(std::vector<std::shared_ptr<LayerNodeGui>>& vecLayerNodeGui, const std::vector<Edge> vecEdge) {
     struct Port {
         Port(std::string layerID, std::string portID) : layerID(layerID), portID(portID) {}
 
@@ -223,29 +192,29 @@ bool createModelEdgesGui(std::vector<LayerNodeGui>& vecLayerNodeGui, const std::
             return this->layerID + ", " + this->portID;
         }
     };
-    std::map<std::string, LayerNodeGui*> mapXMLLayerIDtoGuiLayer;
+    std::map<std::string, std::shared_ptr<LayerNodeGui>> mapXMLLayerIDtoGuiLayer;
     std::map<Port, std::shared_ptr<LayerInputPortGui>> mapInputPorttoLayerPort;
     std::map<Port, std::shared_ptr<LayerOutputPortGui>> mapOutputPorttoLayerPort;
 
     for (auto& layerNodeGui : vecLayerNodeGui) {
-        if (mapXMLLayerIDtoGuiLayer.count(layerNodeGui.getXmlId())) {
-            std::cerr << "Duplicate layer id " << layerNodeGui.getXmlId() << std::endl;
+        if (mapXMLLayerIDtoGuiLayer.count(layerNodeGui->getXmlId())) {
+            std::cerr << "Duplicate layer id " << layerNodeGui->getXmlId() << std::endl;
         }
         else {
-            mapXMLLayerIDtoGuiLayer[layerNodeGui.getXmlId()] = &layerNodeGui;
-            for (auto& layerPort : layerNodeGui.vecInputPort) {
-                Port port(layerNodeGui.getXmlId(), layerPort->getXmlId());
+            mapXMLLayerIDtoGuiLayer[layerNodeGui->getXmlId()] = layerNodeGui;
+            for (auto& layerPort : layerNodeGui->vecInputPort) {
+                Port port(layerNodeGui->getXmlId(), layerPort->getXmlId());
                 if (mapInputPorttoLayerPort.count(port)) {
-                    std::cerr << "Duplicate port: " << layerNodeGui.getXmlId() << std::endl;
+                    std::cerr << "Duplicate port: " << layerNodeGui->getXmlId() << std::endl;
                 }
                 else {
                     mapInputPorttoLayerPort[port] = layerPort;
                 }
             }
-            for (auto& layerPort : layerNodeGui.vecOutputPort) {
-                Port port(layerNodeGui.getXmlId(), layerPort->getXmlId());
+            for (auto& layerPort : layerNodeGui->vecOutputPort) {
+                Port port(layerNodeGui->getXmlId(), layerPort->getXmlId());
                 if (mapOutputPorttoLayerPort.count(port)) {
-                    std::cerr << "Duplicate port: " << layerNodeGui.getXmlId() << std::endl;
+                    std::cerr << "Duplicate port: " << layerNodeGui->getXmlId() << std::endl;
                 }
                 else {
                     mapOutputPorttoLayerPort[port] = layerPort;
@@ -275,8 +244,38 @@ bool createModelEdgesGui(std::vector<LayerNodeGui>& vecLayerNodeGui, const std::
     }
 
     return true;
-
 }
+
+IRModelGui parseNet(XMLElement* net) {
+    IRModelGui irModelGui;
+    XMLElement* layers = net->FirstChildElement("layers");
+    irModelGui.vecLayerNodeGui = parseLayers(layers);
+    XMLElement* edges = net->FirstChildElement("edges");
+    processEdges(irModelGui.vecLayerNodeGui, parseEdges(edges));
+    return irModelGui;
+}
+
+IRModelGui parseIRModel(const char* xmlContent, size_t nBytes) {
+    XMLDocument doc;
+    if (doc.Parse(xmlContent) != XML_SUCCESS) {
+        std::cerr << "Failed to parse XML" << std::endl;
+        return {};
+    }
+
+    XMLElement* net = doc.RootElement();
+    if (net == nullptr) {
+        std::cerr << "No root element" << std::endl;
+        return {};
+    }
+
+    if (std::string(net->Value()) != "net") {
+        std::cerr << "IR should start with net element" << std::endl;
+        return {};
+    }
+
+    return parseNet(net);
+}
+
 IRModelGui parseIRModel(const std::string& fileName) {
     std::ifstream file(fileName);
     if (!file) {

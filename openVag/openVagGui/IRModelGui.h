@@ -7,20 +7,11 @@
 
 #include "tinyxml2.h"
 
-class LayerNodeGui;
-class LayerPortGui;
-
-class EdgeGui {
-public:
-	EdgeGui(ax::NodeEditor::LinkId linkId, std::shared_ptr<LayerPortGui> outputPort, std::shared_ptr<LayerPortGui> inputPort) : linkId(linkId), outputPort(outputPort), inputPort(inputPort) {}
-	ax::NodeEditor::LinkId linkId;
-	std::shared_ptr<LayerPortGui> outputPort;
-	std::shared_ptr<LayerPortGui> inputPort;
-};
+class EdgeGui;
 
 class LayerPortGui {
 public:
-	LayerPortGui(ax::NodeEditor::PinId pinId_gui, tinyxml2::XMLElement* xmlPort) : pinId_gui(pinId_gui), xmlPort(xmlPort) {};
+	LayerPortGui(ax::NodeEditor::PinId pinId_gui, tinyxml2::XMLElement* xmlPort) : pinId_gui(pinId_gui), xmlPort(xmlPort) {}
 
 	const char* getXmlId() const { const auto id = xmlPort->Attribute("id"); return id ? id : ""; }
 	ax::NodeEditor::PinId pinId_gui;
@@ -29,15 +20,22 @@ public:
 
 class LayerInputPortGui : public LayerPortGui {
 public:
-	LayerInputPortGui(ax::NodeEditor::PinId pinId_gui, tinyxml2::XMLElement* port) : LayerPortGui(pinId_gui, xmlPort) {};
+	LayerInputPortGui(ax::NodeEditor::PinId pinId_gui, tinyxml2::XMLElement* xmlPort) : LayerPortGui(pinId_gui, xmlPort) {}
 };
 
 class LayerOutputPortGui : public LayerPortGui {
 public:
-	LayerOutputPortGui(ax::NodeEditor::PinId pinId_gui, tinyxml2::XMLElement* port) : LayerPortGui(pinId_gui, xmlPort) {};
+	LayerOutputPortGui(ax::NodeEditor::PinId pinId_gui, tinyxml2::XMLElement* xmlPort) : LayerPortGui(pinId_gui, xmlPort) {}
 	std::vector<std::shared_ptr<EdgeGui>> vecEdgeGui;
 };
 
+class EdgeGui {
+public:
+	EdgeGui(ax::NodeEditor::LinkId linkId, std::shared_ptr<LayerOutputPortGui> outputPort, std::shared_ptr<LayerInputPortGui> inputPort) : linkId(linkId), outputPort(outputPort), inputPort(inputPort) {}
+	ax::NodeEditor::LinkId linkId;
+	std::shared_ptr<LayerOutputPortGui> outputPort;
+	std::shared_ptr<LayerInputPortGui> inputPort;
+};
 
 class LayerNodeGui {
 public:
