@@ -103,11 +103,13 @@ std::shared_ptr<LayerNodeGui> parseLayer(XMLElement* layer) {
     auto inputs = layer->FirstChildElement("input");
     {
         layerNodeGui->vecInputPort = parseLayerPorts<LayerInputPortGui>(inputs);
+        for (auto& port : layerNodeGui->vecInputPort) { port->parent = layerNodeGui; }
     }
 
     auto outputs = layer->FirstChildElement("output");
     {
         layerNodeGui->vecOutputPort = parseLayerPorts<LayerOutputPortGui>(outputs);
+        for (auto& port : layerNodeGui->vecOutputPort) { port->parent = layerNodeGui; }
     }
     return layerNodeGui;
 }

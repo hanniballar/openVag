@@ -1,4 +1,4 @@
-#include "createLayerNodeGui.h"
+#include "drawLayerNode.h"
 #include <memory>
 
 #include "OpenVag.h"
@@ -27,26 +27,4 @@ void drawLayerNode(LayerNodeGui layerNodeGui) {
     //    }
     //}
     //ax::NodeEditor::EndNode();
-}
-
-LayerNodeGui createLayerNode(LayerNodeGui layerNodeXml) {
-    //ax::NodeEditor::NodeId nodeId = GetNextId();
-
-    //std::vector<std::shared_ptr<LayerInputPortGui>> vecInputPort;
-    //for (auto layerPort : layerNodeXml.vecInputPort) {
-    //    ax::NodeEditor::PinId pinId = GetNextId();
-    //    vecInputPort.emplace_back(std::make_shared<LayerInputPortGui>(pinId, layerPort));
-    //}
-
-    //std::vector<std::shared_ptr<LayerOutputPortGui>> vecOutputPort;
-    //for (auto& layerPort : layerNodeXml.vecOutputPort) {
-    //    ax::NodeEditor::PinId pinId = GetNextId();
-    //    vecOutputPort.emplace_back(std::make_shared<LayerOutputPortGui>(pinId, layerPort));
-    //}
-
-    //LayerNodeGui layerNodeGui(nodeId, layerNodeXml, vecInputPort, vecOutputPort);
-    //drawLayerNode(layerNodeGui);
-
-    //return layerNodeGui;
-    return LayerNodeGui(1, nullptr);
 }

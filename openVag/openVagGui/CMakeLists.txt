@@ -6,12 +6,12 @@ set(Sources
 	main.cpp
 	OpenVag.h
 	OpenVag.cpp
-	createLayerNodeGui.cpp
-	createLayerNodeGui.h
+	drawLayerNode.cpp
+	drawLayerNode.h
 	IRModelGui.h
 	IRModelGui.cpp
-	createModelEdgesGui.cpp
-	createModelEdgesGui.h
+	drawEdges.cpp
+	drawEdges.h
 	parseIRModel.cpp
 	parseIRModel.h
 )

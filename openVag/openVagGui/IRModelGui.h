@@ -8,6 +8,7 @@
 #include "tinyxml2.h"
 
 class EdgeGui;
+class LayerNodeGui;
 
 class LayerPortGui {
 public:
@@ -15,6 +16,7 @@ public:
 
 	const char* getXmlId() const { const auto id = xmlPort->Attribute("id"); return id ? id : ""; }
 	ax::NodeEditor::PinId pinId_gui;
+	std::shared_ptr<LayerNodeGui> parent;
 	tinyxml2::XMLElement* xmlPort;
 };
 

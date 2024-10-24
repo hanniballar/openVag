@@ -10,8 +10,8 @@
 
 #include "parseIRModel.h"
 #include "IRModelGui.h"
-#include "createLayerNodeGui.h"
-#include "createModelEdgesGui.h"
+#include "drawLayerNode.h"
+#include "drawEdges.h"
 
 #ifdef _DEBUG
 #define DX12_ENABLE_DEBUG_LAYER
