@@ -10,7 +10,7 @@
 
 #include "parseIRModel.h"
 #include "IRModelGui.h"
-#include "drawLayerNode.h"
+#include "drawLayerNodes.h"
 #include "drawEdges.h"
 
 #ifdef _DEBUG
@@ -406,18 +406,12 @@ bool OpenVag::Run()
             int uniqueId = 1;
             // Start drawing nodes.
             if (firstFrame) {
-                auto irXmlRep = parseIRModel("D:/work/openVag/test/example.xml");
-                //for (auto layerNode : irXmlRep.vecLayerNode) {
-                //    irModelGui.vecLayerNodeGui.push_back(createLayerNode(layerNode));
-                //}
-                //createModelEdgesGui(irModelGui.vecLayerNodeGui, irXmlRep.vecEdge);
+                irModelGui = parseIRModel("D:/work/openVag/test/example.xml");
                 firstFrame = false;
             }
             else {
-                //for (auto layerNodeGui : irModelGui.vecLayerNodeGui) {
-                //    drawLayerNode(layerNodeGui);
-                //}
-                //drawModelEdges(irModelGui.vecLayerNodeGui);
+                drawLayerNodes(irModelGui.vecLayerNodeGui);
+                drawModelEdges(irModelGui.vecLayerNodeGui);
             }
             ax::NodeEditor::End();
             ax::NodeEditor::SetCurrentEditor(nullptr);

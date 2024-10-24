@@ -6,8 +6,8 @@ set(Sources
 	main.cpp
 	OpenVag.h
 	OpenVag.cpp
-	drawLayerNode.cpp
-	drawLayerNode.h
+	drawLayerNodes.cpp
+	drawLayerNodes.h
 	IRModelGui.h
 	IRModelGui.cpp
 	drawEdges.cpp

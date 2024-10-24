@@ -1,10 +1,9 @@
-#include "drawLayerNode.h"
-#include <memory>
+#include "drawLayerNodes.h"
 #include <string>
 
 #include "OpenVag.h"
 
-void drawLayerNode(LayerNodeGui layerNodeGui) {
+void drawLayerNode(const LayerNodeGui& layerNodeGui) {
     ax::NodeEditor::BeginNode(layerNodeGui.id_gui);
     for (const auto& inputPort : layerNodeGui.vecInputPort) {
         ax::NodeEditor::BeginPin(inputPort->pinId_gui, ax::NodeEditor::PinKind::Input);
@@ -14,10 +13,13 @@ void drawLayerNode(LayerNodeGui layerNodeGui) {
             ImGui::SameLine();
         }
     }
-
-    ImGui::Text((std::string("Name: ") + layerNodeGui.getName()).c_str());
-    ImGui::Text((std::string("ID: ") + layerNodeGui.getXmlId()).c_str());
-    ImGui::Text((std::string("Type: ") + layerNodeGui.getType()).c_str());
+    ImGui::Text("dert");
+    auto res1 = layerNodeGui.getName();
+    auto res2 = std::string("Name: ") + layerNodeGui.getName();
+    auto res = (std::string("Name: ") + layerNodeGui.getName()).c_str();
+    //ImGui::Text((std::string("Name: ") + layerNodeGui.getName()).c_str());
+    //ImGui::Text((std::string("ID: ") + layerNodeGui.getXmlId()).c_str());
+    //ImGui::Text((std::string("Type: ") + layerNodeGui.getType()).c_str());
 
     for (const auto& outputPort : layerNodeGui.vecOutputPort) {
         ax::NodeEditor::BeginPin(outputPort->pinId_gui, ax::NodeEditor::PinKind::Input);
@@ -28,4 +30,10 @@ void drawLayerNode(LayerNodeGui layerNodeGui) {
         }
     }
     ax::NodeEditor::EndNode();
+}
+
+void drawLayerNodes(std::vector<std::shared_ptr<LayerNodeGui>> vecLayerNodeGui) {
+    for (const auto layerNode : vecLayerNodeGui) {
+        drawLayerNode(*(layerNode.get()));
+    }
 }
