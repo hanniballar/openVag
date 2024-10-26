@@ -257,8 +257,8 @@ IRModelGui parseNet(XMLElement* net) {
     return irModelGui;
 }
 
+static XMLDocument doc;
 IRModelGui parseIRModel(const char* xmlContent, size_t nBytes) {
-    XMLDocument doc;
     if (doc.Parse(xmlContent) != XML_SUCCESS) {
         std::cerr << "Failed to parse XML" << std::endl;
         return {};
