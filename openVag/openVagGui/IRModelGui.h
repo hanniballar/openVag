@@ -12,7 +12,7 @@ class LayerNodeGui;
 
 class LayerPortGui {
 public:
-	LayerPortGui(ax::NodeEditor::PinId pinId_gui, tinyxml2::XMLElement* xmlPort) : pinId_gui(pinId_gui), xmlPort(xmlPort) {}
+	LayerPortGui(ax::NodeEditor::PinId pinId_gui, tinyxml2::XMLElement* xmlPort, std::shared_ptr<LayerNodeGui> parent) : pinId_gui(pinId_gui), xmlPort(xmlPort), parent(parent) {}
 
 	const char* getXmlId() const { const auto id = xmlPort->Attribute("id"); return id ? id : ""; }
 	ax::NodeEditor::PinId pinId_gui;
@@ -22,18 +22,20 @@ public:
 
 class LayerInputPortGui : public LayerPortGui {
 public:
-	LayerInputPortGui(ax::NodeEditor::PinId pinId_gui, tinyxml2::XMLElement* xmlPort) : LayerPortGui(pinId_gui, xmlPort) {}
+	LayerInputPortGui(ax::NodeEditor::PinId pinId_gui, tinyxml2::XMLElement* xmlPort, std::shared_ptr<LayerNodeGui> parent) : LayerPortGui(pinId_gui, xmlPort, parent) {}
 };
 
 class LayerOutputPortGui : public LayerPortGui {
 public:
-	LayerOutputPortGui(ax::NodeEditor::PinId pinId_gui, tinyxml2::XMLElement* xmlPort) : LayerPortGui(pinId_gui, xmlPort) {}
+	LayerOutputPortGui(ax::NodeEditor::PinId pinId_gui, tinyxml2::XMLElement* xmlPort, std::shared_ptr<LayerNodeGui> parent) : LayerPortGui(pinId_gui, xmlPort, parent) {}
 	std::vector<std::shared_ptr<EdgeGui>> vecEdgeGui;
 };
 
 class EdgeGui {
 public:
 	EdgeGui(ax::NodeEditor::LinkId linkId, std::shared_ptr<LayerOutputPortGui> outputPort, std::shared_ptr<LayerInputPortGui> inputPort) : linkId(linkId), outputPort(outputPort), inputPort(inputPort) {}
+	std::shared_ptr<EdgeGui> PreviousSibling();
+	std::shared_ptr<LayerOutputPortGui> Parent();
 	ax::NodeEditor::LinkId linkId;
 	std::shared_ptr<LayerOutputPortGui> outputPort;
 	std::shared_ptr<LayerInputPortGui> inputPort;

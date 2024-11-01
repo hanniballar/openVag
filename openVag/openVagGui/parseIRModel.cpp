@@ -54,7 +54,7 @@ public:
 };
 
 template <class LayerPortGuiType>
-std::shared_ptr<LayerPortGuiType> parsePort(XMLElement* port) {
+std::shared_ptr<LayerPortGuiType> parsePort(XMLElement* port, std::shared_ptr<LayerNodeGui> parent) {
     assert(port != nullptr);
     auto portID = port->Attribute("id");
     if (portID == nullptr) {
@@ -63,11 +63,11 @@ std::shared_ptr<LayerPortGuiType> parsePort(XMLElement* port) {
     }
 
     ax::NodeEditor::PinId id_gui = GetNextId();
-    return std::make_shared<LayerPortGuiType>(id_gui, port);
+    return std::make_shared<LayerPortGuiType>(id_gui, port, parent);
 }
 
 template <class LayerPortGuiType>
-std::vector<std::shared_ptr<LayerPortGuiType>> parseLayerPorts(XMLElement* ports) {
+std::vector<std::shared_ptr<LayerPortGuiType>> parseLayerPorts(XMLElement* ports, std::shared_ptr<LayerNodeGui> parent) {
     if (ports == nullptr) {
         return {};
     }
@@ -75,7 +75,7 @@ std::vector<std::shared_ptr<LayerPortGuiType>> parseLayerPorts(XMLElement* ports
     std::vector<std::shared_ptr<LayerPortGuiType>> vecLayerPort;
     XMLElement* port = ports->FirstChildElement("port");
     while (port != nullptr) {
-        vecLayerPort.push_back(parsePort<LayerPortGuiType>(port));
+        vecLayerPort.push_back(parsePort<LayerPortGuiType>(port, parent));
         port = port->NextSiblingElement();
     }
 
@@ -102,13 +102,13 @@ std::shared_ptr<LayerNodeGui> parseLayer(XMLElement* layer) {
     auto layerNodeGui = std::make_shared<LayerNodeGui>(GetNextId(), layer);
     auto inputs = layer->FirstChildElement("input");
     {
-        layerNodeGui->vecInputPort = parseLayerPorts<LayerInputPortGui>(inputs);
+        layerNodeGui->vecInputPort = parseLayerPorts<LayerInputPortGui>(inputs, layerNodeGui);
         for (auto& port : layerNodeGui->vecInputPort) { port->parent = layerNodeGui; }
     }
 
     auto outputs = layer->FirstChildElement("output");
     {
-        layerNodeGui->vecOutputPort = parseLayerPorts<LayerOutputPortGui>(outputs);
+        layerNodeGui->vecOutputPort = parseLayerPorts<LayerOutputPortGui>(outputs, layerNodeGui);
         for (auto& port : layerNodeGui->vecOutputPort) { port->parent = layerNodeGui; }
     }
     return layerNodeGui;
