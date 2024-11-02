@@ -31,8 +31,8 @@ public:
 class LayerOutputPortGui : public LayerPortGui {
 public:
 	LayerOutputPortGui(ax::NodeEditor::PinId pinId_gui, tinyxml2::XMLElement* xmlPort, std::shared_ptr<LayerNodeGui> parent) : LayerPortGui(pinId_gui, xmlPort, parent) {}
-	void InsertBeforeChild(std::shared_ptr<EdgeGui> beforeThis, std::shared_ptr<EdgeGui> addThis);
-	void DeleteChild(std::shared_ptr<EdgeGui> child);
+	void insert(std::ptrdiff_t pos, std::shared_ptr<EdgeGui> addThis);
+	void deleteChild(std::shared_ptr<EdgeGui> child);
 	std::vector<std::shared_ptr<EdgeGui>> vecEdgeGui;
 };
 
@@ -41,7 +41,7 @@ public:
 	EdgeGui(ax::NodeEditor::LinkId linkId, std::shared_ptr<LayerOutputPortGui> outputPort, std::shared_ptr<LayerInputPortGui> inputPort, tinyxml2::XMLElement* edge) : linkId(linkId), outputPort(outputPort), inputPort(inputPort) {
 		this->edge = XMLNodeWrapper::make_shared(edge);
 	}
-	std::shared_ptr<EdgeGui> NextSibling();
+	std::ptrdiff_t getMyPositionAsChild();
 	std::shared_ptr<LayerOutputPortGui> Parent();
 	ax::NodeEditor::LinkId linkId;
 	std::shared_ptr<LayerOutputPortGui> outputPort;

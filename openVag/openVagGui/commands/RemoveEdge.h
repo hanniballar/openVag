@@ -13,7 +13,7 @@ private:
 	void doAct();
 	void undoAct();
 	std::shared_ptr<EdgeGui> removeEdge;
-	std::shared_ptr<EdgeGui> nextEdge;
+	std::ptrdiff_t positionAsChild;
 	RemoveEdgeXML removeEdgeXML;
 };
 

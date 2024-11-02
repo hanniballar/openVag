@@ -8,12 +8,14 @@ void RemoveEdge::execute()
 
 void RemoveEdge::doAct() {
     this->doFlag = false;
-    nextEdge = removeEdge->NextSibling();
-    removeEdge->Parent()->DeleteChild(removeEdge);
+    removeEdgeXML.execute();
+    positionAsChild = removeEdge->getMyPositionAsChild();
+    removeEdge->Parent()->deleteChild(removeEdge);
 }
 
 void RemoveEdge::undoAct() {
     this->doFlag = true;
-    removeEdge->Parent()->InsertBeforeChild(nextEdge, removeEdge);
-    nextEdge.reset();
+    removeEdgeXML.execute();
+    removeEdge->Parent()->insert(positionAsChild, removeEdge);
+    positionAsChild = {};
 }

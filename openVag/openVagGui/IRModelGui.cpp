@@ -14,13 +14,12 @@ ImVec2 LayerNodeGui::getPos()
     return ax::NodeEditor::GetNodePosition(id_gui);
 }
 
-std::shared_ptr<EdgeGui> EdgeGui::NextSibling()
+std::ptrdiff_t EdgeGui::getMyPositionAsChild()
 {
     const auto& vecEdgeGui = EdgeGui::Parent()->vecEdgeGui;
     auto it = std::find_if(vecEdgeGui.begin(), vecEdgeGui.end(), [&, this](const std::shared_ptr<EdgeGui>& el) { return el.get() == this; });
-    auto nextIt = ++it;
-    if (nextIt == vecEdgeGui.end()) return {};
-    return *it++;
+
+    return std::distance(vecEdgeGui.begin(), it);
 }
 
 std::shared_ptr<LayerOutputPortGui> EdgeGui::Parent()
@@ -28,18 +27,12 @@ std::shared_ptr<LayerOutputPortGui> EdgeGui::Parent()
     return outputPort;
 }
 
-void LayerOutputPortGui::InsertBeforeChild(std::shared_ptr<EdgeGui> beforeThis, std::shared_ptr<EdgeGui> addThis)
+void LayerOutputPortGui::insert(std::ptrdiff_t pos, std::shared_ptr<EdgeGui> value)
 {
-    if (beforeThis) {
-        auto it = std::find(vecEdgeGui.begin(), vecEdgeGui.end(), beforeThis);
-        vecEdgeGui.insert(it, addThis);
-    }
-    else {
-        vecEdgeGui.push_back(addThis);
-    }
+    vecEdgeGui.insert(vecEdgeGui.begin() + pos, value);
 }
 
-void LayerOutputPortGui::DeleteChild(std::shared_ptr<EdgeGui> child)
+void LayerOutputPortGui::deleteChild(std::shared_ptr<EdgeGui> child)
 {
     auto it = std::find(vecEdgeGui.begin(), vecEdgeGui.end(), child);
     vecEdgeGui.erase(it);
