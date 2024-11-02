@@ -14,6 +14,8 @@ set(Sources
 	drawEdges.h
 	parseIRModel.cpp
 	parseIRModel.h
+	XMLNodeWrapper.cpp
+	XMLNodeWrapper.h
 	commands/CommandCenter.cpp
 	commands/CommandCenter.h
 	commands/ICommand.cpp
@@ -22,8 +24,7 @@ set(Sources
 	commands/RemoveEdgeXML.h
 	commands/RemoveEdge.cpp
 	commands/RemoveEdge.h
-	commands/XMLNodeWrapper.cpp
-	commands/XMLNodeWrapper.h
+
 )
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${Sources})

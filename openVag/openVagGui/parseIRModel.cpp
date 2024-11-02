@@ -17,11 +17,12 @@ using namespace tinyxml2;
 
 class Edge {
 public:
-    Edge(std::string from_layer, std::string from_port, std::string to_layer, std::string to_port) : from_layer(from_layer), from_port(from_port), to_layer(to_layer), to_port(to_port) {}
+    Edge(std::string from_layer, std::string from_port, std::string to_layer, std::string to_port, tinyxml2::XMLElement* edge) : from_layer(from_layer), from_port(from_port), to_layer(to_layer), to_port(to_port), edge(edge) {}
     std::string from_layer;
     std::string from_port;
     std::string to_layer;
     std::string to_port;
+    XMLElement* edge;
 
     std::string toString() const {
         return std::string("from-layer=\"") + from_layer + "\" from-port=\"" + from_port + " to-layer=\"" + to_layer + " to-port=\"" + to_port;
@@ -157,7 +158,7 @@ Edge parseEdge(XMLElement* edge) {
         throw ParseIRModelException(msg.c_str());
     }
 
-    return Edge(from_layer, from_port, to_layer, to_port);
+    return Edge(from_layer, from_port, to_layer, to_port, edge);
 }
 
 std::vector<Edge> parseEdges(XMLElement* edges) {
@@ -240,7 +241,7 @@ bool processEdges(std::vector<std::shared_ptr<LayerNodeGui>>& vecLayerNodeGui, c
         auto inputLayerPort = mapInputPorttoLayerPort[inputPort];
         auto outputLayerPort = mapOutputPorttoLayerPort[outputPort];
         ax::NodeEditor::LinkId linkID = GetNextId();
-        std::shared_ptr<EdgeGui> edgeGui = std::make_shared<EdgeGui>(linkID, outputLayerPort, inputLayerPort);
+        std::shared_ptr<EdgeGui> edgeGui = std::make_shared<EdgeGui>(linkID, outputLayerPort, inputLayerPort, edge.edge);
 
         outputLayerPort->vecEdgeGui.push_back(edgeGui);
     }

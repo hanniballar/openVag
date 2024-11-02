@@ -3,13 +3,12 @@
 
 #include "tinyxml2.h"
 
-#include "XMLNodeWrapper.h"
+#include "../XMLNodeWrapper.h"
 
 class RemoveEdgeXML :public ICommand {
 public:
-	RemoveEdgeXML(tinyxml2::XMLElement* edge) {
-		removeEdge = XMLNodeWrapper::make_shared(edge);
-	}
+	RemoveEdgeXML(std::shared_ptr<XMLNodeWrapper> removeEdge) : removeEdge(removeEdge) {}
+	RemoveEdgeXML(tinyxml2::XMLElement* edge) : RemoveEdgeXML(XMLNodeWrapper::make_shared(edge)) {}
 	void execute() override;
 
 private:
