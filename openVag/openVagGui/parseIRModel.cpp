@@ -292,3 +292,7 @@ IRModelGui parseIRModel(const std::string& fileName) {
 
     return parseIRModel(xmlContent.c_str(), xmlContent.size());
 }
+
+XMLError saveFile(const char* filename) {
+    return doc.SaveFile(filename);
+}

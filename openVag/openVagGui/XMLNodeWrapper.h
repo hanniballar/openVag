@@ -11,7 +11,7 @@ protected:
 public:
     static std::shared_ptr<XMLNodeWrapper> make_shared(tinyxml2::XMLNode* el);
         
-    ~XMLNodeWrapper();
+    virtual ~XMLNodeWrapper();
     void set(tinyxml2::XMLNode* _el);
     tinyxml2::XMLNode* el;
 };

@@ -10,6 +10,7 @@ void CommandCenter::undo()
 
     auto& command = vecUndo.back();
     command->execute();
+
     vecRedo.push_back(std::move(command));
     vecUndo.pop_back();
 }

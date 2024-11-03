@@ -12,6 +12,8 @@
 #include "IRModelGui.h"
 #include "drawLayerNodes.h"
 #include "drawEdges.h"
+#include "commands/CommandCenter.h"
+#include "commands/RemoveEdge.h"
 
 #ifdef _DEBUG
 #define DX12_ENABLE_DEBUG_LAYER
@@ -407,6 +409,11 @@ bool OpenVag::Run()
             // Start drawing nodes.
             if (firstFrame) {
                 irModelGui = parseIRModel("D:/work/openVag/test/example.xml");
+                CommandCenter cCenter;
+                cCenter.execute(std::make_shared<RemoveEdge>(irModelGui.vecLayerNodeGui[0]->vecOutputPort[0]->vecEdgeGui[0]));
+                saveFile("D:/work/openVag/test/exampleOut1.xml");
+                cCenter.undo();
+                saveFile("D:/work/openVag/test/exampleOut2.xml");
                 firstFrame = false;
             }
             else {
