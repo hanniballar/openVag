@@ -65,7 +65,7 @@ static HWND hwnd;
 static WNDCLASSEXW wc;
 static ax::NodeEditor::EditorContext* m_Context = nullptr;
 
-static IRModelGui irModelGui;
+static std::shared_ptr<IRModelGui> irModelGui;
 static int64_t uniqueId = 1;
 
 int64_t GetNextId() { return uniqueId++; }
@@ -410,15 +410,15 @@ bool OpenVag::Run()
             if (firstFrame) {
                 irModelGui = parseIRModel("D:/work/openVag/test/example.xml");
                 CommandCenter cCenter;
-                cCenter.execute(std::make_shared<RemoveEdge>(irModelGui.vecLayerNodeGui[0]->vecOutputPort[0]->vecEdgeGui[0]));
+                cCenter.execute(std::make_shared<RemoveEdge>(irModelGui->vecLayerNodeGui[0]->vecOutputPort[0]->vecEdgeGui[0]));
                 saveFile("D:/work/openVag/test/exampleOut1.xml");
                 cCenter.undo();
                 saveFile("D:/work/openVag/test/exampleOut2.xml");
                 firstFrame = false;
             }
             else {
-                drawLayerNodes(irModelGui.vecLayerNodeGui);
-                drawModelEdges(irModelGui.vecLayerNodeGui);
+                drawLayerNodes(irModelGui->vecLayerNodeGui);
+                drawModelEdges(irModelGui->vecLayerNodeGui);
             }
             ax::NodeEditor::End();
             ax::NodeEditor::SetCurrentEditor(nullptr);

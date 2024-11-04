@@ -3,17 +3,19 @@
 
 #include "../IRModelGui.h"
 #include "RemoveXMLElement.h"
+#include "CommandCenter.h"
 
-class RemoveEdge :public ICommand {
+class RemoveLayer :public ICommand {
 public:
-	RemoveEdge(std::shared_ptr<EdgeGui> edgeGui) : removeEdge(edgeGui), removeXMLElement(edgeGui->edge) {}
+	RemoveLayer(std::shared_ptr<LayerNodeGui> layerNodeGui) : removeLayer(layerNodeGui), removeXMLElement(layerNodeGui->xmlLayer) {}
 	void execute() override;
 private:
 	bool doFlag = true;
 	void doAct();
 	void undoAct();
-	std::shared_ptr<EdgeGui> removeEdge;
+	std::shared_ptr<LayerNodeGui> removeLayer;
 	std::ptrdiff_t positionAsChild = {};
 	RemoveXMLElement removeXMLElement;
+	CommandCenter commandCenter;
 };
 

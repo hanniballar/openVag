@@ -7,16 +7,16 @@
 
 class RemoveXMLElement :public ICommand {
 public:
-	RemoveXMLElement(std::shared_ptr<XMLNodeWrapper> removeEdge) : removeEdge(removeEdge) {}
-	RemoveXMLElement(tinyxml2::XMLElement* edge) : RemoveXMLElement(XMLNodeWrapper::make_shared(edge)) {}
+	RemoveXMLElement(std::shared_ptr<XMLNodeWrapper> xmlElement) : xmlElement(xmlElement) {}
+	RemoveXMLElement(tinyxml2::XMLElement* xmlElement) : RemoveXMLElement(XMLNodeWrapper::make_shared(xmlElement)) {}
 	void execute() override;
 
 private:
 	bool doFlag = true;
 	void doAct();
 	void undoAct();
-	std::shared_ptr<XMLNodeWrapper> removeEdge;
-	std::shared_ptr<XMLNodeWrapper> prevEdge;
+	std::shared_ptr<XMLNodeWrapper> xmlElement;
+	std::shared_ptr<XMLNodeWrapper> prevElement;
 	std::shared_ptr<XMLNodeWrapper> parentNode;
 };
 

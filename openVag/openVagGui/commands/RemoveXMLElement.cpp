@@ -8,23 +8,23 @@ void RemoveXMLElement::execute()
 
 void RemoveXMLElement::doAct() {
     this->doFlag = false;
-    auto prevEl = removeEdge->el->PreviousSibling();
-    prevEdge = XMLNodeWrapper::make_shared(prevEl);
-    auto xmlRemoveEl = removeEdge->el;
+    auto prevEl = xmlElement->el->PreviousSibling();
+    prevElement = XMLNodeWrapper::make_shared(prevEl);
+    auto xmlRemoveEl = xmlElement->el;
     auto clone = xmlRemoveEl->DeepClone(xmlRemoveEl->GetDocument());
     parentNode = XMLNodeWrapper::make_shared(xmlRemoveEl->Parent());
-    removeEdge->set(clone->ToElement());
+    xmlElement->set(clone->ToElement());
 
     xmlRemoveEl->Parent()->DeleteChild(xmlRemoveEl);
 }
 
 void RemoveXMLElement::undoAct() {
     this->doFlag = true;
-    if (prevEdge == nullptr) {
-        parentNode->el->InsertFirstChild(removeEdge->el);
+    if (prevElement == nullptr) {
+        parentNode->el->InsertFirstChild(xmlElement->el);
     } else {
-        parentNode->el->InsertAfterChild(prevEdge->el, removeEdge->el);
+        parentNode->el->InsertAfterChild(prevElement->el, xmlElement->el);
     }
     parentNode.reset();
-    prevEdge.reset();
+    prevElement.reset();
 }

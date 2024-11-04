@@ -24,6 +24,8 @@ set(Sources
 	commands/RemoveXMLElement.h
 	commands/RemoveEdge.cpp
 	commands/RemoveEdge.h
+	commands/RemoveLayer.cpp
+	commands/RemoveLayer.h
 
 )
 

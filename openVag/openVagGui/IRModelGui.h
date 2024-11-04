@@ -10,6 +10,7 @@
 
 class EdgeGui;
 class LayerNodeGui;
+class IRModelGui;
 
 class LayerPortGui {
 public:
@@ -51,11 +52,11 @@ public:
 
 class LayerNodeGui {
 public:
-	LayerNodeGui(ax::NodeEditor::NodeId id_gui, tinyxml2::XMLElement* xmlLayer) : id_gui(id_gui) {
+	LayerNodeGui(ax::NodeEditor::NodeId id_gui, tinyxml2::XMLElement* xmlLayer, std::shared_ptr<IRModelGui> parent) : id_gui(id_gui), parent(parent) {
 		this->xmlLayer = XMLNodeWrapper::make_shared(xmlLayer);
 	}
-	LayerNodeGui(ax::NodeEditor::NodeId id_gui, tinyxml2::XMLElement* xmlLayer, std::vector<std::shared_ptr<LayerInputPortGui>> vecInputPort, std::vector<std::shared_ptr<LayerOutputPortGui>> vecOutputPort) :
-		id_gui(id_gui), vecInputPort(vecInputPort), vecOutputPort(vecOutputPort) {
+	LayerNodeGui(ax::NodeEditor::NodeId id_gui, tinyxml2::XMLElement* xmlLayer, std::vector<std::shared_ptr<LayerInputPortGui>> vecInputPort, std::vector<std::shared_ptr<LayerOutputPortGui>> vecOutputPort, std::shared_ptr<IRModelGui> parent) :
+		id_gui(id_gui), vecInputPort(vecInputPort), vecOutputPort(vecOutputPort), parent(parent) {
 		this->xmlLayer = XMLNodeWrapper::make_shared(xmlLayer);
 	}
 	ax::NodeEditor::NodeId id_gui;
@@ -64,12 +65,18 @@ public:
 	const char* getType() const { const auto type = xmlLayer->el->ToElement()->Attribute("type"); return type ? type : ""; }
  	ImVec2 getSize();
 	ImVec2 getPos();
+	std::ptrdiff_t getMyPositionAsChild();
+	std::shared_ptr<IRModelGui> Parent() { return parent; }
 	std::vector<std::shared_ptr<LayerInputPortGui>> vecInputPort;
 	std::vector<std::shared_ptr<LayerOutputPortGui>> vecOutputPort;
 	std::shared_ptr<XMLNodeWrapper> xmlLayer;
+private:
+	std::shared_ptr<IRModelGui> parent;
 };
 
 class IRModelGui {
 public:
+	void deleteChild(std::shared_ptr<LayerNodeGui> child);
+	void insert(std::ptrdiff_t pos, std::shared_ptr<LayerNodeGui> addThis);
 	std::vector<std::shared_ptr<LayerNodeGui>> vecLayerNodeGui;
 };
