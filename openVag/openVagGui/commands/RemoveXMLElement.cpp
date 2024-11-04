@@ -1,12 +1,12 @@
-#include "RemoveEdgeXML.h"
+#include "RemoveXMLElement.h"
 
-void RemoveEdgeXML::execute()
+void RemoveXMLElement::execute()
 {
     if (doFlag) { doAct(); }
     else { undoAct(); }
 }
 
-void RemoveEdgeXML::doAct() {
+void RemoveXMLElement::doAct() {
     this->doFlag = false;
     auto prevEl = removeEdge->el->PreviousSibling();
     prevEdge = XMLNodeWrapper::make_shared(prevEl);
@@ -18,7 +18,7 @@ void RemoveEdgeXML::doAct() {
     xmlRemoveEl->Parent()->DeleteChild(xmlRemoveEl);
 }
 
-void RemoveEdgeXML::undoAct() {
+void RemoveXMLElement::undoAct() {
     this->doFlag = true;
     if (prevEdge == nullptr) {
         parentNode->el->InsertFirstChild(removeEdge->el);

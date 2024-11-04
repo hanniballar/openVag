@@ -14,6 +14,6 @@ private:
 	void undoAct();
 	std::shared_ptr<EdgeGui> removeEdge;
 	std::ptrdiff_t positionAsChild;
-	RemoveEdgeXML removeEdgeXML;
+	RemoveXMLElement removeEdgeXML;
 };
 

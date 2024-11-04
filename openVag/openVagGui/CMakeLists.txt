@@ -20,8 +20,8 @@ set(Sources
 	commands/CommandCenter.h
 	commands/ICommand.cpp
 	commands/ICommand.h
-	commands/RemoveEdgeXML.cpp
-	commands/RemoveEdgeXML.h
+	commands/RemoveXMLElement.cpp
+	commands/RemoveXMLElement.h
 	commands/RemoveEdge.cpp
 	commands/RemoveEdge.h
 

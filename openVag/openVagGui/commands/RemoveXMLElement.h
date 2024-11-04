@@ -5,10 +5,10 @@
 
 #include "../XMLNodeWrapper.h"
 
-class RemoveEdgeXML :public ICommand {
+class RemoveXMLElement :public ICommand {
 public:
-	RemoveEdgeXML(std::shared_ptr<XMLNodeWrapper> removeEdge) : removeEdge(removeEdge) {}
-	RemoveEdgeXML(tinyxml2::XMLElement* edge) : RemoveEdgeXML(XMLNodeWrapper::make_shared(edge)) {}
+	RemoveXMLElement(std::shared_ptr<XMLNodeWrapper> removeEdge) : removeEdge(removeEdge) {}
+	RemoveXMLElement(tinyxml2::XMLElement* edge) : RemoveXMLElement(XMLNodeWrapper::make_shared(edge)) {}
 	void execute() override;
 
 private:
