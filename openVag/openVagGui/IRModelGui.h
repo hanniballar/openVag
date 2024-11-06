@@ -21,7 +21,7 @@ public:
 	const char* getXmlId() const { const auto id = xmlPort->el->ToElement()->Attribute("id"); return id ? id : ""; }
 	ax::NodeEditor::PinId pinId_gui;
 	std::shared_ptr<LayerNodeGui> parent;
-	std::shared_ptr<XMLNodeWrapper> xmlPort; // SeNe Todo XMLElement to wrapper;
+	std::shared_ptr<XMLNodeWrapper> xmlPort;
 };
 
 class LayerInputPortGui : public LayerPortGui {

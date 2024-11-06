@@ -36,7 +36,6 @@ void RemoveLayer::doAct() {
 
 void RemoveLayer::undoAct() {
     this->doFlag = true;
-    removeXMLElement.execute();
     commandCenter.undoAll();
     removeLayer->Parent()->insert(positionAsChild, removeLayer);
     positionAsChild = {};

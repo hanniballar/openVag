@@ -7,7 +7,7 @@
 
 class RemoveLayer :public ICommand {
 public:
-	RemoveLayer(std::shared_ptr<LayerNodeGui> layerNodeGui) : removeLayer(layerNodeGui), removeXMLElement(layerNodeGui->xmlLayer) {}
+	RemoveLayer(std::shared_ptr<LayerNodeGui> layerNodeGui) : removeLayer(layerNodeGui) {}
 	void execute() override;
 private:
 	bool doFlag = true;
@@ -15,7 +15,6 @@ private:
 	void undoAct();
 	std::shared_ptr<LayerNodeGui> removeLayer;
 	std::ptrdiff_t positionAsChild = {};
-	RemoveXMLElement removeXMLElement;
 	CommandCenter commandCenter;
 };
 
