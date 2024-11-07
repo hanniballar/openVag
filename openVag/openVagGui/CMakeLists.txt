@@ -28,6 +28,10 @@ set(Sources
 	commands/RemoveLayer.h
 	commands/ModifyAttributeXMLElement.cpp
 	commands/ModifyAttributeXMLElement.h
+	commands/AddAttributeXMLElement.cpp
+	commands/AddAttributeXMLElement.h
+	commands/DeleteAttributeXMLElement.cpp
+	commands/DeleteAttributeXMLElement.h
 
 )
 
