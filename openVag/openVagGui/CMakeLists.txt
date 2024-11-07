@@ -32,6 +32,8 @@ set(Sources
 	commands/AddAttributeXMLElement.h
 	commands/DeleteAttributeXMLElement.cpp
 	commands/DeleteAttributeXMLElement.h
+	commands/AddXMLEdge.cpp
+	commands/AddXMLEdge.h
 
 )
 

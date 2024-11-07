@@ -250,7 +250,7 @@ bool processEdges(std::vector<std::shared_ptr<LayerNodeGui>>& vecLayerNodeGui, c
 }
 
 std::shared_ptr<IRModelGui> parseNet(XMLElement* net) {
-    std::shared_ptr<IRModelGui> irModelGui = std::make_shared<IRModelGui>();
+    std::shared_ptr<IRModelGui> irModelGui = std::make_shared<IRModelGui>(net);
     XMLElement* layers = net->FirstChildElement("layers");
     irModelGui->vecLayerNodeGui = parseLayers(layers, irModelGui);
     XMLElement* edges = net->FirstChildElement("edges");

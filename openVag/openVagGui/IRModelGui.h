@@ -76,7 +76,11 @@ private:
 
 class IRModelGui {
 public:
+	IRModelGui(tinyxml2::XMLElement* xmlElement) {
+		this->xmlElement = XMLNodeWrapper::make_shared(xmlElement);
+	}
 	void deleteChild(std::shared_ptr<LayerNodeGui> child);
 	void insert(std::ptrdiff_t pos, std::shared_ptr<LayerNodeGui> addThis);
 	std::vector<std::shared_ptr<LayerNodeGui>> vecLayerNodeGui;
+	std::shared_ptr<XMLNodeWrapper> xmlElement;
 };
