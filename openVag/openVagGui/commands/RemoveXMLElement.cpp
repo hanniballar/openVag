@@ -1,11 +1,5 @@
 #include "RemoveXMLElement.h"
 
-void RemoveXMLElement::execute()
-{
-    if (doFlag) { doAct(); }
-    else { undoAct(); }
-}
-
 void RemoveXMLElement::doAct() {
     this->doFlag = false;
     auto prevEl = xmlElement->el->PreviousSibling();

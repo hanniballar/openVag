@@ -1,11 +1,5 @@
 #include "RemoveEdge.h"
 
-void RemoveEdge::execute()
-{
-    if (doFlag) { doAct(); }
-    else { undoAct(); }
-}
-
 void RemoveEdge::doAct() {
     this->doFlag = false;
     removeXMLElement.execute();

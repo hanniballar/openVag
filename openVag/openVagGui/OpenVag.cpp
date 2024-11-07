@@ -15,6 +15,7 @@
 #include "commands/CommandCenter.h"
 #include "commands/RemoveEdge.h"
 #include "commands/RemoveLayer.h"
+#include "commands/ChangeAttributeXMLElement.h" //SeNe please remove test only
 
 #ifdef _DEBUG
 #define DX12_ENABLE_DEBUG_LAYER
@@ -411,14 +412,18 @@ bool OpenVag::Run()
             if (firstFrame) {
                 irModelGui = parseIRModel("D:/work/openVag/test/example.xml");
                 CommandCenter cCenter;
-                cCenter.execute(std::make_shared<RemoveEdge>(irModelGui->vecLayerNodeGui[0]->vecOutputPort[0]->vecEdgeGui[0]));
-                saveFile("D:/work/openVag/test/exampleRemoveEdge0.xml");
+                //cCenter.execute(std::make_shared<RemoveEdge>(irModelGui->vecLayerNodeGui[0]->vecOutputPort[0]->vecEdgeGui[0]));
+                //saveFile("D:/work/openVag/test/exampleRemoveEdge0.xml");
+                //cCenter.undo();
+                //saveFile("D:/work/openVag/test/exampleUndoRemoveEdge0.xml");
+                //cCenter.execute(std::make_shared<RemoveLayer>(irModelGui->vecLayerNodeGui[2]));
+                //saveFile("D:/work/openVag/test/exampleRemoveLayer2.xml");
+                //cCenter.undo();
+                //saveFile("D:/work/openVag/test/exampleUndoRemoveLayer2.xml");
+                cCenter.execute(std::make_shared<ModifyAttributeXMLElement>(irModelGui->vecLayerNodeGui[0]->vecOutputPort[0]->vecEdgeGui[0]->edge, std::map<std::string, std::string>({ {"from-layer", "1"}, {"to-layer", "5"} })));
+                saveFile("D:/work/openVag/test/exampleModifyAttributeXMLElementEdge0.xml");
                 cCenter.undo();
-                saveFile("D:/work/openVag/test/exampleUndoRemoveEdge0.xml");
-                cCenter.execute(std::make_shared<RemoveLayer>(irModelGui->vecLayerNodeGui[2]));
-                saveFile("D:/work/openVag/test/exampleRemoveLayer2.xml");
-                cCenter.undo();
-                saveFile("D:/work/openVag/test/exampleUndoRemoveLayer2.xml");
+                saveFile("D:/work/openVag/test/exampleModifyAttributeXMLElementEdge0_undo.xml");
 
                 firstFrame = false;
             }

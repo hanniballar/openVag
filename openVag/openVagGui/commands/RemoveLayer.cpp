@@ -2,12 +2,6 @@
 
 #include "RemoveEdge.h"
 
-void RemoveLayer::execute()
-{
-    if (doFlag) { doAct(); }
-    else { undoAct(); }
-}
-
 void RemoveLayer::doAct() {
     this->doFlag = false;
     //removeXMLElement.execute();
