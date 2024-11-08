@@ -4,7 +4,6 @@
 
 void RemoveLayer::doAct() {
     this->doFlag = false;
-    //removeXMLElement.execute();
     std::vector<std::shared_ptr<ICommand>> vecEraseCommands;
     for (auto& layer : removeLayer->Parent()->vecLayerNodeGui) {
         if (layer == removeLayer) continue;

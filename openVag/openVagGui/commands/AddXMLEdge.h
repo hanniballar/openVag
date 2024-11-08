@@ -6,16 +6,16 @@
 
 #include "../XMLNodeWrapper.h"
 
-class AddXMLEdge :public ICommand { //ToDo please continue
+class AddXMLEdge :public ICommand {
 public:
-	AddXMLEdge(std::string from_layer, std::string from_port, std::string to_layer, std::string to_port, std::shared_ptr<XMLNodeWrapper> netXmlElement) : 
+	AddXMLEdge(std::string from_layer, std::string from_port, std::string to_layer, std::string to_port, std::shared_ptr<XMLNodeWrapper> xmlElementEdges) : 
 		from_layer(from_layer),
 		from_port(from_port),
 		to_layer(to_layer),
 		to_port(to_port),
-		netXmlElement(netXmlElement) {}
+		xmlElementEdges(xmlElementEdges) {}
 
-private:	
+private:
 	void doAct() override;
 	void undoAct() override;
 
@@ -23,7 +23,7 @@ private:
 	std::string from_port;
 	std::string to_layer;
 	std::string to_port;
-	std::shared_ptr<XMLNodeWrapper> netXmlElement;
+	std::shared_ptr<XMLNodeWrapper> xmlElementEdges;
 
 	//For undo
 	std::shared_ptr<XMLNodeWrapper> xmlElement;

@@ -1,24 +1,21 @@
-#include "RemoveXMLElement.h"
+#include "AddXMLEdge.h"
+
+#include <cassert>
 
 void AddXMLEdge::doAct() {
-    this->doFlag = false;
-    auto prevEl = xmlElement->el->PreviousSibling();
-    prevElement = XMLNodeWrapper::make_shared(prevEl);
-    auto xmlRemoveEl = xmlElement->el;
-    auto clone = xmlRemoveEl->DeepClone(xmlRemoveEl->GetDocument());
-    parentNode = XMLNodeWrapper::make_shared(xmlRemoveEl->Parent());
-    xmlElement->set(clone->ToElement());
+    assert(std::string(xmlElementEdges->el->ToElement()->Name()) == "edges");
+    xmlElement = XMLNodeWrapper::make_shared(xmlElementEdges->el->GetDocument()->NewElement("edge"));
+    xmlElement->el->ToElement()->SetAttribute("from-layer", from_layer.c_str());
+    xmlElement->el->ToElement()->SetAttribute("from-port", from_port.c_str());
+    xmlElement->el->ToElement()->SetAttribute("to-layer", to_layer.c_str());
+    xmlElement->el->ToElement()->SetAttribute("to-port", to_port.c_str());
 
-    xmlRemoveEl->Parent()->DeleteChild(xmlRemoveEl);
+    xmlElementEdges->el->InsertEndChild(xmlElement->el);
+    this->doFlag = false;
 }
 
 void AddXMLEdge::undoAct() {
+    xmlElementEdges->el->DeleteChild(xmlElement->el);
+    xmlElement.reset();
     this->doFlag = true;
-    if (prevElement == nullptr) {
-        parentNode->el->InsertFirstChild(xmlElement->el);
-    } else {
-        parentNode->el->InsertAfterChild(prevElement->el, xmlElement->el);
-    }
-    parentNode.reset();
-    prevElement.reset();
 }

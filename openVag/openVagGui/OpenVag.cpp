@@ -16,6 +16,7 @@
 #include "commands/RemoveEdge.h"
 #include "commands/RemoveLayer.h"
 #include "commands/DeleteAttributeXMLElement.h"
+#include "commands/AddXMLLayer.h"
 
 #ifdef _DEBUG
 #define DX12_ENABLE_DEBUG_LAYER
@@ -424,15 +425,35 @@ bool OpenVag::Run()
                 //saveFile("D:/work/openVag/test/exampleModifyAttributeXMLElementEdge0.xml");
                 //cCenter.undo();
                 //saveFile("D:/work/openVag/test/exampleModifyAttributeXMLElementEdge0_undo.xml");
-                cCenter.execute(std::make_shared<DeleteAttributeXMLElement>(irModelGui->vecLayerNodeGui[0]->vecOutputPort[0]->vecEdgeGui[0]->edge, std::vector<std::string>({"from-layer"})));
-                saveFile("D:/work/openVag/test/exampleDeleteAttributeXMLElementEdge0.xml");
+                //cCenter.execute(std::make_shared<DeleteAttributeXMLElement>(irModelGui->vecLayerNodeGui[0]->vecOutputPort[0]->vecEdgeGui[0]->edge, std::vector<std::string>({"from-layer"})));
+                //saveFile("D:/work/openVag/test/exampleDeleteAttributeXMLElementEdge0.xml");
+                //cCenter.undo();
+                //saveFile("D:/work/openVag/test/exampleDeleteAttributeXMLElementEdge0_Undo.xml");
+                //cCenter.execute(std::make_shared<AddAttributeXMLElement>(irModelGui->vecLayerNodeGui[0]->vecOutputPort[0]->vecEdgeGui[0]->edge, std::map<std::string, std::string>({ { "Septi", "2" } })));
+                //saveFile("D:/work/openVag/test/exampleAddAttributeXMLElementEdge0.xml");
+                //cCenter.undo();
+                //saveFile("D:/work/openVag/test/exampleAddAttributeXMLElementEdge0_undo.xml");
+                //firstFrame = false;
+                //cCenter.execute(
+                //    std::make_shared<AddXMLEdge>("1", "1", "2", "2", 
+                //        XMLNodeWrapper::make_shared(irModelGui->xmlElement->el->FirstChildElement("edges"))));
+                //saveFile("D:/work/openVag/test/exampleAddXMLEdge.xml");
+                //cCenter.undo();
+                //saveFile("D:/work/openVag/test/exampleAddXMLEdge_undo.xml");
+                //cCenter.redo();
+                //saveFile("D:/work/openVag/test/exampleAddXMLEdge_redo.xml");
+                //cCenter.undo();
+                //saveFile("D:/work/openVag/test/exampleAddXMLEdge_undo2.xml");
+                cCenter.execute(
+                    std::make_shared<AddXMLLayer>("30", "Speti", "Input",
+                        XMLNodeWrapper::make_shared(irModelGui->xmlElement->el->FirstChildElement("layers"))));
+                saveFile("D:/work/openVag/test/exampleAddXMLLayer.xml");
                 cCenter.undo();
-                saveFile("D:/work/openVag/test/exampleDeleteAttributeXMLElementEdge0_Undo.xml");
-                cCenter.execute(std::make_shared<AddAttributeXMLElement>(irModelGui->vecLayerNodeGui[0]->vecOutputPort[0]->vecEdgeGui[0]->edge, std::map<std::string, std::string>({ { "Septi", "2" } })));
-                saveFile("D:/work/openVag/test/exampleAddAttributeXMLElementEdge0.xml");
+                saveFile("D:/work/openVag/test/exampleAddXMLLayer_undo.xml");
+                cCenter.redo();
+                saveFile("D:/work/openVag/test/exampleAddXMLLayer_redo.xml");
                 cCenter.undo();
-                saveFile("D:/work/openVag/test/exampleAddAttributeXMLElementEdge0_undo.xml");
-                firstFrame = false;
+                saveFile("D:/work/openVag/test/exampleAddXMLLayer_undo2.xml");
             }
             else {
                 drawLayerNodes(irModelGui->vecLayerNodeGui);
