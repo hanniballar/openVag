@@ -23,6 +23,12 @@
                   <dim>3</dim>
                   <dim>3</dim>
                </port>
+               <port id="2" precision="FP32">
+                  <dim>64</dim>
+                  <dim>3</dim>
+                  <dim>3</dim>
+                  <dim>3</dim>
+               </port>
             </output>
       </layer>
       <layer id="2" name="conv1" type="Convolution" version="opset1">

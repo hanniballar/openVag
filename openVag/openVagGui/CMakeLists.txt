@@ -36,6 +36,8 @@ set(Sources
 	commands/AddXMLEdge.h
 	commands/AddXMLLayer.cpp
 	commands/AddXMLLayer.h
+	commands/ModifyEdge.cpp
+	commands/ModifyEdge.h
 
 )
 

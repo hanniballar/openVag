@@ -6,7 +6,7 @@
 
 class RemoveEdge :public ICommand {
 public:
-	RemoveEdge(std::shared_ptr<EdgeGui> edgeGui) : removeEdge(edgeGui), removeXMLElement(edgeGui->edge) {}
+	RemoveEdge(std::shared_ptr<EdgeGui> edgeGui) : removeEdge(edgeGui), removeXMLElement(edgeGui->xmlElement) {}
 private:
 	void doAct() override;
 	void undoAct() override;

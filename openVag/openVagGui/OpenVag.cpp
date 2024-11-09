@@ -17,6 +17,7 @@
 #include "commands/RemoveLayer.h"
 #include "commands/DeleteAttributeXMLElement.h"
 #include "commands/AddXMLLayer.h"
+#include "commands/ModifyEdge.h"
 
 #ifdef _DEBUG
 #define DX12_ENABLE_DEBUG_LAYER
@@ -444,16 +445,27 @@ bool OpenVag::Run()
                 //saveFile("D:/work/openVag/test/exampleAddXMLEdge_redo.xml");
                 //cCenter.undo();
                 //saveFile("D:/work/openVag/test/exampleAddXMLEdge_undo2.xml");
-                cCenter.execute(
-                    std::make_shared<AddXMLLayer>("30", "Speti", "Input",
-                        XMLNodeWrapper::make_shared(irModelGui->xmlElement->el->FirstChildElement("layers"))));
-                saveFile("D:/work/openVag/test/exampleAddXMLLayer.xml");
-                cCenter.undo();
-                saveFile("D:/work/openVag/test/exampleAddXMLLayer_undo.xml");
-                cCenter.redo();
-                saveFile("D:/work/openVag/test/exampleAddXMLLayer_redo.xml");
-                cCenter.undo();
-                saveFile("D:/work/openVag/test/exampleAddXMLLayer_undo2.xml");
+                //cCenter.execute(
+                //    std::make_shared<AddXMLLayer>("30", "Speti", "Input",
+                //        XMLNodeWrapper::make_shared(irModelGui->xmlElement->el->FirstChildElement("layers"))));
+                //saveFile("D:/work/openVag/test/exampleAddXMLLayer.xml");
+                //cCenter.undo();
+                //saveFile("D:/work/openVag/test/exampleAddXMLLayer_undo.xml");
+                //cCenter.redo();
+                //saveFile("D:/work/openVag/test/exampleAddXMLLayer_redo.xml");
+                //cCenter.undo();
+                //saveFile("D:/work/openVag/test/exampleAddXMLLayer_undo2.xml");
+                //auto& edge = irModelGui->vecLayerNodeGui[0]->vecOutputPort[0]->vecEdgeGui[0];
+                //std::map<std::string, std::string> mapChangeAttr({ {"from-layer", "1"}, {"from-port", "2"}, {"to-port", "1"} });
+                //cCenter.execute(
+                //    std::make_shared<ModifyEdge>(edge, mapChangeAttr));
+                //saveFile("D:/work/openVag/test/exampleModifyEdge.xml");
+                //cCenter.undo();
+                //saveFile("D:/work/openVag/test/exampleModifyEdge_undo.xml");
+                //cCenter.redo();
+                //saveFile("D:/work/openVag/test/exampleModifyEdge_redo.xml");
+                //cCenter.undo();
+                //saveFile("D:/work/openVag/test/exampleModifyEdge_undo2.xml");
             }
             else {
                 drawLayerNodes(irModelGui->vecLayerNodeGui);

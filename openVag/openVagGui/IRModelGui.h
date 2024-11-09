@@ -20,6 +20,7 @@ public:
 
 	const char* getXmlId() const { const auto id = xmlPort->el->ToElement()->Attribute("id"); return id ? id : ""; }
 	ax::NodeEditor::PinId pinId_gui;
+	std::shared_ptr<LayerNodeGui> Parent() { return parent; };
 	std::shared_ptr<LayerNodeGui> parent;
 	std::shared_ptr<XMLNodeWrapper> xmlPort;
 };
@@ -40,14 +41,14 @@ public:
 class EdgeGui {
 public:
 	EdgeGui(ax::NodeEditor::LinkId linkId, std::shared_ptr<LayerOutputPortGui> outputPort, std::shared_ptr<LayerInputPortGui> inputPort, tinyxml2::XMLElement* edge) : linkId(linkId), outputPort(outputPort), inputPort(inputPort) {
-		this->edge = XMLNodeWrapper::make_shared(edge);
+		this->xmlElement = XMLNodeWrapper::make_shared(edge);
 	}
 	std::ptrdiff_t getMyPositionAsChild();
 	std::shared_ptr<LayerOutputPortGui> Parent();
 	ax::NodeEditor::LinkId linkId;
 	std::shared_ptr<LayerOutputPortGui> outputPort;
 	std::shared_ptr<LayerInputPortGui> inputPort;
-	std::shared_ptr<XMLNodeWrapper> edge;
+	std::shared_ptr<XMLNodeWrapper> xmlElement;
 };
 
 class LayerNodeGui {
