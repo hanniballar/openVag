@@ -18,6 +18,7 @@
 #include "commands/DeleteAttributeXMLElement.h"
 #include "commands/AddXMLLayer.h"
 #include "commands/ModifyEdge.h"
+#include "GraphLayout.h"
 
 #ifdef _DEBUG
 #define DX12_ENABLE_DEBUG_LAYER
@@ -434,7 +435,6 @@ bool OpenVag::Run()
                 //saveFile("D:/work/openVag/test/exampleAddAttributeXMLElementEdge0.xml");
                 //cCenter.undo();
                 //saveFile("D:/work/openVag/test/exampleAddAttributeXMLElementEdge0_undo.xml");
-                //firstFrame = false;
                 //cCenter.execute(
                 //    std::make_shared<AddXMLEdge>("1", "1", "2", "2", 
                 //        XMLNodeWrapper::make_shared(irModelGui->xmlElement->el->FirstChildElement("edges"))));
@@ -455,17 +455,21 @@ bool OpenVag::Run()
                 //saveFile("D:/work/openVag/test/exampleAddXMLLayer_redo.xml");
                 //cCenter.undo();
                 //saveFile("D:/work/openVag/test/exampleAddXMLLayer_undo2.xml");
-                //auto& edge = irModelGui->vecLayerNodeGui[0]->vecOutputPort[0]->vecEdgeGui[0];
-                //std::map<std::string, std::string> mapChangeAttr({ {"from-layer", "1"}, {"from-port", "2"}, {"to-port", "1"} });
                 //cCenter.execute(
-                //    std::make_shared<ModifyEdge>(edge, mapChangeAttr));
-                //saveFile("D:/work/openVag/test/exampleModifyEdge.xml");
+                //    std::make_shared<ModifyEdge>(
+                //        irModelGui->vecLayerNodeGui[0]->vecOutputPort[0]->vecEdgeGui[0], 
+                //        std::map<std::string, std::string>{ {"from-layer", "1"}, {"from-port", "2"}, {"to-port", "1"} }));
+                ////saveFile("D:/work/openVag/test/exampleModifyEdge.xml");
                 //cCenter.undo();
                 //saveFile("D:/work/openVag/test/exampleModifyEdge_undo.xml");
                 //cCenter.redo();
                 //saveFile("D:/work/openVag/test/exampleModifyEdge_redo.xml");
                 //cCenter.undo();
                 //saveFile("D:/work/openVag/test/exampleModifyEdge_undo2.xml");
+
+                GraphLayout graphLayout(10, 10);
+                graphLayout.layoutNodes(irModelGui);
+                firstFrame = false;
             }
             else {
                 drawLayerNodes(irModelGui->vecLayerNodeGui);

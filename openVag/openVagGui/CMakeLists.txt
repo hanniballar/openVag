@@ -16,6 +16,8 @@ set(Sources
 	parseIRModel.h
 	XMLNodeWrapper.cpp
 	XMLNodeWrapper.h
+	GraphLayout.cpp
+	GraphLayout.h
 	commands/CommandCenter.cpp
 	commands/CommandCenter.h
 	commands/ICommand.cpp
