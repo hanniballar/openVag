@@ -7,9 +7,9 @@
 
 class GraphLayout {
 public:
-	GraphLayout(int64_t rowSpacing, int64_t columnSpacing) : rowSpacing(rowSpacing), columnSpacing(columnSpacing) {};
+	GraphLayout(float horizontalSpacing, float verticalSpacing) : horizontalSpacing(horizontalSpacing), verticalSpacing(verticalSpacing) {};
 	void layoutNodes(std::shared_ptr<IRModelGui> irModelGui);
 private:
-	int64_t rowSpacing;
-	int64_t columnSpacing;
+	float horizontalSpacing;
+	float verticalSpacing;
 };

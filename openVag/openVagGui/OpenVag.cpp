@@ -372,6 +372,7 @@ bool OpenVag::Create()
 }
 
 static bool firstFrame = true;
+static bool secoundFrame = false;
 bool OpenVag::Run()
 {
 
@@ -467,13 +468,16 @@ bool OpenVag::Run()
                 //cCenter.undo();
                 //saveFile("D:/work/openVag/test/exampleModifyEdge_undo2.xml");
 
-                GraphLayout graphLayout(10, 10);
-                graphLayout.layoutNodes(irModelGui);
                 firstFrame = false;
             }
             else {
                 drawLayerNodes(irModelGui->vecLayerNodeGui);
                 drawModelEdges(irModelGui->vecLayerNodeGui);
+                GraphLayout graphLayout(30, 20);
+                if (secoundFrame == false) {
+                    graphLayout.layoutNodes(irModelGui);
+                    secoundFrame = true;
+                }
             }
             ax::NodeEditor::End();
             ax::NodeEditor::SetCurrentEditor(nullptr);

@@ -7,12 +7,15 @@
 #include <cassert>
 #include <set>
 #include <deque>
-
 #include <algorithm>
+
+#include "imgui.h"
 
 class Row {
 public:
     std::list<std::shared_ptr<LayerNodeGui>> vecLayer;
+    ImVec2 getSize(float horizontalSpacing) const;
+    void layoutLayers(float horizontalSpacing, float leftmargin, float horizontalOffset, float verticalOffset) const;
 };
 
 class Graph {
@@ -22,6 +25,8 @@ public:
         const std::map<std::shared_ptr<LayerNodeGui>, std::vector<std::shared_ptr<EdgeGui>>>& mapLayerToInputEdge,
         const std::map<std::shared_ptr<LayerNodeGui>, std::vector<std::shared_ptr<EdgeGui>>>& mapLayerToOutputEdge);
     std::set<std::shared_ptr<LayerNodeGui>> getAllLayers();
+    void layoutLayers(float horizontalSpacing, float verticalSpacing, float horizontalOffset);
+    ImVec2 getSize(float horizontalSpacing, float verticalSpacing) const;
 private:
     std::list<Row>::iterator getItRow(std::shared_ptr<LayerNodeGui>);
     std::list<Row>::iterator makePrevRowAvailable(std::list<Row>::iterator it);
@@ -84,6 +89,30 @@ std::set<std::shared_ptr<LayerNodeGui>> Graph::getAllLayers()
     return setLayers;
 }
 
+void Graph::layoutLayers(float horizontalSpacing, float verticalSpacing, float horizontalOffset)
+{
+    auto graphSize = getSize(horizontalSpacing, verticalSpacing);
+    float verticalOffset = 0;
+    for (const auto& row : listRow) {
+        auto rowSize = row.getSize(horizontalSpacing);
+        auto leftMargin = (graphSize.x - rowSize.x) / 2;
+        row.layoutLayers(horizontalSpacing, leftMargin, horizontalOffset, verticalOffset);
+        verticalOffset += verticalSpacing + rowSize.y;
+    }
+}
+
+ImVec2 Graph::getSize(float horizontalSpacing, float vericalSpacing) const
+{
+    ImVec2 graphSize;
+    for (auto& row : listRow) {
+        auto rowSize = row.getSize(horizontalSpacing);
+        graphSize.x = std::max(graphSize.x, rowSize.x);
+        graphSize.y += rowSize.y + vericalSpacing;
+    }
+    graphSize.y -= vericalSpacing; //Last row does not needd verticalSpacing
+    return graphSize;
+}
+
 std::list<Row>::iterator Graph::getItRow(std::shared_ptr<LayerNodeGui> searchLayer)
 {
     for (auto itRow = listRow.begin(); itRow != listRow.end(); ++itRow) {
@@ -130,6 +159,7 @@ std::vector<std::shared_ptr<LayerNodeGui>> Graph::getOutputLayers(std::shared_pt
     }
     return vecOutputLayers;
 }
+
 std::pair<std::map<std::shared_ptr<LayerNodeGui>, std::vector<std::shared_ptr<EdgeGui>>>, std::map<std::shared_ptr<LayerNodeGui>, std::vector<std::shared_ptr<EdgeGui>>>>
     getMapLayerToOutputEdge(std::shared_ptr<IRModelGui> irModelGui) 
 {
@@ -166,6 +196,31 @@ void GraphLayout::layoutNodes(std::shared_ptr<IRModelGui> irModelGui)
             return setGraphLayer.find(layer) != setGraphLayer.end();
             }), vecLayerNotProc.end());
     }
+
+    float prevGraphOffSet = 0;
+    for (auto& graph : vecGraph) {
+        graph.layoutLayers(horizontalSpacing, verticalSpacing, prevGraphOffSet);
+        prevGraphOffSet += (graph.getSize(horizontalSpacing, verticalSpacing)).x;
+    }
 }
 
+ImVec2 Row::getSize(float horizontalSpacing) const {
+    ImVec2 rowSize;
+    for (const auto& layer : vecLayer) {
+        auto nodeSize = ax::NodeEditor::GetNodeSize(layer->id_gui);
+        rowSize.x += nodeSize.x;
+        rowSize.y = std::max(rowSize.y, nodeSize.y);
+    }
+    if (vecLayer.size()) rowSize.x += (vecLayer.size() - 1) * horizontalSpacing;
+    return rowSize;
+}
 
+void Row::layoutLayers(float horizontalSpacing, float leftmargin, float horizontalOffset, float verticalOffset) const
+{
+    auto xOffset = leftmargin + horizontalOffset;
+    for (const auto& layer : vecLayer) {
+        ImVec2 pos(xOffset, verticalOffset);
+        ax::NodeEditor::SetNodePosition(layer->id_gui, pos);
+        xOffset += ax::NodeEditor::GetNodeSize(layer->id_gui).x + horizontalSpacing;
+    }
+}
