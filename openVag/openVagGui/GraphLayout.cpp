@@ -200,7 +200,7 @@ void GraphLayout::layoutNodes(std::shared_ptr<IRModelGui> irModelGui)
     float prevGraphOffSet = 0;
     for (auto& graph : vecGraph) {
         graph.layoutLayers(horizontalSpacing, verticalSpacing, prevGraphOffSet);
-        prevGraphOffSet += (graph.getSize(horizontalSpacing, verticalSpacing)).x;
+        prevGraphOffSet += (graph.getSize(horizontalSpacing, verticalSpacing)).x + horizontalSpacing;
     }
 }
 
