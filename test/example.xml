@@ -24,10 +24,10 @@
                   <dim>3</dim>
                </port>
                <port id="2" precision="FP32">
-                  <dim>64</dim>
-                  <dim>3</dim>
-                  <dim>3</dim>
-                  <dim>3</dim>
+                    <dim>1</dim>
+                    <dim>3</dim>
+                    <dim>32</dim>
+                    <dim>100</dim>
                </port>
             </output>
       </layer>
@@ -104,21 +104,21 @@
       </layer>
       <layer id="6" name="output" type="Result" version="opset1">
             <input>
-               <port id="0">
-                  <dim>1</dim>
-                  <dim>64</dim>
-                  <dim>32</dim>
-                  <dim>100</dim>
+               <port id="0" precision="FP32">
+                    <dim>1</dim>
+                    <dim>3</dim>
+                    <dim>32</dim>
+                    <dim>100</dim>
                </port>
             </input>
       </layer>
       <layer id="7" name="output" type="Result" version="opset1">
             <input>
-               <port id="0">
-                  <dim>1</dim>
-                  <dim>64</dim>
-                  <dim>32</dim>
-                  <dim>100</dim>
+               <port id="0" precision="FP32">
+                    <dim>1</dim>
+                    <dim>3</dim>
+                    <dim>32</dim>
+                    <dim>100</dim>
                </port>
             </input>
             <output>
@@ -132,7 +132,7 @@
       </layer>
       <layer id="8" name="output" type="Result" version="opset1">
             <input>
-               <port id="0">
+               <port id="0"  precision="FP32">
                   <dim>1</dim>
                   <dim>64</dim>
                   <dim>32</dim>
@@ -149,6 +149,8 @@
       <edge from-layer="3" from-port="1" to-layer="4" to-port="0"/>
       <edge from-layer="5" from-port="0" to-layer="6" to-port="0"/>
       <edge from-layer="5" from-port="1" to-layer="7" to-port="0"/>
+      <edge from-layer="7" from-port="1" to-layer="8" to-port="0"/>
+      <edge from-layer="1" from-port="2" to-layer="7" to-port="0"/>
    </edges>
    <meta_data>
       <!-- This section that is not related to a topology; contains auxiliary information that serves for the debugging purposes. -->
