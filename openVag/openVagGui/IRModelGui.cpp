@@ -45,6 +45,28 @@ void IRModelGui::insert(std::ptrdiff_t pos, std::shared_ptr<LayerNodeGui> value)
     vecLayerNodeGui.insert(vecLayerNodeGui.begin() + pos, value);
 }
 
+std::shared_ptr<LayerInputPortGui> IRModelGui::getInputPort(ax::NodeEditor::PinId pin_id)
+{
+    for (const auto& layer : vecLayerNodeGui) {
+        for (auto& port : layer->vecInputPort) {
+            if (port->pinId_gui == pin_id) return port;
+        }
+    }
+
+    return {};
+}
+
+std::shared_ptr<LayerOutputPortGui> IRModelGui::getOutputPort(ax::NodeEditor::PinId pin_id)
+{
+    for (const auto& layer : vecLayerNodeGui) {
+        for (auto& port : layer->vecOutputPort) {
+            if (port->pinId_gui == pin_id) return port;
+        }
+    }
+
+    return {};
+}
+
 void LayerOutputPortGui::deleteChild(std::shared_ptr<EdgeGui> child)
 {
     auto it = std::find(vecEdgeGui.begin(), vecEdgeGui.end(), child);

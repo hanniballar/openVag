@@ -15,6 +15,8 @@ public:
 		to_port(to_port),
 		xmlElementEdges(xmlElementEdges) {}
 
+	std::shared_ptr<XMLNodeWrapper> getXMLElement() { return xmlElement; }
+
 private:
 	void doAct() override;
 	void undoAct() override;
@@ -25,7 +27,6 @@ private:
 	std::string to_port;
 	std::shared_ptr<XMLNodeWrapper> xmlElementEdges;
 
-	//For undo
 	std::shared_ptr<XMLNodeWrapper> xmlElement;
 
 };

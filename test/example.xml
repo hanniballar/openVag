@@ -122,7 +122,7 @@
                </port>
             </input>
             <output>
-               <port id="1" precision="FP32">>
+               <port id="1" precision="FP32">
                   <dim>1</dim>
                   <dim>64</dim>
                   <dim>32</dim>

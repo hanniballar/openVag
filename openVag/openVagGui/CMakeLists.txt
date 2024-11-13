@@ -6,6 +6,8 @@ set(Sources
 	main.cpp
 	OpenVag.h
 	OpenVag.cpp
+	beginCreate.cpp
+	beginCreate.h
 	drawLayerNodes.cpp
 	drawLayerNodes.h
 	IRModelGui.h
@@ -36,6 +38,8 @@ set(Sources
 	commands/DeleteAttributeXMLElement.h
 	commands/AddXMLEdge.cpp
 	commands/AddXMLEdge.h
+	commands/AddEdge.cpp
+	commands/AddEdge.h
 	commands/AddXMLLayer.cpp
 	commands/AddXMLLayer.h
 	commands/ModifyEdge.cpp
