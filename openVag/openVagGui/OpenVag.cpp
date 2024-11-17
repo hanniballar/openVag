@@ -403,6 +403,15 @@ bool OpenVag::Run()
         ImGui_ImplDX12_NewFrame();
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
+        if (ImGui::BeginMainMenuBar()) {
+            if (ImGui::BeginMenu("Edit")) {
+                if (ImGui::MenuItem("ReLayout")) {
+                    graphLayout.enableLayout();
+                }
+                ImGui::EndMenu();
+            }
+            ImGui::EndMainMenuBar();
+        }
         ImGuiID did = ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_AutoHideTabBar);
         {
             ImGui::Begin("Canvas");
@@ -411,11 +420,10 @@ bool OpenVag::Run()
             int uniqueId = 1;
             // Start drawing nodes.
             if (firstFrame) {
-                irModel = parseIRModel("D:/work/openVag_refactor/test/example_simple.xml");
+                irModel = parseIRModel("D:/work/openVag/test/example_simple.xml");
                 drawLayerNodes(irModel->getNetwork()->getLayers());
                 drawModelEdges(irModel->getNetwork()->getEdges());
 
-                GraphLayout graphLayout(30, 20);
                 graphLayout.layoutNodes(irModel);
                 firstFrame = false;
             }
@@ -423,6 +431,7 @@ bool OpenVag::Run()
                 drawLayerNodes(irModel->getNetwork()->getLayers());
                 drawModelEdges(irModel->getNetwork()->getEdges());
                 beginCreate(irModel, commandCenter);
+                graphLayout.layoutNodes(irModel);
             }
             ax::NodeEditor::End();
             ax::NodeEditor::SetCurrentEditor(nullptr);

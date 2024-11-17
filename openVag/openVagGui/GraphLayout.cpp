@@ -122,6 +122,7 @@ std::list<Row>::iterator Graph::makeNextRowAvailable(std::list<Row>::iterator it
 }
 
 void GraphLayout::layoutNodes(const std::shared_ptr<IRModel>& irModelGui) {
+    if (_enableLayout == false) return;
     std::set<std::shared_ptr<Layer>, LayerIDLess> setLayerNotProc(irModelGui->getNetwork()->getLayers()->begin(), irModelGui->getNetwork()->getLayers()->end());
     std::vector<Graph> vecGraph;
 
@@ -137,6 +138,7 @@ void GraphLayout::layoutNodes(const std::shared_ptr<IRModel>& irModelGui) {
         graph.layoutLayers(horizontalSpacing, verticalSpacing, prevGraphOffSet);
         prevGraphOffSet += (graph.getSize(horizontalSpacing, verticalSpacing)).x + horizontalSpacing;
     }
+    _enableLayout = false;
 }
 
 ImVec2 Row::getSize(float horizontalSpacing) const {

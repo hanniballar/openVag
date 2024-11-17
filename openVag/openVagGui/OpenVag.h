@@ -1,17 +1,19 @@
 #pragma once
 #include <cstdint>
+#include "GraphLayout.h"
 
 int64_t GetNextId();
 
 class OpenVag{
 public:
-	OpenVag() {};
+	OpenVag() {
+
+	};
 	bool Create();
 	bool Run();
 	bool Quit();
 	~OpenVag();
 
-	
 private:
-
+	GraphLayout graphLayout = { 30, 20 };
 };
