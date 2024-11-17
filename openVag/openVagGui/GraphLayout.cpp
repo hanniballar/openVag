@@ -13,40 +13,27 @@
 
 class Row {
 public:
-    std::list<std::shared_ptr<LayerNodeGui>> vecLayer;
+    std::list<std::shared_ptr<Layer>> vecLayer;
     ImVec2 getSize(float horizontalSpacing) const;
     void layoutLayers(float horizontalSpacing, float leftmargin, float horizontalOffset, float verticalOffset) const;
 };
 
 class Graph {
 public:
-    Graph(
-        std::shared_ptr<LayerNodeGui> startLayer,
-        const std::map<std::shared_ptr<LayerNodeGui>, std::vector<std::shared_ptr<EdgeGui>>>& mapLayerToInputEdge,
-        const std::map<std::shared_ptr<LayerNodeGui>, std::vector<std::shared_ptr<EdgeGui>>>& mapLayerToOutputEdge);
-    std::set<std::shared_ptr<LayerNodeGui>> getAllLayers();
+    Graph(const std::shared_ptr<Layer>& startLayer);
+    std::set<std::shared_ptr<Layer>> getAllLayers();
     void layoutLayers(float horizontalSpacing, float verticalSpacing, float horizontalOffset);
     ImVec2 getSize(float horizontalSpacing, float verticalSpacing) const;
 private:
-    std::list<Row>::iterator getItRow(std::shared_ptr<LayerNodeGui>);
+    std::list<Row>::iterator getItRow(std::shared_ptr<Layer>);
     std::list<Row>::iterator makePrevRowAvailable(std::list<Row>::iterator it);
     std::list<Row>::iterator makeNextRowAvailable(std::list<Row>::iterator it);
-    std::vector<std::shared_ptr<LayerNodeGui>> getInputLayers(std::shared_ptr<LayerNodeGui> layer);
-    std::vector<std::shared_ptr<LayerNodeGui>> getOutputLayers(std::shared_ptr<LayerNodeGui> layer);
     std::list<Row> listRow;
-
-    const std::map<std::shared_ptr<LayerNodeGui>, std::vector<std::shared_ptr<EdgeGui>>>& mapLayerToInputEdge;
-    const std::map<std::shared_ptr<LayerNodeGui>, std::vector<std::shared_ptr<EdgeGui>>>& mapLayerToOutputEdge;
 };
 
-Graph::Graph(
-    std::shared_ptr<LayerNodeGui> startLayer,
-    const std::map<std::shared_ptr<LayerNodeGui>, std::vector<std::shared_ptr<EdgeGui>>>& mapLayerToInputEdge,
-    const std::map<std::shared_ptr<LayerNodeGui>, std::vector<std::shared_ptr<EdgeGui>>>& mapLayerToOutputEdge)
-        : mapLayerToInputEdge(mapLayerToInputEdge), mapLayerToOutputEdge(mapLayerToOutputEdge)
-{
-    std::deque<std::shared_ptr<LayerNodeGui>> dequeProcLayer = { startLayer };
-    std::set<std::shared_ptr<LayerNodeGui>> setSeenLayers;
+Graph::Graph(const std::shared_ptr<Layer>& startLayer) {
+    std::deque<std::shared_ptr<Layer>> dequeProcLayer = { startLayer };
+    std::set<std::shared_ptr<Layer>> setSeenLayers;
     listRow.push_back(Row());
     listRow.front().vecLayer.push_back(startLayer);
     while (dequeProcLayer.size()) {
@@ -56,35 +43,29 @@ Graph::Graph(
         setSeenLayers.insert(procLayer);
         auto itRow = getItRow(procLayer);
         {
-            auto vecInputLayer = getInputLayers(procLayer);
-            vecInputLayer.erase(std::remove_if(vecInputLayer.begin(), vecInputLayer.end(),
-                [&setSeenLayers](const auto& layer) { return setSeenLayers.find(layer) != setSeenLayers.end(); }
-            ), vecInputLayer.end());
-            if (vecInputLayer.size()) {
+            auto setInputLayer = procLayer->getInputLayers();
+            for (auto& layer : setSeenLayers) setInputLayer.erase(layer);
+            if (setInputLayer.size()) {
                 auto itPrevRow = makePrevRowAvailable(itRow);
-                itPrevRow->vecLayer.insert(itPrevRow->vecLayer.end(), vecInputLayer.begin(), vecInputLayer.end());
-                dequeProcLayer.insert(dequeProcLayer.end(), vecInputLayer.begin(), vecInputLayer.end());
+                itPrevRow->vecLayer.insert(itPrevRow->vecLayer.end(), setInputLayer.begin(), setInputLayer.end());
+                dequeProcLayer.insert(dequeProcLayer.end(), setInputLayer.begin(), setInputLayer.end());
             }
         }
         {
-            auto vecOutputLayer = getOutputLayers(procLayer);
-            vecOutputLayer.erase(std::remove_if(vecOutputLayer.begin(), vecOutputLayer.end(),
-                [&setSeenLayers](const auto& layer) { 
-                    return setSeenLayers.find(layer) != setSeenLayers.end();
-                }
-            ), vecOutputLayer.end());
-            if (vecOutputLayer.size()) {
+            auto setOutputLayer = procLayer->getOutputLayers();
+            for (auto& layer : setSeenLayers) setOutputLayer.erase(layer);
+            if (setOutputLayer.size()) {
                 auto itNextRow = makeNextRowAvailable(itRow);
-                itNextRow->vecLayer.insert(itNextRow->vecLayer.end(), vecOutputLayer.begin(), vecOutputLayer.end());
-                dequeProcLayer.insert(dequeProcLayer.end(), vecOutputLayer.begin(), vecOutputLayer.end());
+                itNextRow->vecLayer.insert(itNextRow->vecLayer.end(), setOutputLayer.begin(), setOutputLayer.end());
+                dequeProcLayer.insert(dequeProcLayer.end(), setOutputLayer.begin(), setOutputLayer.end());
             }
         }
     }
 }
 
-std::set<std::shared_ptr<LayerNodeGui>> Graph::getAllLayers()
+std::set<std::shared_ptr<Layer>> Graph::getAllLayers()
 {
-    std::set<std::shared_ptr<LayerNodeGui>> setLayers;
+    std::set<std::shared_ptr<Layer>> setLayers;
     for (const auto& row : listRow) { setLayers.insert(row.vecLayer.begin(), row.vecLayer.end()); }
     return setLayers;
 }
@@ -113,7 +94,7 @@ ImVec2 Graph::getSize(float horizontalSpacing, float vericalSpacing) const
     return graphSize;
 }
 
-std::list<Row>::iterator Graph::getItRow(std::shared_ptr<LayerNodeGui> searchLayer)
+std::list<Row>::iterator Graph::getItRow(std::shared_ptr<Layer> searchLayer)
 {
     for (auto itRow = listRow.begin(); itRow != listRow.end(); ++itRow) {
         if (std::find(itRow->vecLayer.begin(), itRow->vecLayer.end(), searchLayer) != itRow->vecLayer.end()) {
@@ -140,61 +121,15 @@ std::list<Row>::iterator Graph::makeNextRowAvailable(std::list<Row>::iterator it
     return listRow.insert(listRow.end(), Row());
 }
 
-std::vector<std::shared_ptr<LayerNodeGui>> Graph::getInputLayers(std::shared_ptr<LayerNodeGui> layer)
-{
-    std::vector<std::shared_ptr<LayerNodeGui>> vecInputLayers;
-    if (mapLayerToInputEdge.find(layer) == mapLayerToInputEdge.end()) return {};
-    for (const auto& edge : mapLayerToInputEdge.at(layer)) {
-        vecInputLayers.push_back(edge->outputPort->Parent());
-    }
-    return vecInputLayers;
-}
-
-std::vector<std::shared_ptr<LayerNodeGui>> Graph::getOutputLayers(std::shared_ptr<LayerNodeGui> layer)
-{
-    std::vector<std::shared_ptr<LayerNodeGui>> vecOutputLayers;
-    if (mapLayerToOutputEdge.find(layer) == mapLayerToOutputEdge.end()) return {};
-    for (const auto& edge : mapLayerToOutputEdge.at(layer)) {
-        vecOutputLayers.push_back(edge->inputPort->Parent());
-    }
-    return vecOutputLayers;
-}
-
-std::pair<std::map<std::shared_ptr<LayerNodeGui>, std::vector<std::shared_ptr<EdgeGui>>>, std::map<std::shared_ptr<LayerNodeGui>, std::vector<std::shared_ptr<EdgeGui>>>>
-    getMapLayerToOutputEdge(std::shared_ptr<IRModelGui> irModelGui) 
-{
-    std::map<std::shared_ptr<LayerNodeGui>, std::vector<std::shared_ptr<EdgeGui>>> mapLayerToInputEdge;
-    std::map<std::shared_ptr<LayerNodeGui>, std::vector<std::shared_ptr<EdgeGui>>> mapLayerToOutputEdge;
-
-    for (const auto& layer : irModelGui->vecLayerNodeGui) {
-        for (const auto& port : layer->vecOutputPort) {
-            for (const auto& edge : port->vecEdgeGui) {
-                mapLayerToInputEdge[edge->inputPort->Parent()].push_back(edge);
-                mapLayerToOutputEdge[edge->outputPort->Parent()].push_back(edge);
-            }
-        }
-    }
-
-    return { mapLayerToInputEdge, mapLayerToOutputEdge };
-}
-
-void GraphLayout::layoutNodes(std::shared_ptr<IRModelGui> irModelGui)
-{
-    std::map<std::shared_ptr<LayerNodeGui>, std::vector<std::shared_ptr<EdgeGui>>> mapLayerToInputEdge;
-    std::map<std::shared_ptr<LayerNodeGui>, std::vector<std::shared_ptr<EdgeGui>>> mapLayerToOutputEdge;
-    std::tie(mapLayerToInputEdge, mapLayerToOutputEdge) = getMapLayerToOutputEdge(irModelGui);
-
-    std::vector<std::shared_ptr<LayerNodeGui>> vecLayerNotProc = irModelGui->vecLayerNodeGui;
+void GraphLayout::layoutNodes(const std::shared_ptr<IRModel>& irModelGui) {
+    std::set<std::shared_ptr<Layer>, LayerIDLess> setLayerNotProc(irModelGui->getNetwork()->getLayers()->begin(), irModelGui->getNetwork()->getLayers()->end());
     std::vector<Graph> vecGraph;
 
-    while (vecLayerNotProc.size()) {
-        auto layer = vecLayerNotProc[0];
-        Graph graph(layer, mapLayerToInputEdge, mapLayerToOutputEdge);
+    while (setLayerNotProc.size()) {
+        auto layer = *(setLayerNotProc.begin());
+        Graph graph(layer);
         vecGraph.push_back(graph);
-        const auto setGraphLayer = graph.getAllLayers();
-        vecLayerNotProc.erase(std::remove_if(vecLayerNotProc.begin(), vecLayerNotProc.end(), [&setGraphLayer](const auto& layer) {
-            return setGraphLayer.find(layer) != setGraphLayer.end();
-            }), vecLayerNotProc.end());
+        for (auto& layer : graph.getAllLayers()) setLayerNotProc.erase(layer);
     }
 
     float prevGraphOffSet = 0;
@@ -207,7 +142,7 @@ void GraphLayout::layoutNodes(std::shared_ptr<IRModelGui> irModelGui)
 ImVec2 Row::getSize(float horizontalSpacing) const {
     ImVec2 rowSize;
     for (const auto& layer : vecLayer) {
-        auto nodeSize = ax::NodeEditor::GetNodeSize(layer->id_gui);
+        auto nodeSize = ax::NodeEditor::GetNodeSize(layer->getId());
         rowSize.x += nodeSize.x;
         rowSize.y = std::max(rowSize.y, nodeSize.y);
     }
@@ -220,7 +155,7 @@ void Row::layoutLayers(float horizontalSpacing, float leftmargin, float horizont
     auto xOffset = leftmargin + horizontalOffset;
     for (const auto& layer : vecLayer) {
         ImVec2 pos(xOffset, verticalOffset);
-        ax::NodeEditor::SetNodePosition(layer->id_gui, pos);
-        xOffset += ax::NodeEditor::GetNodeSize(layer->id_gui).x + horizontalSpacing;
+        ax::NodeEditor::SetNodePosition(layer->getId(), pos);
+        xOffset += ax::NodeEditor::GetNodeSize(layer->getId()).x + horizontalSpacing;
     }
 }

@@ -2,13 +2,13 @@
 #include <cstdint>
 #include <memory>
 
-#include "IRModelGui.h"
+#include "IRModel.h"
 
 
 class GraphLayout {
 public:
 	GraphLayout(float horizontalSpacing, float verticalSpacing) : horizontalSpacing(horizontalSpacing), verticalSpacing(verticalSpacing) {};
-	void layoutNodes(std::shared_ptr<IRModelGui> irModelGui);
+	void layoutNodes(const std::shared_ptr<IRModel>& irModelGui);
 private:
 	float horizontalSpacing;
 	float verticalSpacing;

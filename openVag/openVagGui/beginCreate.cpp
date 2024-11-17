@@ -5,23 +5,22 @@
 #include "commands/AddEdge.h"
 #include "OpenVag.h"
 
-void beginCreate(std::shared_ptr<IRModelGui> irModelGui, CommandCenter& commandCenter) {
+void beginCreate(std::shared_ptr<IRModel> irModelGui, CommandCenter& commandCenter) {
     if (ax::NodeEditor::BeginCreate(ImColor(255, 255, 255), 1.0f)) {
         ax::NodeEditor::PinId startPinId = 0, endPinId = 0;
         if (ax::NodeEditor::QueryNewLink(&startPinId, &endPinId)) {
-            std::shared_ptr<LayerOutputPortGui> outputPort;
-            std::shared_ptr<LayerInputPortGui> inputPort;
-            outputPort = irModelGui->getOutputPort(startPinId);
-            if (outputPort) { inputPort = irModelGui->getInputPort(endPinId); }
+            std::shared_ptr<OutputPort> outputPort;
+            std::shared_ptr<InputPort> inputPort;
+            outputPort = irModelGui->getNetwork()->getLayers()->getOutputPort(startPinId);
+            if (outputPort) { inputPort = irModelGui->getNetwork()->getLayers()->getInputPort(endPinId); }
             else {
-                outputPort = irModelGui->getOutputPort(endPinId);
-                 if (outputPort) { inputPort = irModelGui->getInputPort(startPinId); }
+                outputPort = irModelGui->getNetwork()->getLayers()->getOutputPort(endPinId);
+                if (outputPort) { inputPort = irModelGui->getNetwork()->getLayers()->getInputPort(startPinId); }
             }
 
-            if (outputPort && inputPort) {
+            if (outputPort && inputPort && (irModelGui->getNetwork()->getEdges()->getEdge(outputPort, inputPort) == nullptr)) {
                 if (ax::NodeEditor::AcceptNewItem(ImColor(128, 255, 128), 4.0f)) {
-                    std::shared_ptr<EdgeGui> edgeGui = std::make_shared<EdgeGui>(GetNextId(), outputPort, inputPort, nullptr);
-                    commandCenter.execute(std::make_shared<AddEdge>(edgeGui));
+                    commandCenter.execute(std::make_shared<AddEdge>(irModelGui, outputPort, inputPort));
                 }
             }
             else {

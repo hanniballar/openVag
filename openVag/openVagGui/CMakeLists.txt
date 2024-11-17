@@ -10,8 +10,8 @@ set(Sources
 	beginCreate.h
 	drawLayerNodes.cpp
 	drawLayerNodes.h
-	IRModelGui.h
-	IRModelGui.cpp
+	IRModel.h
+	IRModel.cpp
 	drawEdges.cpp
 	drawEdges.h
 	parseIRModel.cpp
@@ -26,24 +26,16 @@ set(Sources
 	commands/ICommand.h
 	commands/RemoveXMLElement.cpp
 	commands/RemoveXMLElement.h
-	commands/RemoveEdge.cpp
-	commands/RemoveEdge.h
-	commands/RemoveLayer.cpp
-	commands/RemoveLayer.h
 	commands/ModifyAttributeXMLElement.cpp
 	commands/ModifyAttributeXMLElement.h
 	commands/AddAttributeXMLElement.cpp
 	commands/AddAttributeXMLElement.h
 	commands/DeleteAttributeXMLElement.cpp
 	commands/DeleteAttributeXMLElement.h
-	commands/AddXMLEdge.cpp
-	commands/AddXMLEdge.h
 	commands/AddEdge.cpp
 	commands/AddEdge.h
 	commands/AddXMLLayer.cpp
 	commands/AddXMLLayer.h
-	commands/ModifyEdge.cpp
-	commands/ModifyEdge.h
 
 )
 

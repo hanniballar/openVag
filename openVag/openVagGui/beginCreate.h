@@ -1,6 +1,6 @@
 #pragma once
 
 #include "commands/CommandCenter.h"
-#include "IRModelGui.h"
+#include "IRModel.h"
 
-void beginCreate(std::shared_ptr<IRModelGui> irModelGui, CommandCenter& commandCenter);
+void beginCreate(std::shared_ptr<IRModel> irModelGui, CommandCenter& commandCenter);

@@ -9,39 +9,11 @@
 #include <map>
 #include <set>
 
-#include "IRModelGui.h"
+#include "IRModel.h"
 #include "tinyxml2.h"
 #include "OpenVag.h"
 
 using namespace tinyxml2;
-
-class Edge {
-public:
-    Edge(std::string from_layer, std::string from_port, std::string to_layer, std::string to_port, tinyxml2::XMLElement* edge) : from_layer(from_layer), from_port(from_port), to_layer(to_layer), to_port(to_port), edge(edge) {}
-    std::string from_layer;
-    std::string from_port;
-    std::string to_layer;
-    std::string to_port;
-    XMLElement* edge;
-
-    std::string toString() const {
-        return std::string("from-layer=\"") + from_layer + "\" from-port=\"" + from_port + " to-layer=\"" + to_layer + " to-port=\"" + to_port;
-    }
-
-    bool operator<(const Edge& other) const {
-        if (from_layer != other.from_layer) return from_layer < other.from_layer;
-        if (from_port != other.from_port) return from_port < other.from_port;
-        if (to_layer != other.to_layer) return to_layer < other.to_layer;
-        return to_port < other.to_port;
-    }
-
-    bool operator==(const Edge& other) const {
-        return from_layer == other.from_layer &&
-            from_port == other.from_port &&
-            to_layer == other.to_layer &&
-            to_port == other.to_port;
-    }
-};
 
 class ParseIRModelException : public std::exception {
 private:
@@ -55,7 +27,7 @@ public:
 };
 
 template <class LayerPortGuiType>
-std::shared_ptr<LayerPortGuiType> parsePort(XMLElement* port, std::shared_ptr<LayerNodeGui> parent) {
+std::shared_ptr<LayerPortGuiType> parsePort(XMLElement* port, std::shared_ptr<Layer> parent) {
     assert(port != nullptr);
     auto portID = port->Attribute("id");
     if (portID == nullptr) {
@@ -63,78 +35,65 @@ std::shared_ptr<LayerPortGuiType> parsePort(XMLElement* port, std::shared_ptr<La
         throw ParseIRModelException(msg.c_str());
     }
 
-    ax::NodeEditor::PinId id_gui = GetNextId();
-    return std::make_shared<LayerPortGuiType>(id_gui, port, parent);
+    return std::make_shared<LayerPortGuiType>(GetNextId(), port, parent);
 }
 
 template <class LayerPortGuiType>
-std::vector<std::shared_ptr<LayerPortGuiType>> parseLayerPorts(XMLElement* ports, std::shared_ptr<LayerNodeGui> parent) {
-    if (ports == nullptr) {
-        return {};
+void parsePorts(XMLElement* ports, std::shared_ptr<Layer> parent) {
+    if(ports == nullptr) return;
+    auto xmlPort = ports->FirstChildElement("port");
+    while (xmlPort != nullptr) {
+        parent->addPort(parsePort<LayerPortGuiType>(xmlPort, parent));
+        xmlPort = xmlPort->NextSiblingElement();
     }
-
-    std::vector<std::shared_ptr<LayerPortGuiType>> vecLayerPort;
-    XMLElement* port = ports->FirstChildElement("port");
-    while (port != nullptr) {
-        vecLayerPort.push_back(parsePort<LayerPortGuiType>(port, parent));
-        port = port->NextSiblingElement();
-    }
-
-    return vecLayerPort;
 }
 
-std::shared_ptr<LayerNodeGui> parseLayer(XMLElement* layer, std::shared_ptr<IRModelGui> parent) {
-    auto layerID = layer->Attribute("id");
+void parseLayer(XMLElement* xmlLayer, std::shared_ptr<Layers> parent) {
+    assert(xmlLayer != nullptr);
+    auto layerID = xmlLayer->Attribute("id");
     if (layerID == nullptr) {
-        std::string msg = "Layer on line " + layer->GetLineNum() + std::string(" does not contain an 'id' attribute");
+        std::string msg = "Layer on line " + xmlLayer->GetLineNum() + std::string(" does not contain an 'id' attribute");
         throw ParseIRModelException(msg.c_str());
     }
-    auto name = layer->Attribute("name");
+    auto name = xmlLayer->Attribute("name");
     if (name == nullptr) {
-        std::string msg = "Layer on line " + layer->GetLineNum() + std::string(" does not contain an 'name' attribute");
+        std::string msg = "Layer on line " + xmlLayer->GetLineNum() + std::string(" does not contain an 'name' attribute");
         throw ParseIRModelException(msg.c_str());
     }
-    auto type = layer->Attribute("type");
+    auto type = xmlLayer->Attribute("type");
     if (type == nullptr) {
-        std::string msg = "Layer on line " + layer->GetLineNum() + std::string(" does not contain an 'type' attribute");
+        std::string msg = "Layer on line " + xmlLayer->GetLineNum() + std::string(" does not contain an 'type' attribute");
         throw ParseIRModelException(msg.c_str());
     }
 
-    auto layerNodeGui = std::make_shared<LayerNodeGui>(GetNextId(), layer, parent);
-    auto inputs = layer->FirstChildElement("input");
-    {
-        layerNodeGui->vecInputPort = parseLayerPorts<LayerInputPortGui>(inputs, layerNodeGui);
-        for (auto& port : layerNodeGui->vecInputPort) { port->parent = layerNodeGui; }
-    }
-
-    auto outputs = layer->FirstChildElement("output");
-    {
-        layerNodeGui->vecOutputPort = parseLayerPorts<LayerOutputPortGui>(outputs, layerNodeGui);
-        for (auto& port : layerNodeGui->vecOutputPort) { port->parent = layerNodeGui; }
-    }
-    return layerNodeGui;
+    auto layerGui = std::make_shared<Layer>(GetNextId(), xmlLayer, parent);
+    parent->addLayer(layerGui);
+    auto inputs = xmlLayer->FirstChildElement("input");
+    parsePorts<InputPort>(inputs, layerGui);
+    auto outputs = xmlLayer->FirstChildElement("output");
+    parsePorts<OutputPort>(outputs, layerGui);
 }
 
-std::vector<std::shared_ptr<LayerNodeGui>> parseLayers(XMLElement* layers, std::shared_ptr<IRModelGui> parent) {
-    if (layers == nullptr) {
-        return {};
+std::shared_ptr<Layers> parseLayers(XMLElement* xmlLayers, std::shared_ptr<Network> parent) {
+    if (xmlLayers == nullptr) {
+        xmlLayers = parent->getXmlElement()->el->GetDocument()->NewElement("layers");
+        parent->getXmlElement()->el->InsertFirstChild(xmlLayers);
     }
-
-    std::vector<std::shared_ptr<LayerNodeGui>> vecLayerNode;
-    XMLElement* layer = layers->FirstChildElement("layer");
+    std::shared_ptr<Layers> layers = std::make_shared<Layers>(xmlLayers, parent);
+    XMLElement* layer = xmlLayers->FirstChildElement("layer");
     while (layer != nullptr) {
-        vecLayerNode.push_back(parseLayer(layer, parent));
+        parseLayer(layer, layers);
 
         layer = layer->NextSiblingElement();
     }
 
-    return vecLayerNode;
+    return layers;
 }
 
-Edge parseEdge(XMLElement* edge) {
+std::shared_ptr<Edge> parseEdge(XMLElement* edge, std::shared_ptr<Edges> parent) {
     assert(edge != nullptr);
 
-   auto from_layer = edge->Attribute("from-layer");
+    auto from_layer = edge->Attribute("from-layer");
     if (from_layer == nullptr) {
         std::string msg = "Edge on line " + edge->GetLineNum() + std::string(" does not contain an 'from-layer' attribute");
         throw ParseIRModelException(msg.c_str());
@@ -158,114 +117,40 @@ Edge parseEdge(XMLElement* edge) {
         throw ParseIRModelException(msg.c_str());
     }
 
-    return Edge(from_layer, from_port, to_layer, to_port, edge);
+    return parent->createEdge(GetNextId(), from_layer, from_port, to_layer, to_port, edge);
 }
 
-std::vector<Edge> parseEdges(XMLElement* edges) {
-    if (edges == nullptr) {
-        return {};
+std::shared_ptr<Edges> parseEdges(XMLElement* xmlEdges, std::shared_ptr<Network> parent) {
+    if (xmlEdges == nullptr) {
+        xmlEdges = parent->getXmlElement()->el->GetDocument()->NewElement("edges");
+        parent->getXmlElement()->el->InsertFirstChild(xmlEdges);
     }
-    std::vector<Edge> vecEdgeRaw;
-
-    XMLElement* edge = edges->FirstChildElement("edge");
+    std::shared_ptr<Edges> edges = std::make_shared<Edges>(xmlEdges, parent);
+    XMLElement* edge = xmlEdges->FirstChildElement("edge");
     while (edge != nullptr) {
-        vecEdgeRaw.push_back(parseEdge(edge));
-
+        edges->insertEdge(parseEdge(edge, edges));
         edge = edge->NextSiblingElement();
     }
-
-    return vecEdgeRaw;
+    return edges;
 }
 
-bool processEdges(std::vector<std::shared_ptr<LayerNodeGui>>& vecLayerNodeGui, const std::vector<Edge> vecEdge) {
-    struct Port {
-        Port(std::string layerID, std::string portID) : layerID(layerID), portID(portID) {}
-
-        std::string layerID;
-        std::string portID;
-
-        bool operator<(const Port& other) const {
-            if (this->layerID != other.layerID) return this->layerID < other.layerID;
-            if (this->portID != other.portID) return this->portID < other.portID;
-
-            return false;
-        }
-
-        std::string toString() {
-            return this->layerID + ", " + this->portID;
-        }
-    };
-    std::map<std::string, std::shared_ptr<LayerNodeGui>> mapXMLLayerIDtoGuiLayer;
-    std::map<Port, std::shared_ptr<LayerInputPortGui>> mapInputPorttoLayerPort;
-    std::map<Port, std::shared_ptr<LayerOutputPortGui>> mapOutputPorttoLayerPort;
-
-    for (auto& layerNodeGui : vecLayerNodeGui) {
-        if (mapXMLLayerIDtoGuiLayer.count(layerNodeGui->getXmlId())) {
-            std::cerr << "Duplicate layer id " << layerNodeGui->getXmlId() << std::endl;
-        }
-        else {
-            mapXMLLayerIDtoGuiLayer[layerNodeGui->getXmlId()] = layerNodeGui;
-            for (auto& layerPort : layerNodeGui->vecInputPort) {
-                Port port(layerNodeGui->getXmlId(), layerPort->getXmlId());
-                if (mapInputPorttoLayerPort.count(port)) {
-                    std::cerr << "Duplicate port: " << layerNodeGui->getXmlId() << std::endl;
-                }
-                else {
-                    mapInputPorttoLayerPort[port] = layerPort;
-                }
-            }
-            for (auto& layerPort : layerNodeGui->vecOutputPort) {
-                Port port(layerNodeGui->getXmlId(), layerPort->getXmlId());
-                if (mapOutputPorttoLayerPort.count(port)) {
-                    std::cerr << "Duplicate port: " << layerNodeGui->getXmlId() << std::endl;
-                }
-                else {
-                    mapOutputPorttoLayerPort[port] = layerPort;
-                }
-            }
-        }
-    }
-
-    std::set<Edge> setEdge;
-    for (auto& edge : vecEdge) {
-        if (setEdge.count(edge)) {
-            std::cerr << "Error: Duplicated edge: " << edge.toString() << std::endl;
-            continue;
-        }
-        else {
-            setEdge.insert(edge);
-        }
-        Port outputPort(edge.from_layer, edge.from_port);
-        Port inputPort(edge.to_layer, edge.to_port);
-
-        auto inputLayerPort = mapInputPorttoLayerPort[inputPort];
-        auto outputLayerPort = mapOutputPorttoLayerPort[outputPort];
-        ax::NodeEditor::LinkId linkID = GetNextId();
-        std::shared_ptr<EdgeGui> edgeGui = std::make_shared<EdgeGui>(linkID, outputLayerPort, inputLayerPort, edge.edge);
-
-        outputLayerPort->vecEdgeGui.push_back(edgeGui);
-    }
-
-    return true;
-}
-
-std::shared_ptr<IRModelGui> parseNet(XMLElement* net) {
-    std::shared_ptr<IRModelGui> irModelGui = std::make_shared<IRModelGui>(net);
+static std::shared_ptr<Network> parseNet(XMLElement* net, std::shared_ptr<IRModel> parent) {
+    std::shared_ptr<Network> network = std::make_shared<Network>(net, parent);
     XMLElement* layers = net->FirstChildElement("layers");
-    irModelGui->vecLayerNodeGui = parseLayers(layers, irModelGui);
+    network->setLayers(parseLayers(layers, network));
     XMLElement* edges = net->FirstChildElement("edges");
-    processEdges(irModelGui->vecLayerNodeGui, parseEdges(edges));
-    return irModelGui;
+    network->setEdges(parseEdges(edges, network));
+    return network;
 }
 
-static XMLDocument doc;
-std::shared_ptr<IRModelGui> parseIRModel(const char* xmlContent, size_t nBytes) {
-    if (doc.Parse(xmlContent) != XML_SUCCESS) {
+std::shared_ptr<IRModel> parseIRModel(const char* xmlContent, size_t nBytes) {
+    std::shared_ptr<XMLDocument> doc = std::make_shared<XMLDocument>();
+    if (doc->Parse(xmlContent) != XML_SUCCESS) {
         std::cerr << "Failed to parse XML" << std::endl;
         return {};
     }
 
-    XMLElement* net = doc.RootElement();
+    XMLElement* net = doc->RootElement();
     if (net == nullptr) {
         std::cerr << "No root element" << std::endl;
         return {};
@@ -276,10 +161,12 @@ std::shared_ptr<IRModelGui> parseIRModel(const char* xmlContent, size_t nBytes) 
         return {};
     }
 
-    return parseNet(net);
+    std::shared_ptr<IRModel> irModelGui = std::make_shared<IRModel>(doc);
+    irModelGui->setNetwork(parseNet(net, irModelGui));
+    return irModelGui;
 }
 
-std::shared_ptr<IRModelGui> parseIRModel(const std::string& fileName) {
+std::shared_ptr<IRModel> parseIRModel(const std::string& fileName) {
     std::ifstream file(fileName);
     if (!file) {
         std::cerr << "Failed to open file: " << fileName << std::endl;
@@ -291,8 +178,4 @@ std::shared_ptr<IRModelGui> parseIRModel(const std::string& fileName) {
     std::string xmlContent = buffer.str();
 
     return parseIRModel(xmlContent.c_str(), xmlContent.size());
-}
-
-XMLError saveFile(const char* filename) {
-    return doc.SaveFile(filename);
 }

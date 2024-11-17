@@ -9,16 +9,10 @@
 #include "imgui_node_editor.h"
 
 #include "parseIRModel.h"
-#include "IRModelGui.h"
+#include "IRModel.h"
 #include "drawLayerNodes.h"
 #include "drawEdges.h"
 #include "beginCreate.h"
-#include "commands/CommandCenter.h"
-#include "commands/RemoveEdge.h"
-#include "commands/RemoveLayer.h"
-#include "commands/DeleteAttributeXMLElement.h"
-#include "commands/AddXMLLayer.h"
-#include "commands/ModifyEdge.h"
 #include "GraphLayout.h"
 
 #ifdef _DEBUG
@@ -71,7 +65,7 @@ static HWND hwnd;
 static WNDCLASSEXW wc;
 static ax::NodeEditor::EditorContext* m_Context = nullptr;
 
-static std::shared_ptr<IRModelGui> irModelGui;
+static std::shared_ptr<IRModel> irModel;
 static int64_t uniqueId = 1;
 
 int64_t GetNextId() { return uniqueId++; }
@@ -417,19 +411,18 @@ bool OpenVag::Run()
             int uniqueId = 1;
             // Start drawing nodes.
             if (firstFrame) {
-                irModelGui = parseIRModel("D:/work/openVag/test/example.xml");
-                drawLayerNodes(irModelGui->vecLayerNodeGui);
-                drawModelEdges(irModelGui->vecLayerNodeGui);
+                irModel = parseIRModel("D:/work/openVag_refactor/test/example_simple.xml");
+                drawLayerNodes(irModel->getNetwork()->getLayers());
+                drawModelEdges(irModel->getNetwork()->getEdges());
 
                 GraphLayout graphLayout(30, 20);
-                graphLayout.layoutNodes(irModelGui);
+                graphLayout.layoutNodes(irModel);
                 firstFrame = false;
-
             }
             else {
-                drawLayerNodes(irModelGui->vecLayerNodeGui);
-                drawModelEdges(irModelGui->vecLayerNodeGui);
-                beginCreate(irModelGui, commandCenter);
+                drawLayerNodes(irModel->getNetwork()->getLayers());
+                drawModelEdges(irModel->getNetwork()->getEdges());
+                beginCreate(irModel, commandCenter);
             }
             ax::NodeEditor::End();
             ax::NodeEditor::SetCurrentEditor(nullptr);

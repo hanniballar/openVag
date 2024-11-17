@@ -1,3 +1,3 @@
-#include "IRModelGui.h"
+#include "IRModel.h"
 
-void drawLayerNodes(std::vector<std::shared_ptr<LayerNodeGui>> vecLayerNodeGui);
+void drawLayerNodes(std::shared_ptr<Layers> layers);

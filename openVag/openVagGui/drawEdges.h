@@ -1,4 +1,4 @@
 #pragma once
-#include "IRModelGui.h"
+#include "IRModel.h"
 
-void drawModelEdges(const std::vector<std::shared_ptr<LayerNodeGui>> vecLayerNodeGui);
+void drawModelEdges(std::shared_ptr<Edges> edges);
