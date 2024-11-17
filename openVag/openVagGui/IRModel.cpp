@@ -189,12 +189,17 @@ std::shared_ptr<Edge> Edges::insertNewEdge(ax::NodeEditor::LinkId id_gui, const 
         return res;
         }) == end());
 
+    getParent()->getParent()->saveToFile("D:/work/openVag/test/example_simple_save1.xml"); //ToDo Remove
     auto xmlEdge = createXmlEdge(from_layer, from_port, to_layer, to_port);
+    getParent()->getParent()->saveToFile("D:/work/openVag/test/example_simple_save2.xml"); //ToDo Remove
 
-    xmlElement->el->InsertEndChild(xmlElement->el);
+    xmlElement->el->InsertEndChild(xmlEdge);
+    getParent()->getParent()->saveToFile("D:/work/openVag/test/example_simple_save3.xml"); //ToDo Remove
 
     auto edge = createEdge(id_gui, from_layer, from_port, to_layer, to_port, xmlEdge);
+    getParent()->getParent()->saveToFile("D:/work/openVag/test/example_simple_save4.xml"); //ToDo Remove
     insertEdge(edge);
+    getParent()->getParent()->saveToFile("D:/work/openVag/test/example_simple_save5.xml"); //ToDo Remove
 
     return edge;
 }
@@ -214,13 +219,13 @@ void Edges::insertEdge(std::shared_ptr<Edge> edge)
     mapToLayerIdToSetEdge[edge->getToLayer()->getId()].insert(edge);
 }
 
-void Edges::deleteEdge(std::shared_ptr<Edge> edge)
+void Edges::deleteEdge(const std::shared_ptr<Edge>& edge)
 {
-    getXmlElement()->el->DeleteChild(getXmlElement()->el);
+    getXmlElement()->el->DeleteChild(edge->getXmlElement()->el);
     removeEdge(edge);
 }
 
-void Edges::removeEdge(std::shared_ptr<Edge> edge)
+void Edges::removeEdge(const std::shared_ptr<Edge>& edge)
 {
     mapToLayerIdToSetEdge[edge->getToLayer()->getId()].erase(edge);
     if (mapToLayerIdToSetEdge[edge->getToLayer()->getId()].size() == 0) mapToLayerIdToSetEdge.erase(edge->getToLayer()->getId());

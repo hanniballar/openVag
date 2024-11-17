@@ -86,6 +86,13 @@
             </input>
         </layer>
     </layers>
+    <edges>
+        <!-- Connections between layer nodes: based on ids for layers and ports used in the descriptions above -->
+        <edge from-layer="0" from-port="0" to-layer="2" to-port="0"/>
+        <edge from-layer="1" from-port="1" to-layer="2" to-port="1"/>
+        <edge from-layer="2" from-port="2" to-layer="3" to-port="0"/>
+        <edge from-layer="3" from-port="1" to-layer="4" to-port="0"/>
+    </edges>
     <meta_data>
         <!-- This section that is not related to a topology; contains auxiliary information that serves for the debugging purposes. -->
         <MO_version value="2022.3"/>
