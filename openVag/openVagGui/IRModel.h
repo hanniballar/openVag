@@ -230,7 +230,7 @@ public:
 	void setEdges(std::shared_ptr<Edges> edges) { this->edges = edges; }
 	std::shared_ptr<Edges> getEdges() { return edges; }
 
-	std::shared_ptr<XMLNodeWrapper> getXmlElement() { return xmlElement; }
+	const std::shared_ptr<XMLNodeWrapper>& getXmlElement() const { return xmlElement; }
 private:
 	std::shared_ptr<IRModel> parent;
 	std::shared_ptr<XMLNodeWrapper> xmlElement;
@@ -243,8 +243,10 @@ class IRModel {
 public:
 	IRModel(std::shared_ptr<tinyxml2::XMLDocument> xmlDocument) : xmlDocument(xmlDocument) {}
 	void setNetwork(std::shared_ptr<Network> network) { this->network = network; }
-	std::shared_ptr<Network> getNetwork() { return network; }
-	std::shared_ptr<tinyxml2::XMLDocument> getXMLDocument() { return xmlDocument; }
+	const std::shared_ptr<Network>& getNetwork() const { return network; }
+	const std::shared_ptr<tinyxml2::XMLDocument>& getXMLDocument() const { return xmlDocument; }
+
+	tinyxml2::XMLError saveToFile(const char* filePath) const { return getXMLDocument()->SaveFile(filePath); };
 private:
 	std::shared_ptr<Network> network;
 	std::shared_ptr<tinyxml2::XMLDocument> xmlDocument;

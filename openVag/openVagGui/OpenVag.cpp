@@ -403,8 +403,22 @@ bool OpenVag::Run()
         ImGui_ImplDX12_NewFrame();
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
+
         if (ImGui::BeginMainMenuBar()) {
+            if (ImGui::BeginMenu("File")) {
+                if (ImGui::MenuItem("Save", "CTRL+S", false, commandCenter.getUndoSize())) {
+                    irModel->saveToFile("D:/work/openVag/test/example_simple_save.xml");
+                }
+                ImGui::EndMenu();
+            }
             if (ImGui::BeginMenu("Edit")) {
+                if (ImGui::MenuItem("Undo", "CTRL+Z", false, commandCenter.getUndoSize())) {
+                    commandCenter.undo();
+                }
+                if (ImGui::MenuItem("Redo", "CTRL+Y", false, commandCenter.getRedoSize())) {
+                    commandCenter.redo();
+                }
+                ImGui::Separator();
                 if (ImGui::MenuItem("ReLayout")) {
                     graphLayout.enableLayout();
                 }
@@ -412,6 +426,17 @@ bool OpenVag::Run()
             }
             ImGui::EndMainMenuBar();
         }
+        
+        if (ImGui::Shortcut(ImGuiMod_Ctrl | ImGuiKey_Z, ImGuiInputFlags_RouteAlways)) {
+            commandCenter.undo();
+        }
+        if (ImGui::Shortcut(ImGuiMod_Ctrl | ImGuiKey_Y, ImGuiInputFlags_RouteAlways)) {
+            commandCenter.redo();
+        }
+        if (ImGui::Shortcut(ImGuiMod_Ctrl | ImGuiKey_S, ImGuiInputFlags_RouteAlways)) {
+            irModel->saveToFile("D:/work/openVag/test/example_simple_save.xml");
+        }
+
         ImGuiID did = ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_AutoHideTabBar);
         {
             ImGui::Begin("Canvas");

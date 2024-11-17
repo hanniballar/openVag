@@ -39,4 +39,5 @@ void CommandCenter::redo() {
 void CommandCenter::execute(std::shared_ptr<ICommand> command) {
     command->execute();
     vecUndo.push_back(command);
+    vecRedo.clear();
 }
