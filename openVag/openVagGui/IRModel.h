@@ -120,8 +120,8 @@ public:
 	int myInt() { return 1; }
 
 	std::shared_ptr<Edge> createEdge(ax::NodeEditor::LinkId id_gui, std::string from_layer, std::string from_port, std::string to_layer, std::string to_port, tinyxml2::XMLElement* edge);
-	std::shared_ptr<Edge> insertNewEdge(ax::NodeEditor::LinkId id_gui, std::string from_layer, std::string from_port, std::string to_layer, std::string to_port, size_t xmlPos);
-	std::shared_ptr<Edge> insertNewEdge(ax::NodeEditor::LinkId id_gui, std::string from_layer, std::string from_port, std::string to_layer, std::string to_port);
+	std::shared_ptr<Edge> insertNewEdge(ax::NodeEditor::LinkId id_gui, const std::string& from_layer, const std::string& from_port, const std::string& to_layer, const std::string& to_port, size_t xmlPos);
+	std::shared_ptr<Edge> insertNewEdge(ax::NodeEditor::LinkId id_gui, const std::string& from_layer, const std::string& from_port, const std::string& to_layer, const std::string& to_port);
 		void insertEdge(std::shared_ptr<Edge> edge);
 	void deleteEdge(std::shared_ptr<Edge> edge);
 	void removeEdge(std::shared_ptr<Edge> edge);

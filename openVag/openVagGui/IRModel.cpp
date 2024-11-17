@@ -156,7 +156,7 @@ std::shared_ptr<Edge> Edges::createEdge(ax::NodeEditor::LinkId id_gui, std::stri
     return std::make_shared<Edge>(id_gui, outputPort, inputPort, xmlElement, getParent()->getEdges());
 }
 
-std::shared_ptr<Edge> Edges::insertNewEdge(ax::NodeEditor::LinkId id_gui, std::string from_layer, std::string from_port, std::string to_layer, std::string to_port, size_t xmlPos)
+std::shared_ptr<Edge> Edges::insertNewEdge(ax::NodeEditor::LinkId id_gui, const std::string& from_layer, const std::string& from_port, const std::string& to_layer, const std::string& to_port, size_t xmlPos)
 {
     auto xmlEdge = createXmlEdge(from_layer, from_port, to_layer, to_port);
 
@@ -179,7 +179,7 @@ std::shared_ptr<Edge> Edges::insertNewEdge(ax::NodeEditor::LinkId id_gui, std::s
     return edge;
 }
 
-std::shared_ptr<Edge> Edges::insertNewEdge(ax::NodeEditor::LinkId id_gui, std::string from_layer, std::string from_port, std::string to_layer, std::string to_port)
+std::shared_ptr<Edge> Edges::insertNewEdge(ax::NodeEditor::LinkId id_gui, const std::string& from_layer, const std::string& from_port, const std::string& to_layer, const std::string& to_port)
 {
     assert (std::find_if(begin(), end(), [&](std::shared_ptr<Edge>& edge) {
         auto res = from_layer == edge->getOutputPort()->getParent()->getXmlId()
