@@ -10,6 +10,12 @@
 #include "tinyxml2.h"
 #include "OpenVag.h"
 
+static std::set<std::shared_ptr<Edge>, EdgeIDLess> emptyEdgeSet;
+static std::set<std::shared_ptr<Layer>, LayerIDLess> emptyLayerSet;
+static std::shared_ptr<Layer> emptyLayer;
+static std::shared_ptr<OutputPort> emptyOutputPort;
+static std::shared_ptr<InputPort> emptyInputPort;
+
 void Layers::addLayer(std::shared_ptr<Layer> layer)
 {
     assert(mapNodeIdToLayer.find(layer->getId()) == mapNodeIdToLayer.end());
@@ -36,33 +42,35 @@ void Layers::addPort(std::shared_ptr<OutputPort> port)
     mapPinIdToOutputPort[port->getId()] = port;
 }
 
-std::shared_ptr<Layer> Layers::getLayer(ax::NodeEditor::NodeId id)
+const std::shared_ptr<Layer>& Layers::getLayer(ax::NodeEditor::NodeId id) const
 {
     auto it = mapNodeIdToLayer.find(id);
-    return (it != mapNodeIdToLayer.end()) ? it->second : std::shared_ptr<Layer>();
+    return (it != mapNodeIdToLayer.end()) ? it->second : emptyLayer;
 }
 
-std::shared_ptr<Layer> Layers::getLayer(std::string id)
+const std::shared_ptr<Layer>& Layers::getLayer(std::string id) const
 {
+    const auto& set = getSetLayer(id);
+
     return *(getSetLayer(id).begin());
 }
 
-std::set<std::shared_ptr<Layer>, LayerIDLess> Layers::getSetLayer(std::string id)
+const std::set<std::shared_ptr<Layer>, LayerIDLess>& Layers::getSetLayer(std::string id) const
 {
     auto it = mapXMLIdToSetLayer.find(id);
-    return (it != mapXMLIdToSetLayer.end()) ? it->second : std::set<std::shared_ptr<Layer>, LayerIDLess>();
+    return (it != mapXMLIdToSetLayer.end()) ? it->second : emptyLayerSet;
 }
 
-std::shared_ptr<InputPort> Layers::getInputPort(ax::NodeEditor::PinId id)
+const std::shared_ptr<InputPort>& Layers::getInputPort(ax::NodeEditor::PinId id) const
 {
     auto it = mapPinIdToInputPort.find(id);
-    return (it != mapPinIdToInputPort.end()) ? it->second : std::shared_ptr<InputPort>();
+    return (it != mapPinIdToInputPort.end()) ? it->second : emptyInputPort;
 }
 
-std::shared_ptr<OutputPort> Layers::getOutputPort(ax::NodeEditor::PinId id)
+const std::shared_ptr<OutputPort>& Layers::getOutputPort(ax::NodeEditor::PinId id) const
 {
     auto it = mapPinIdToOutputPort.find(id);
-    return (it != mapPinIdToOutputPort.end()) ? it->second : std::shared_ptr<OutputPort>();
+    return (it != mapPinIdToOutputPort.end()) ? it->second : emptyOutputPort;
 }
 
 std::shared_ptr<Network> Layer::getNetwork() {
@@ -227,17 +235,16 @@ std::shared_ptr<Layers> Edges::getLayers() {
     return parent->getLayers();
 }
 
-static std::set<std::shared_ptr<Edge>, EdgeIDLess> emptySet;
 const std::set<std::shared_ptr<Edge>, EdgeIDLess>& Edges::getSetEdgesToLayers(ax::NodeEditor::NodeId nodeId) const
 {
     auto it = mapToLayerIdToSetEdge.find(nodeId);
-    return it != mapToLayerIdToSetEdge.end() ? it->second: emptySet;
+    return it != mapToLayerIdToSetEdge.end() ? it->second: emptyEdgeSet;
 }
 
 const std::set<std::shared_ptr<Edge>, EdgeIDLess>& Edges::getSetEdgesFromLayer(ax::NodeEditor::NodeId nodeId) const
 {
     auto it = mapFromLayerIdToSetEdge.find(nodeId);
-    return it != mapFromLayerIdToSetEdge.end() ? it->second : emptySet;
+    return it != mapFromLayerIdToSetEdge.end() ? it->second : emptyEdgeSet;
 }
 
 std::shared_ptr<Edge> Edges::getEdge(std::shared_ptr<OutputPort> outputPort, std::shared_ptr<InputPort> inputPort) const
