@@ -34,6 +34,8 @@ set(Sources
 	commands/DeleteAttributeXMLElement.h
 	commands/AddEdge.cpp
 	commands/AddEdge.h
+	commands/AddLayer.cpp
+	commands/AddLayer.h
 	commands/AddXMLLayer.cpp
 	commands/AddXMLLayer.h
 	misc/debugger/openVag.natstepfilter

@@ -16,6 +16,65 @@ static std::shared_ptr<Layer> emptyLayer;
 static std::shared_ptr<OutputPort> emptyOutputPort;
 static std::shared_ptr<InputPort> emptyInputPort;
 
+tinyxml2::XMLElement* Layers::createXmlLayer(std::string xmlId, std::string name, std::string type) const
+{
+    auto xmlLayer = getXmlElement()->el->GetDocument()->NewElement("edge");
+    xmlLayer->SetAttribute("id", xmlId.c_str());
+    xmlLayer->SetAttribute("name", name.c_str());
+    xmlLayer->SetAttribute("type", type.c_str());
+
+    return xmlLayer;
+}
+
+int64_t Layers::getMaxLayerXmlId() const {
+    int64_t maxId = 0;
+    for (const auto& nodeIdToLayer : mapNodeIdToLayer) {
+        std::stringstream ss(nodeIdToLayer.second->getXmlId());
+        int64_t xmlIdNum = 0;
+        ss >> xmlIdNum;
+        maxId = std::max(maxId, xmlIdNum);
+    }
+    return maxId;
+}
+
+std::shared_ptr<Layer> Layers::insertNewLayer()
+{
+    auto xmlId = std::to_string(getMaxLayerXmlId() + 1);
+    std::string name = std::string("openVagLayer") + xmlId;
+    ax::NodeEditor::NodeId id = GetNextId();
+    
+    return insertNewLayer(id, xmlId, name, std::string("Const"));
+}
+
+std::shared_ptr<Layer> Layers::insertNewLayer(ax::NodeEditor::NodeId id, std::string xmlId, std::string name, std::string type)
+{
+    auto xmlLayer = createXmlLayer(xmlId, name, type);
+    xmlElement->el->InsertEndChild(xmlLayer);
+
+    auto layer = std::make_shared<Layer>(id, xmlLayer, getParent());
+    assert(mapNodeIdToLayer.find(id) == mapNodeIdToLayer.end());
+    mapNodeIdToLayer[id] = layer;
+
+    assert(mapXMLIdToSetLayer.find(xmlId) == mapXMLIdToSetLayer.end());
+    mapXMLIdToSetLayer[xmlId].insert(layer);
+
+    return layer;
+}
+
+void Layers::removeLayer(const std::shared_ptr<Layer>& layer)
+{
+    for (cons)
+    assert(mapNodeIdToLayer.find(layer->getId()) != mapNodeIdToLayer.end());
+    mapNodeIdToLayer.erase(layer->getId());
+
+    assert(mapXMLIdToSetLayer.find(layer->getXmlId()) != mapXMLIdToSetLayer.end());
+    auto itMapXMLIdToSetLayer = mapXMLIdToSetLayer.find(layer->getXmlId());
+    assert(itMapXMLIdToSetLayer->second.find(layer) != itMapXMLIdToSetLayer->second.end());
+    itMapXMLIdToSetLayer->second.erase(layer);
+    if (itMapXMLIdToSetLayer->second.size() == 0) mapXMLIdToSetLayer.erase(itMapXMLIdToSetLayer);
+
+}
+
 void Layers::addLayer(std::shared_ptr<Layer> layer)
 {
     assert(mapNodeIdToLayer.find(layer->getId()) == mapNodeIdToLayer.end());

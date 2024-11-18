@@ -457,6 +457,21 @@ bool OpenVag::Run()
                 drawModelEdges(irModel->getNetwork()->getEdges());
                 beginCreate(irModel, commandCenter);
                 graphLayout.layoutNodes(irModel);
+                ax::NodeEditor::Suspend(); {
+                    if (ax::NodeEditor::ShowBackgroundContextMenu())
+                    {
+                        ImGui::OpenPopup("Create New Node");
+                    }
+                } ax::NodeEditor::Resume();
+                ax::NodeEditor::Suspend(); {
+                    if (ImGui::BeginPopup("Create New Node")) {
+                        if (ImGui::MenuItem("New Layer")) {
+                            //ToDo Here Next
+                            //auto addLayerC =
+                            //commandCenter.execute(addLayerC);
+                        }
+                    }
+                } ax::NodeEditor::Resume();
             }
             ax::NodeEditor::End();
             ax::NodeEditor::SetCurrentEditor(nullptr);
