@@ -225,8 +225,8 @@ void Edges::removeEdge(const std::shared_ptr<Edge>& edge)
     mapToLayerIdToSetEdge[edge->getToLayer()->getId()].erase(edge);
     if (mapToLayerIdToSetEdge[edge->getToLayer()->getId()].size() == 0) mapToLayerIdToSetEdge.erase(edge->getToLayer()->getId());
 
-    mapFromLayerIdToSetEdge[edge->getToLayer()->getId()].erase(edge);
-    if (mapFromLayerIdToSetEdge[edge->getToLayer()->getId()].size() == 0) mapFromLayerIdToSetEdge.erase(edge->getToLayer()->getId());
+    mapFromLayerIdToSetEdge[edge->getFromLayer()->getId()].erase(edge);
+    if (mapFromLayerIdToSetEdge[edge->getFromLayer()->getId()].size() == 0) mapFromLayerIdToSetEdge.erase(edge->getFromLayer()->getId());
 
     mapLinkIdToEdge.erase(edge->getId());
 }

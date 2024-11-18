@@ -11,6 +11,14 @@
         <Action>NoStepInto</Action>
     </Function>
     <Function>
+        <Name>Network::getEdges</Name>
+        <Action>NoStepInto</Action>
+    </Function>
+    <Function>
+        <Name>Network::getLayers</Name>
+        <Action>NoStepInto</Action>
+    </Function>
+    <Function>
         <Name>Layers::getParent</Name>
         <Action>NoStepInto</Action>
     </Function>
@@ -23,7 +31,15 @@
         <Action>NoStepInto</Action>
     </Function>
     <Function>
-        <Name>Port::getParent</Name>
+        <Name>Edges::getParent</Name>
+        <Action>NoStepInto</Action>
+    </Function>
+    <Function>
+        <Name>Edges::getXmlElement</Name>
+        <Action>NoStepInto</Action>
+    </Function>
+    <Function>
+        <Name>Edge::getXmlElement</Name>
         <Action>NoStepInto</Action>
     </Function>
     <Function>
