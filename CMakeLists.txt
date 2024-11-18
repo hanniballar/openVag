@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-project(openVag_refactor)
+project(openVag)
 
 # Enable solution folders in Visual Studio and Folders in Xcode
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
