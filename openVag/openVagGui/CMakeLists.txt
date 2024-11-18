@@ -36,7 +36,7 @@ set(Sources
 	commands/AddEdge.h
 	commands/AddXMLLayer.cpp
 	commands/AddXMLLayer.h
-
+	misc/debugger/openVag.natstepfilter
 )
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${Sources})
