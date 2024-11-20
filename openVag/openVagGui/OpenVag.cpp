@@ -14,6 +14,7 @@
 #include "drawEdges.h"
 #include "beginCreate.h"
 #include "GraphLayout.h"
+#include "commands/AddLayer.h"
 
 #ifdef _DEBUG
 #define DX12_ENABLE_DEBUG_LAYER
@@ -457,6 +458,7 @@ bool OpenVag::Run()
                 drawModelEdges(irModel->getNetwork()->getEdges());
                 beginCreate(irModel, commandCenter);
                 graphLayout.layoutNodes(irModel);
+                auto openPopupPosition = ImGui::GetMousePos();
                 ax::NodeEditor::Suspend(); {
                     if (ax::NodeEditor::ShowBackgroundContextMenu())
                     {
@@ -466,10 +468,12 @@ bool OpenVag::Run()
                 ax::NodeEditor::Suspend(); {
                     if (ImGui::BeginPopup("Create New Node")) {
                         if (ImGui::MenuItem("New Layer")) {
-                            //ToDo Here Next
-                            //auto addLayerC =
-                            //commandCenter.execute(addLayerC);
+                            auto addLayerC = std::make_shared<AddLayer>(irModel);
+                            commandCenter.execute(addLayerC);
+                            auto newLayer = addLayerC->getLayer();
+                            ax::NodeEditor::SetNodePosition(newLayer->getId(), openPopupPosition);
                         }
+                        ImGui::EndPopup();
                     }
                 } ax::NodeEditor::Resume();
             }

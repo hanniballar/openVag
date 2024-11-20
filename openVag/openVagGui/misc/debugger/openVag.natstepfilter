@@ -7,6 +7,10 @@
         <Action>NoStepInto</Action>
     </Function>
     <Function>
+        <Name>IRModel::getNetwork</Name>
+        <Action>NoStepInto</Action>
+    </Function>
+    <Function>
         <Name>Network::getParent</Name>
         <Action>NoStepInto</Action>
     </Function>
@@ -24,6 +28,10 @@
     </Function>
     <Function>
         <Name>Layer::getParent</Name>
+        <Action>NoStepInto</Action>
+    </Function>
+    <Function>
+        <Name>Layer::getId</Name>
         <Action>NoStepInto</Action>
     </Function>
     <Function>

@@ -13,6 +13,6 @@ void AddLayer::doAct()
 void AddLayer::undoAct()
 {
     irModelGui->getNetwork()->getLayers()->deleteLayer(undoLayer);
-    undoEdge.reset();
+    undoLayer.reset();
     this->doFlag = true;
 }

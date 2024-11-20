@@ -18,7 +18,7 @@ static std::shared_ptr<InputPort> emptyInputPort;
 
 tinyxml2::XMLElement* Layers::createXmlLayer(std::string xmlId, std::string name, std::string type) const
 {
-    auto xmlLayer = getXmlElement()->el->GetDocument()->NewElement("edge");
+    auto xmlLayer = getXmlElement()->el->GetDocument()->NewElement("layer");
     xmlLayer->SetAttribute("id", xmlId.c_str());
     xmlLayer->SetAttribute("name", name.c_str());
     xmlLayer->SetAttribute("type", type.c_str());
@@ -51,7 +51,7 @@ std::shared_ptr<Layer> Layers::insertNewLayer(ax::NodeEditor::NodeId id, std::st
     auto xmlLayer = createXmlLayer(xmlId, name, type);
     xmlElement->el->InsertEndChild(xmlLayer);
 
-    auto layer = std::make_shared<Layer>(id, xmlLayer, getParent());
+    auto layer = std::make_shared<Layer>(id, xmlLayer, getParent()->getLayers());
     assert(mapNodeIdToLayer.find(id) == mapNodeIdToLayer.end());
     mapNodeIdToLayer[id] = layer;
 
@@ -61,9 +61,17 @@ std::shared_ptr<Layer> Layers::insertNewLayer(ax::NodeEditor::NodeId id, std::st
     return layer;
 }
 
+void Layers::deleteLayer(const std::shared_ptr<Layer>& layer)
+{
+    removeLayer(layer);
+    getXmlElement()->el->DeleteChild(layer->getXmlElement()->el);
+}
+
 void Layers::removeLayer(const std::shared_ptr<Layer>& layer)
 {
-    for (cons)
+    for (const auto port : layer->getSetInputPort()) removePort(port);
+    for (const auto port : layer->getSetOutputPort()) removePort(port);
+
     assert(mapNodeIdToLayer.find(layer->getId()) != mapNodeIdToLayer.end());
     mapNodeIdToLayer.erase(layer->getId());
 
@@ -95,10 +103,22 @@ void Layers::addPort(std::shared_ptr<InputPort> port)
     mapPinIdToInputPort[port->getId()] = port;
 }
 
+void Layers::removePort(std::shared_ptr<InputPort> port)
+{
+    assert(mapPinIdToInputPort.find(port->getId()) != mapPinIdToInputPort.end());
+    mapPinIdToInputPort.erase(port->getId());
+}
+
 void Layers::addPort(std::shared_ptr<OutputPort> port)
 {
     assert(mapPinIdToOutputPort.find(port->getId()) == mapPinIdToOutputPort.end());
     mapPinIdToOutputPort[port->getId()] = port;
+}
+
+void Layers::removePort(std::shared_ptr<OutputPort> port)
+{
+    assert(mapPinIdToOutputPort.find(port->getId()) != mapPinIdToOutputPort.end());
+    mapPinIdToOutputPort.erase(port->getId());
 }
 
 const std::shared_ptr<Layer>& Layers::getLayer(ax::NodeEditor::NodeId id) const
@@ -275,8 +295,8 @@ void Edges::insertEdge(std::shared_ptr<Edge> edge)
 
 void Edges::deleteEdge(const std::shared_ptr<Edge>& edge)
 {
-    getXmlElement()->el->DeleteChild(edge->getXmlElement()->el);
     removeEdge(edge);
+    getXmlElement()->el->DeleteChild(edge->getXmlElement()->el);
 }
 
 void Edges::removeEdge(const std::shared_ptr<Edge>& edge)
