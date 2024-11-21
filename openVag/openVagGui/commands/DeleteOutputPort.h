@@ -4,14 +4,14 @@
 #include "../IRModel.h"
 #include "CommandCenter.h"
 
-class DeleteInputPort :public ICommand {
+class DeleteOutputPort :public ICommand {
 public:
-	DeleteInputPort(std::shared_ptr<IRModel> irModelGui, std::shared_ptr<InputPort> inputPort) : irModelGui(irModelGui), port(inputPort) {}
+	DeleteOutputPort(std::shared_ptr<IRModel> irModelGui, std::shared_ptr<OutputPort> outputPort) : irModelGui(irModelGui), port(outputPort) {}
 private:
 	void doAct() override;
 	void undoAct() override;
 	std::shared_ptr<IRModel> irModelGui;
-	std::shared_ptr<InputPort> port;
+	std::shared_ptr<OutputPort> port;
 	std::shared_ptr<Layer> parent;
 	size_t position = 0;
 };

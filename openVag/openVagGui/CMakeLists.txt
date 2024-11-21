@@ -44,6 +44,8 @@ set(Sources
 	commands/DeleteLayer.h
 	commands/DeleteInputPort.cpp
 	commands/DeleteInputPort.h
+	commands/DeleteOutputPort.cpp
+	commands/DeleteOutputPort.h
 	misc/debugger/openVag.natstepfilter
 )
 
