@@ -41,10 +41,10 @@ std::shared_ptr<LayerPortGuiType> parsePort(XMLElement* port, std::shared_ptr<La
 template <class LayerPortGuiType>
 void parsePorts(XMLElement* ports, std::shared_ptr<Layer> parent) {
     if(ports == nullptr) return;
-    auto xmlPort = ports->FirstChildElement("port");
-    while (xmlPort != nullptr) {
-        parent->addPort(parsePort<LayerPortGuiType>(xmlPort, parent));
-        xmlPort = xmlPort->NextSiblingElement();
+    auto xmlElement = ports->FirstChildElement("port");
+    while (xmlElement != nullptr) {
+        parent->addPort(parsePort<LayerPortGuiType>(xmlElement, parent));
+        xmlElement = xmlElement->NextSiblingElement();
     }
 }
 

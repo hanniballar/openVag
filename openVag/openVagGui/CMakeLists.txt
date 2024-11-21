@@ -20,6 +20,8 @@ set(Sources
 	XMLNodeWrapper.h
 	GraphLayout.cpp
 	GraphLayout.h
+	contextMenu.cpp
+	contextMenu.h
 	commands/CommandCenter.cpp
 	commands/CommandCenter.h
 	commands/ICommand.cpp
@@ -40,6 +42,8 @@ set(Sources
 	commands/AddXMLLayer.h
 	commands/DeleteLayer.cpp
 	commands/DeleteLayer.h
+	commands/DeleteInputPort.cpp
+	commands/DeleteInputPort.h
 	misc/debugger/openVag.natstepfilter
 )
 

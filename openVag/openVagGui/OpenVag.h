@@ -6,9 +6,7 @@ int64_t GetNextId();
 
 class OpenVag{
 public:
-	OpenVag() {
-
-	};
+	OpenVag() {};
 	bool Create();
 	bool Run();
 	bool Quit();
