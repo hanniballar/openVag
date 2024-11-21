@@ -80,7 +80,6 @@ void Layers::removeLayer(const std::shared_ptr<Layer>& layer)
     assert(itMapXMLIdToSetLayer->second.find(layer) != itMapXMLIdToSetLayer->second.end());
     itMapXMLIdToSetLayer->second.erase(layer);
     if (itMapXMLIdToSetLayer->second.size() == 0) mapXMLIdToSetLayer.erase(itMapXMLIdToSetLayer);
-
 }
 
 void Layers::addLayer(std::shared_ptr<Layer> layer)
@@ -95,6 +94,21 @@ void Layers::addLayer(std::shared_ptr<Layer> layer)
 
     for (auto& port : layer->getSetInputPort()) addPort(port);
     for (auto& port : layer->getSetOutputPort()) addPort(port);
+}
+
+void Layers::addLayer(std::shared_ptr<Layer> layer, size_t pos)
+{
+    if (pos == 0)
+        getXmlElement()->el->InsertFirstChild(layer->getXmlElement()->el);
+    else {
+        auto xmlNode = getXmlElement()->el->FirstChild();
+        for (size_t curPos = 0; curPos < pos - 1; ++curPos) {
+            xmlNode = xmlNode->NextSibling();
+            assert(xmlNode != nullptr);
+        }
+        getXmlElement()->el->InsertAfterChild(xmlNode, layer->getXmlElement()->el);
+    }
+    addLayer(layer);
 }
 
 void Layers::addPort(std::shared_ptr<InputPort> port)
@@ -159,6 +173,18 @@ std::shared_ptr<Network> Layer::getNetwork() {
 std::shared_ptr<Edges> Layer::getEdges()
 {
     return getNetwork()->getEdges();
+}
+
+size_t Layer::getXmlPosition() const
+{
+    size_t res = 0;
+    auto prevSibling = getXmlElement()->el->PreviousSibling();
+    while (prevSibling != nullptr) {
+        ++res; 
+        prevSibling = prevSibling->PreviousSibling();
+    }
+
+    return res;
 }
 
 void Layer::addPort(std::shared_ptr<InputPort> port)

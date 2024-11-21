@@ -164,6 +164,8 @@ public:
 	const char* getName() const { const auto name = xmlElement->el->ToElement()->Attribute("name"); return name ? name : ""; }
 	const char* getType() const { const auto type = xmlElement->el->ToElement()->Attribute("type"); return type ? type : ""; }
 
+	size_t getXmlPosition() const;
+
 	const std::set<std::shared_ptr<OutputPort>, PortIDLess>& getSetOutputPort() const { return setOutputPort; }
 	const std::set<std::shared_ptr<InputPort>, PortIDLess >& getSetInputPort() const { return setInputPort; }
 
@@ -203,6 +205,7 @@ public:
 	void removeLayer(const std::shared_ptr<Layer>& layer);
 
 	void addLayer(std::shared_ptr<Layer> layer);
+	void Layers::addLayer(std::shared_ptr<Layer> layer, size_t pos);
 	void addPort(std::shared_ptr<InputPort> port);
 	void removePort(std::shared_ptr<InputPort> port);
 	void addPort(std::shared_ptr<OutputPort> port);

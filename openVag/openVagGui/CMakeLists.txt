@@ -38,6 +38,8 @@ set(Sources
 	commands/AddLayer.h
 	commands/AddXMLLayer.cpp
 	commands/AddXMLLayer.h
+	commands/DeleteLayer.cpp
+	commands/DeleteLayer.h
 	misc/debugger/openVag.natstepfilter
 )
 
