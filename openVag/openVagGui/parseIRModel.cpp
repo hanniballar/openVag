@@ -128,7 +128,7 @@ std::shared_ptr<Edges> parseEdges(XMLElement* xmlEdges, std::shared_ptr<Network>
     std::shared_ptr<Edges> edges = std::make_shared<Edges>(xmlEdges, parent);
     XMLElement* edge = xmlEdges->FirstChildElement("edge");
     while (edge != nullptr) {
-        edges->insertEdge(parseEdge(edge, edges));
+        edges->addEdge(parseEdge(edge, edges));
         edge = edge->NextSiblingElement();
     }
     return edges;

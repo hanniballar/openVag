@@ -123,7 +123,8 @@ public:
 	std::shared_ptr<Edge> createEdge(ax::NodeEditor::LinkId id_gui, std::string from_layer, std::string from_port, std::string to_layer, std::string to_port, tinyxml2::XMLElement* edge);
 	std::shared_ptr<Edge> insertNewEdge(ax::NodeEditor::LinkId id_gui, const std::string& from_layer, const std::string& from_port, const std::string& to_layer, const std::string& to_port, size_t xmlPos);
 	std::shared_ptr<Edge> insertNewEdge(ax::NodeEditor::LinkId id_gui, const std::string& from_layer, const std::string& from_port, const std::string& to_layer, const std::string& to_port);
-	void insertEdge(std::shared_ptr<Edge> edge);
+	void addEdge(std::shared_ptr<Edge> edge);
+	void addEdge(std::shared_ptr<Edge> edge, size_t position);
 	void deleteEdge(const std::shared_ptr<Edge>& edge);
 	void removeEdge(const std::shared_ptr<Edge>& edge);
 	
@@ -174,7 +175,9 @@ public:
 	const std::set<std::shared_ptr<InputPort>, PortIDLess >& getSetInputPort() const { return setInputPort; }
 
 	void addPort(std::shared_ptr<InputPort> port);
+	void addPort(std::shared_ptr<InputPort> port, size_t position);
 	void addPort(std::shared_ptr<OutputPort> port);
+	void addPort(std::shared_ptr<OutputPort> port, size_t position);
 	void removePort(const std::shared_ptr<InputPort>& port);
 	void deletePort(const std::shared_ptr<InputPort>& port);
 	void removePort(const std::shared_ptr<OutputPort>& port);
@@ -214,7 +217,7 @@ public:
 	void removeLayer(const std::shared_ptr<Layer>& layer);
 
 	void addLayer(std::shared_ptr<Layer> layer);
-	void Layers::addLayer(std::shared_ptr<Layer> layer, size_t pos);
+	void Layers::addLayer(std::shared_ptr<Layer> layer, size_t position);
 	void addPort(std::shared_ptr<InputPort> port);
 	void removePort(std::shared_ptr<InputPort> port);
 	void addPort(std::shared_ptr<OutputPort> port);

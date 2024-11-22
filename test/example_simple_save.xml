@@ -32,31 +32,6 @@
                 </port>
             </output>
         </layer>
-        <layer id="2" name="conv1" type="Convolution" version="opset1">
-            <data auto_pad="same_upper" dilations="1,1" output_padding="0,0" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
-            <input>
-                <port id="0">
-                    <dim>1</dim>
-                    <dim>3</dim>
-                    <dim>32</dim>
-                    <dim>100</dim>
-                </port>
-                <port id="1">
-                    <dim>64</dim>
-                    <dim>3</dim>
-                    <dim>3</dim>
-                    <dim>3</dim>
-                </port>
-            </input>
-            <output>
-                <port id="2" precision="FP32">
-                    <dim>1</dim>
-                    <dim>64</dim>
-                    <dim>32</dim>
-                    <dim>100</dim>
-                </port>
-            </output>
-        </layer>
         <layer id="3" name="conv1/activation" type="ReLU" version="opset1">
             <input>
                 <port id="0">
@@ -85,7 +60,6 @@
                 </port>
             </input>
         </layer>
-        <layer id="5" name="openVagLayer5" type="Const"/>
     </layers>
     <edges>
         <!-- Connections between layer nodes: based on ids for layers and ports used in the descriptions above -->

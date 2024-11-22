@@ -4,15 +4,14 @@
 #include "../IRModel.h"
 #include "CommandCenter.h"
 
-
-class DeleteLayer :public ICommand {
+class DeleteEdge :public ICommand {
 public:
-	DeleteLayer(std::shared_ptr<Layer> layer) : layer(layer) {}
+	DeleteEdge(std::shared_ptr<Edge> edge) : edge(edge) {}
 private:
 	void doAct() override;
 	void undoAct() override;
-	std::shared_ptr<Layers> parent;
-	std::shared_ptr<Layer> layer;
+	std::shared_ptr<Edge> edge;
+	std::shared_ptr<Edges> parent;
 	size_t position = 0;
 };
 

@@ -8,11 +8,11 @@
 class AddLayer :public ICommand {
 public:
 	AddLayer(std::shared_ptr<IRModel> irModelGui) : irModelGui(irModelGui) {}
-	std::shared_ptr<Layer> getLayer() const { return undoLayer; }
+	std::shared_ptr<Layer> getLayer() const { return layer; }
 private:
 	void doAct() override;
 	void undoAct() override;
 	std::shared_ptr<IRModel> irModelGui;
-	std::shared_ptr<Layer> undoLayer;
+	std::shared_ptr<Layer> layer;
 };
 

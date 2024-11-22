@@ -28,6 +28,30 @@ static size_t getXmlSiblingPosition(const tinyxml2::XMLNode* node) {
     return pos;
 }
 
+static tinyxml2::XMLNode* getNthXmlSibling(tinyxml2::XMLNode* node, size_t position) {
+    assert(node != nullptr);
+    size_t curPos = 0;
+    auto* sibling = node;
+    while (curPos < position) {
+        ++curPos;
+        sibling = sibling->NextSibling();
+        assert(sibling != nullptr);
+    }
+
+    return sibling;
+}
+
+static void insertNodeAtPosition(tinyxml2::XMLNode* parent, tinyxml2::XMLNode* insertThis, size_t position) {
+    assert(parent != nullptr);
+    assert(insertThis != nullptr);
+    if (position == 0)
+        parent->InsertFirstChild(insertThis);
+    else {
+        auto xmlNode = getNthXmlSibling(parent->FirstChild(), position - 1);
+        parent->InsertAfterChild(xmlNode, insertThis);
+    }
+}
+
 tinyxml2::XMLElement* Layers::createXmlLayer(std::string xmlId, std::string name, std::string type) const
 {
     auto xmlLayer = getXmlElement()->el->GetDocument()->NewElement("layer");
@@ -108,18 +132,8 @@ void Layers::addLayer(std::shared_ptr<Layer> layer)
     for (auto& port : layer->getSetOutputPort()) addPort(port);
 }
 
-void Layers::addLayer(std::shared_ptr<Layer> layer, size_t pos)
-{
-    if (pos == 0)
-        getXmlElement()->el->InsertFirstChild(layer->getXmlElement()->el);
-    else {
-        auto xmlNode = getXmlElement()->el->FirstChild();
-        for (size_t curPos = 0; curPos < pos - 1; ++curPos) {
-            xmlNode = xmlNode->NextSibling();
-            assert(xmlNode != nullptr);
-        }
-        getXmlElement()->el->InsertAfterChild(xmlNode, layer->getXmlElement()->el);
-    }
+void Layers::addLayer(std::shared_ptr<Layer> layer, size_t position) {
+    insertNodeAtPosition(getXmlElement()->el, layer->getXmlElement()->el, position);
     addLayer(layer);
 }
 
@@ -197,10 +211,22 @@ void Layer::addPort(std::shared_ptr<InputPort> port)
     getParent()->addPort(port);
 }
 
+void Layer::addPort(std::shared_ptr<InputPort> port, size_t position)
+{
+    insertNodeAtPosition(getXmlElement()->el, port->getXmlElement()->el, position);
+    addPort(port);
+}
+
 void Layer::addPort(std::shared_ptr<OutputPort> port)
 {
     setOutputPort.insert(port);
     getParent()->addPort(port);
+}
+
+void Layer::addPort(std::shared_ptr<OutputPort> port, size_t position)
+{
+    insertNodeAtPosition(getXmlElement()->el, port->getXmlElement()->el, position);
+    addPort(port);
 }
 
 void Layer::removePort(const std::shared_ptr<InputPort>& port)
@@ -309,7 +335,7 @@ std::shared_ptr<Edge> Edges::insertNewEdge(ax::NodeEditor::LinkId id_gui, const 
     }
 
     auto edge = createEdge(id_gui, from_layer, from_port, to_layer, to_port, xmlEdge);
-    insertEdge(edge);
+    addEdge(edge);
 
     return edge;
 }
@@ -329,12 +355,12 @@ std::shared_ptr<Edge> Edges::insertNewEdge(ax::NodeEditor::LinkId id_gui, const 
     xmlElement->el->InsertEndChild(xmlEdge);
 
     auto edge = createEdge(id_gui, from_layer, from_port, to_layer, to_port, xmlEdge);
-    insertEdge(edge);
+    addEdge(edge);
 
     return edge;
 }
 
-void Edges::insertEdge(std::shared_ptr<Edge> edge)
+void Edges::addEdge(std::shared_ptr<Edge> edge)
 {
     assert(mapLinkIdToEdge.find(edge->getId()) == mapLinkIdToEdge.end());
     mapLinkIdToEdge[edge->getId()] = edge;
@@ -347,6 +373,12 @@ void Edges::insertEdge(std::shared_ptr<Edge> edge)
         mapToLayerIdToSetEdge[edge->getToLayer()->getId()] = {};
     }
     mapToLayerIdToSetEdge[edge->getToLayer()->getId()].insert(edge);
+}
+
+void Edges::addEdge(std::shared_ptr<Edge> edge, size_t position)
+{
+    insertNodeAtPosition(getXmlElement()->el, edge->getXmlElement()->el, position);
+    addEdge(edge);
 }
 
 void Edges::deleteEdge(const std::shared_ptr<Edge>& edge)

@@ -6,17 +6,19 @@
 
 void DeleteLayer::doAct()
 {
-    position = undoLayer->getXmlPosition();
-    auto xmlElClone = undoLayer->getXmlElement()->el->DeepClone(undoLayer->getXmlElement()->el->GetDocument());
-    irModelGui->getNetwork()->getLayers()->deleteLayer(undoLayer);
-    undoLayer->getXmlElement()->set(xmlElClone);
+    position = layer->getXmlPosition();
+    parent = layer->getParent();
+    auto xmlElClone = layer->getXmlElement()->el->DeepClone(layer->getXmlElement()->el->GetDocument());
+    parent->deleteLayer(layer);
+    layer->getXmlElement()->set(xmlElClone);
     this->doFlag = false;
 }
 
 void DeleteLayer::undoAct()
 {
-    irModelGui->getNetwork()->getLayers()->addLayer(undoLayer, position);
-    undoLayer.reset();
+    parent->addLayer(layer, position);
+    layer.reset();
+    parent.reset();
     position = 0;
     this->doFlag = true;
 }

@@ -46,6 +46,8 @@ set(Sources
 	commands/DeleteInputPort.h
 	commands/DeleteOutputPort.cpp
 	commands/DeleteOutputPort.h
+	commands/DeleteEdge.cpp
+	commands/DeleteEdge.h
 	misc/debugger/openVag.natstepfilter
 )
 
