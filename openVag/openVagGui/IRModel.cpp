@@ -315,7 +315,7 @@ std::shared_ptr<Edge> Edges::createEdge(ax::NodeEditor::LinkId id_gui, std::stri
     assert(outputPort != nullptr);
     assert(inputPort != nullptr);
 
-    return std::make_shared<Edge>(id_gui, outputPort, inputPort, xmlElement, getParent()->getEdges());
+    return std::make_shared<Edge>(id_gui, outputPort, inputPort, xmlElement, shared_from_this());
 }
 
 std::shared_ptr<Edge> Edges::insertNewEdge(ax::NodeEditor::LinkId id_gui, const std::string& from_layer, const std::string& from_port, const std::string& to_layer, const std::string& to_port, size_t xmlPos)
@@ -435,4 +435,9 @@ size_t Edge::getXmlPosition() const {
 size_t Port::getXmlPosition() const
 {
     return getXmlSiblingPosition(getXmlElement()->el);
+}
+
+bool EdgeIDLess::operator()(const std::shared_ptr<Edge>& lhs, const std::shared_ptr<Edge>& rhs) const
+{
+    return LinkIdLess()(lhs->getId(), rhs->getId());
 }
