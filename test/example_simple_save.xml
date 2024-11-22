@@ -3,15 +3,15 @@
     <layers>
         <layer id="0" name="input" type="Parameter" version="opset1">
             <data element_type="f32" shape="1,3,32,100"/>
+            <port id="0" precision="FP32">
+                <dim>1</dim>
+                <dim>3</dim>
+                <dim>32</dim>
+                <dim>100</dim>
+            </port>
             <!-- attributes of operation -->
             <output>
                 <!-- description of output ports with type of element and tensor dimensions -->
-                <port id="0" precision="FP32">
-                    <dim>1</dim>
-                    <dim>3</dim>
-                    <dim>32</dim>
-                    <dim>100</dim>
-                </port>
             </output>
         </layer>
         <layer id="1" name="conv1/weights" type="Const" version="opset1">

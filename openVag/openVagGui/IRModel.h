@@ -60,6 +60,7 @@ public:
 	const ax::NodeEditor::PinId& getId() const { return id_gui; }
 
 	const std::shared_ptr<Layer>& getParent() const { return parent; }
+	const void setParent(const std::shared_ptr<Layer>& _parent) { this->parent = _parent; }
 	const std::shared_ptr<Layers>& getLayers() const;
 	const std::shared_ptr<Network>& getNetwork() const;
 	const std::shared_ptr<Edges>& getEdges() const;
@@ -169,6 +170,8 @@ public:
 	const std::shared_ptr<Layers>& getParent() const { return parent; }
 	void resetParent() { parent.reset(); }
 	const std::shared_ptr<XMLNodeWrapper>& getXmlElement() const { return xmlElement; }
+	std::shared_ptr<XMLNodeWrapper> getXmlInputElement() const;
+	std::shared_ptr<XMLNodeWrapper> getXmlOutputElement() const;
 	size_t getXmlPosition() const;
 
 	std::shared_ptr<Network> getNetwork() const;
