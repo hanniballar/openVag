@@ -13,6 +13,7 @@
 static std::set<std::shared_ptr<Edge>, EdgeIDLess> emptyEdgeSet;
 static std::set<std::shared_ptr<Layer>, LayerIDLess> emptyLayerSet;
 static std::shared_ptr<Layer> emptyLayer;
+static std::shared_ptr<Edge> emptyEdge;
 static std::shared_ptr<OutputPort> emptyOutputPort;
 static std::shared_ptr<InputPort> emptyInputPort;
 
@@ -414,11 +415,17 @@ const std::set<std::shared_ptr<Edge>, EdgeIDLess>& Edges::getSetEdgesFromLayer(a
     return it != mapFromLayerIdToSetEdge.end() ? it->second : emptyEdgeSet;
 }
 
-std::shared_ptr<Edge> Edges::getEdge(std::shared_ptr<OutputPort> outputPort, std::shared_ptr<InputPort> inputPort) const
+const std::shared_ptr<Edge>& Edges::getEdge(std::shared_ptr<OutputPort> outputPort, std::shared_ptr<InputPort> inputPort) const
 {
     auto setLayerEdges = getSetEdgesFromLayer(outputPort->getParent()->getId());
     auto it = std::find_if(setLayerEdges.begin(), setLayerEdges.end(), [&](std::shared_ptr<Edge> edge) { return edge->getInputPort() == inputPort; });
-    return (it != setLayerEdges.end()) ? *it : nullptr;
+    return (it != setLayerEdges.end()) ? *it : emptyEdge;
+}
+
+const std::shared_ptr<Edge>& Edges::getEdge(ax::NodeEditor::LinkId id) const
+{
+    auto it = mapLinkIdToEdge.find(id);
+    return (it != mapLinkIdToEdge.end()) ? it->second : emptyEdge;
 }
 
 size_t Edge::getXmlPosition() const {

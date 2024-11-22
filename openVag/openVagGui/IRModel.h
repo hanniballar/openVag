@@ -130,7 +130,8 @@ public:
 	
 	const std::set<std::shared_ptr<Edge>, EdgeIDLess>& getSetEdgesToLayers(ax::NodeEditor::NodeId toLayerId) const;
 	const std::set<std::shared_ptr<Edge>, EdgeIDLess>& getSetEdgesFromLayer(ax::NodeEditor::NodeId fromLayerId) const;
-	std::shared_ptr<Edge> getEdge(std::shared_ptr<OutputPort> outputPort, std::shared_ptr<InputPort> inputPort) const;
+	const std::shared_ptr<Edge>& getEdge(std::shared_ptr<OutputPort> outputPort, std::shared_ptr<InputPort> inputPort) const;
+	const std::shared_ptr<Edge>& getEdge(ax::NodeEditor::LinkId id) const;
 
 	std::shared_ptr<Network> getParent() { return parent; }
 	void resetParent() { parent.reset(); }

@@ -7,14 +7,19 @@
 #include "commands/DeleteLayer.h"
 #include "commands/DeleteInputPort.h"
 #include "commands/DeleteOutputPort.h"
+#include "commands/DeleteEdge.h"
 
 void contextMenu(std::shared_ptr<IRModel> irModel, CommandCenter& commandCenter) {
     auto openPopupPosition = ImGui::GetMousePos();
     static ax::NodeEditor::PinId contextpinId = 0;
     static ax::NodeEditor::NodeId contextNodeId = 0;
+    static ax::NodeEditor::LinkId contextLinkId = 0;
 
     ax::NodeEditor::Suspend(); {
-        if (ax::NodeEditor::ShowPinContextMenu(&contextpinId)) {
+        if (ax::NodeEditor::ShowLinkContextMenu(&contextLinkId)) {
+            ImGui::OpenPopup("Link Context Menu");
+        }
+        else if (ax::NodeEditor::ShowPinContextMenu(&contextpinId)) {
             ImGui::OpenPopup("Pin Context Menu");
         }
         else if (ax::NodeEditor::ShowNodeContextMenu(&contextNodeId)) {
@@ -26,8 +31,17 @@ void contextMenu(std::shared_ptr<IRModel> irModel, CommandCenter& commandCenter)
         }
     } ax::NodeEditor::Resume();
     ax::NodeEditor::Suspend(); {
+        if (ImGui::BeginPopup("Link Context Menu")) {
+            if (ImGui::MenuItem("Delete edge")) {
+                auto edge = irModel->getNetwork()->getEdges()->getEdge(contextLinkId);
+                assert(edge);
+                auto deleteEdgeC = std::make_shared<DeleteEdge>(edge);
+                commandCenter.execute(deleteEdgeC);
+            }
+            ImGui::EndPopup();
+        }
         if (ImGui::BeginPopup("Pin Context Menu")) {
-            if (ImGui::MenuItem("Delete Pin")) {
+            if (ImGui::MenuItem("Delete port")) {
                 auto inputPort = irModel->getNetwork()->getLayers()->getInputPort(contextpinId);
                 if (inputPort) {
                     auto deletePortC = std::make_shared<DeleteInputPort>(inputPort); //Delete edge need to be created first
