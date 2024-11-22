@@ -3,6 +3,7 @@
 #include <cassert>
 
 #include "../OpenVag.h"
+#include "DeleteEdge.h"
 
 void DeleteLayer::doAct()
 {

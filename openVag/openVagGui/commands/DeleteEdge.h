@@ -2,7 +2,6 @@
 #include "ICommand.h"
 
 #include "../IRModel.h"
-#include "CommandCenter.h"
 
 class DeleteEdge :public ICommand {
 public:

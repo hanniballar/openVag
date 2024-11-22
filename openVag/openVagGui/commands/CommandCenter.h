@@ -12,6 +12,7 @@ public:
 	void undoAll();
 	void redo();
 	void redoAll();
+	void reset() { vecUndo.clear(); vecRedo.clear(); };
 	void execute(std::shared_ptr<ICommand> command);
 	size_t getUndoSize() { return vecUndo.size(); }
 	size_t getRedoSize() { return vecRedo.size(); }

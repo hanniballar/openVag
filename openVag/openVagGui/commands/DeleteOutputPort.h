@@ -13,5 +13,6 @@ private:
 	std::shared_ptr<OutputPort> port;
 	std::shared_ptr<Layer> parent;
 	size_t position = 0;
+	CommandCenter commandCenter;
 };
 

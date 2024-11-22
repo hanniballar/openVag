@@ -45,6 +45,11 @@ struct LinkIdLess
 	}
 };
 
+struct EdgeIDLess
+{
+	bool operator()(const std::shared_ptr<Edge>& lhs, const std::shared_ptr<Edge>& rhs) const;
+};
+
 class Port : public std::enable_shared_from_this<Port> {
 public:
 	Port(ax::NodeEditor::PinId id_gui, tinyxml2::XMLElement* xmlElement, std::shared_ptr<Layer> parent) : id_gui(id_gui), parent(parent) {
@@ -55,10 +60,14 @@ public:
 	const ax::NodeEditor::PinId& getId() const { return id_gui; }
 
 	const std::shared_ptr<Layer>& getParent() const { return parent; }
+	const std::shared_ptr<Layers>& getLayers() const;
+	const std::shared_ptr<Network>& getNetwork() const;
+	const std::shared_ptr<Edges>& getEdges() const;
 	void resetParent() { parent.reset(); }
 	const std::shared_ptr<XMLNodeWrapper>& getXmlElement() const { return xmlElement; }
 	size_t getXmlPosition() const;
 
+	virtual std::set<std::shared_ptr<Edge>, EdgeIDLess> getSetEdges() const = 0;
 private:
 	ax::NodeEditor::PinId id_gui;
 	std::shared_ptr<Layer> parent;
@@ -72,20 +81,16 @@ struct PortIDLess
 	}
 };
 
-struct EdgeIDLess
-{
-	bool operator()(const std::shared_ptr<Edge>& lhs, const std::shared_ptr<Edge>& rhs) const;
-};
-
-
 class InputPort : public Port, public std::enable_shared_from_this<InputPort> {
 public:
 	InputPort(ax::NodeEditor::PinId id_gui, tinyxml2::XMLElement* xmlElement, std::shared_ptr<Layer> parent) : Port(id_gui, xmlElement, parent) {}
+	std::set<std::shared_ptr<Edge>, EdgeIDLess> getSetEdges() const override;
 };
 
 class OutputPort : public Port, public std::enable_shared_from_this<OutputPort> {
 public:
 	OutputPort(ax::NodeEditor::PinId id_gui, tinyxml2::XMLElement* xmlElement, std::shared_ptr<Layer> parent) : Port(id_gui, xmlElement, parent) {}
+	std::set<std::shared_ptr<Edge>, EdgeIDLess> getSetEdges() const override;
 };
 
 class Edge : public std::enable_shared_from_this<Edge> {
@@ -129,7 +134,7 @@ public:
 	void deleteEdge(const std::shared_ptr<Edge>& edge);
 	void removeEdge(const std::shared_ptr<Edge>& edge);
 	
-	const std::set<std::shared_ptr<Edge>, EdgeIDLess>& getSetEdgesToLayers(ax::NodeEditor::NodeId toLayerId) const;
+	const std::set<std::shared_ptr<Edge>, EdgeIDLess>& getSetEdgesToLayer(ax::NodeEditor::NodeId toLayerId) const;
 	const std::set<std::shared_ptr<Edge>, EdgeIDLess>& getSetEdgesFromLayer(ax::NodeEditor::NodeId fromLayerId) const;
 	const std::shared_ptr<Edge>& getEdge(std::shared_ptr<OutputPort> outputPort, std::shared_ptr<InputPort> inputPort) const;
 	const std::shared_ptr<Edge>& getEdge(ax::NodeEditor::LinkId id) const;
@@ -160,14 +165,14 @@ public:
 		this->xmlElement = XMLNodeWrapper::make_shared(xmlLayer);
 	}
 
-	const ax::NodeEditor::NodeId getId() { return id_gui; }
-	std::shared_ptr<Layers> getParent() { return parent; }
+	const ax::NodeEditor::NodeId getId() const { return id_gui; }
+	const std::shared_ptr<Layers>& getParent() const { return parent; }
 	void resetParent() { parent.reset(); }
 	const std::shared_ptr<XMLNodeWrapper>& getXmlElement() const { return xmlElement; }
 	size_t getXmlPosition() const;
 
-	std::shared_ptr<Network> getNetwork();
-	std::shared_ptr<Edges> getEdges();
+	std::shared_ptr<Network> getNetwork() const;
+	std::shared_ptr<Edges> getEdges() const;
 	
 	const char* getXmlId() const { const auto id = xmlElement->el->ToElement()->Attribute("id"); return id ? id : ""; }
 	const char* getName() const { const auto name = xmlElement->el->ToElement()->Attribute("name"); return name ? name : ""; }
@@ -175,6 +180,7 @@ public:
 
 	const std::set<std::shared_ptr<OutputPort>, PortIDLess>& getSetOutputPort() const { return setOutputPort; }
 	const std::set<std::shared_ptr<InputPort>, PortIDLess >& getSetInputPort() const { return setInputPort; }
+	std::set<std::shared_ptr<Edge>, EdgeIDLess> getSetEdges() const;
 
 	void addPort(std::shared_ptr<InputPort> port);
 	void addPort(std::shared_ptr<InputPort> port, size_t position);

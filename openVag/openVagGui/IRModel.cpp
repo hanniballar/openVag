@@ -193,17 +193,25 @@ const std::shared_ptr<OutputPort>& Layers::getOutputPort(ax::NodeEditor::PinId i
     return (it != mapPinIdToOutputPort.end()) ? it->second : emptyOutputPort;
 }
 
-std::shared_ptr<Network> Layer::getNetwork() {
+std::shared_ptr<Network> Layer::getNetwork() const {
     return parent->getParent();
 }
 
-std::shared_ptr<Edges> Layer::getEdges()
-{
+std::shared_ptr<Edges> Layer::getEdges() const {
     return getNetwork()->getEdges();
 }
 
 size_t Layer::getXmlPosition() const {
     return getXmlSiblingPosition(getXmlElement()->el);
+}
+
+std::set<std::shared_ptr<Edge>, EdgeIDLess> Layer::getSetEdges() const
+{
+    std::set<std::shared_ptr<Edge>, EdgeIDLess> allEdges = getEdges()->getSetEdgesFromLayer(getId());
+    auto incomingEdges = getEdges()->getSetEdgesToLayer(getId());
+    allEdges.insert(incomingEdges.begin(), incomingEdges.end());
+    
+    return allEdges;
 }
 
 void Layer::addPort(std::shared_ptr<InputPort> port)
@@ -273,7 +281,7 @@ std::shared_ptr<OutputPort> Layer::getOutputPort(std::string xmlId)
 std::set<std::shared_ptr<Layer>, LayerIDLess> Layer::getInputLayers()
 {
     auto edges = getEdges();
-    auto setToLayersEdges = edges->getSetEdgesToLayers(getId());
+    auto setToLayersEdges = edges->getSetEdgesToLayer(getId());
     std::set<std::shared_ptr<Layer>, LayerIDLess> setInputLayers;
     for (const auto& edge : setToLayersEdges)
         if (edge->getFromLayer()->getId().Get() != getId().Get())
@@ -403,7 +411,7 @@ std::shared_ptr<Layers> Edges::getLayers() {
     return parent->getLayers();
 }
 
-const std::set<std::shared_ptr<Edge>, EdgeIDLess>& Edges::getSetEdgesToLayers(ax::NodeEditor::NodeId nodeId) const
+const std::set<std::shared_ptr<Edge>, EdgeIDLess>& Edges::getSetEdgesToLayer(ax::NodeEditor::NodeId nodeId) const
 {
     auto it = mapToLayerIdToSetEdge.find(nodeId);
     return it != mapToLayerIdToSetEdge.end() ? it->second: emptyEdgeSet;
@@ -432,6 +440,21 @@ size_t Edge::getXmlPosition() const {
     return getXmlSiblingPosition(getXmlElement()->el);
 }
 
+const std::shared_ptr<Layers>& Port::getLayers() const
+{
+    return getParent()->getParent();
+}
+
+const std::shared_ptr<Network>& Port::getNetwork() const
+{
+    return getLayers()->getParent();
+}
+
+const std::shared_ptr<Edges>& Port::getEdges() const
+{
+    return getNetwork()->getEdges();
+}
+
 size_t Port::getXmlPosition() const
 {
     return getXmlSiblingPosition(getXmlElement()->el);
@@ -440,4 +463,31 @@ size_t Port::getXmlPosition() const
 bool EdgeIDLess::operator()(const std::shared_ptr<Edge>& lhs, const std::shared_ptr<Edge>& rhs) const
 {
     return LinkIdLess()(lhs->getId(), rhs->getId());
+}
+
+std::set<std::shared_ptr<Edge>, EdgeIDLess> InputPort::getSetEdges() const
+{
+    auto edges = getEdges()->getSetEdgesToLayer(getParent()->getId());
+
+    auto it = edges.begin();
+    while (it != edges.end()) {
+        if ((*it)->getInputPort().get() == this) {
+            it = edges.erase(it);
+        } else { ++it; }
+    }
+    return edges;
+}
+
+std::set<std::shared_ptr<Edge>, EdgeIDLess> OutputPort::getSetEdges() const
+{
+    auto edges = getEdges()->getSetEdgesFromLayer(getParent()->getId());
+
+    auto it = edges.begin();
+    while (it != edges.end()) {
+        if ((*it)->getOutputPort().get() == this) {
+            it = edges.erase(it);
+        }
+        else { ++it; }
+    }
+    return edges;
 }
