@@ -43,21 +43,23 @@ Graph::Graph(const std::shared_ptr<Layer>& startLayer) {
         setSeenLayers.insert(procLayer);
         auto itRow = getItRow(procLayer);
         {
-            auto setInputLayer = procLayer->getInputLayers();
-            for (auto& layer : setSeenLayers) setInputLayer.erase(layer);
-            if (setInputLayer.size()) {
-                auto itPrevRow = makePrevRowAvailable(itRow);
-                itPrevRow->vecLayer.insert(itPrevRow->vecLayer.end(), setInputLayer.begin(), setInputLayer.end());
-                dequeProcLayer.insert(dequeProcLayer.end(), setInputLayer.begin(), setInputLayer.end());
-            }
-        }
-        {
             auto setOutputLayer = procLayer->getOutputLayers();
             for (auto& layer : setSeenLayers) setOutputLayer.erase(layer);
+            for (auto& layer : dequeProcLayer) setOutputLayer.erase(layer);
             if (setOutputLayer.size()) {
                 auto itNextRow = makeNextRowAvailable(itRow);
                 itNextRow->vecLayer.insert(itNextRow->vecLayer.end(), setOutputLayer.begin(), setOutputLayer.end());
                 dequeProcLayer.insert(dequeProcLayer.end(), setOutputLayer.begin(), setOutputLayer.end());
+            }
+        }
+        {
+            auto setInputLayer = procLayer->getInputLayers();
+            for (auto& layer : setSeenLayers) setInputLayer.erase(layer);
+            for (auto& layer : dequeProcLayer) setInputLayer.erase(layer);
+            if (setInputLayer.size()) {
+                auto itPrevRow = makePrevRowAvailable(itRow);
+                itPrevRow->vecLayer.insert(itPrevRow->vecLayer.end(), setInputLayer.begin(), setInputLayer.end());
+                dequeProcLayer.insert(dequeProcLayer.end(), setInputLayer.begin(), setInputLayer.end());
             }
         }
     }

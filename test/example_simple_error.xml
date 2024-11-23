@@ -34,9 +34,6 @@
                     <dim>3</dim>
                 </port>
             </output>
-            <input>
-                <port id="3"/>
-            </input>
         </layer>
         <layer id="2" name="conv1" type="Convolution" version="opset1">
             <data auto_pad="same_upper" dilations="1,1" output_padding="0,0" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
