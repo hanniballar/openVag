@@ -5,12 +5,12 @@
 #include "../OpenVag.h"
 
 void InsertInputPort::doAct() {
-    layer = layer->insertNewLayer();
+    port = layer->insertNewInputPort();
     this->doFlag = false;
 }
 
 void InsertInputPort::undoAct() {
-    irModelGui->getNetwork()->getLayers()->deleteLayer(layer);
+    layer->deletePort(port);
     layer.reset();
     this->doFlag = true;
 }

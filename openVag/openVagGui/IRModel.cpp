@@ -56,7 +56,7 @@ static void insertNodeAtPosition(tinyxml2::XMLNode* insertThis, tinyxml2::XMLNod
 tinyxml2::XMLElement* Layers::createXmlLayer(std::string xmlId, std::string name, std::string type) const
 {
     auto xmlLayer = getXmlElement()->el->GetDocument()->NewElement("layer");
-    xmlLayer->SetAttribute("id", xmlId.c_str());
+    xmlLayer->SetAttribute("xmlId", xmlId.c_str());
     xmlLayer->SetAttribute("name", name.c_str());
     xmlLayer->SetAttribute("type", type.c_str());
 
@@ -241,6 +241,23 @@ std::set<std::shared_ptr<Edge>, EdgeIDLess> Layer::getSetEdges() const
     return allEdges;
 }
 
+std::shared_ptr<InputPort> Layer::createInputPort(std::string xmlId) {
+    auto xmlport = getXmlElement()->el->GetDocument()->NewElement("port");
+    xmlport->SetAttribute("id", xmlId.c_str());
+    ax::NodeEditor::PinId id_gui = GetNextId();
+    std::shared_ptr<Layer> parent = shared_from_this();
+    auto inputPort = std::make_shared<InputPort>(id_gui, xmlport, parent);
+
+    return inputPort;
+}
+
+std::shared_ptr<InputPort> Layer::insertNewInputPort() {
+    auto maxId = getMaxPortXmlId();
+    auto inputPort = createInputPort(std::to_string(maxId));
+    insertPort(inputPort);
+    return inputPort;
+}
+
 void Layer::insertPort(std::shared_ptr<InputPort> port)
 {
     setInputPort.insert(port);
@@ -329,6 +346,24 @@ std::set<std::shared_ptr<Layer>, LayerIDLess> Layer::getOutputLayers()
             setOutputLayers.insert(edge->getToLayer());
 
     return setOutputLayers;
+}
+
+int64_t Layer::getMaxPortXmlId() const {
+    int64_t maxId = 0;
+
+    for (const auto& port : getSetInputPort()) {
+        std::stringstream ss(port->getXmlId());
+        int64_t xmlIdNum = 0;
+        ss >> xmlIdNum;
+        maxId = std::max(maxId, xmlIdNum);
+    }
+    for (const auto& port : getSetOutputPort()) {
+        std::stringstream ss(port->getXmlId());
+        int64_t xmlIdNum = 0;
+        ss >> xmlIdNum;
+        maxId = std::max(maxId, xmlIdNum);
+    }
+    return maxId;
 }
 
 tinyxml2::XMLElement* Edges::createXmlEdge(std::string from_layer, std::string from_port, std::string to_layer, std::string to_port)

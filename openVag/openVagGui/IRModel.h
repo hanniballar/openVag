@@ -187,6 +187,8 @@ public:
 	std::set<std::shared_ptr<InputPort>, PortIDLess > getSetInputPort() const { return setInputPort; }
 	std::set<std::shared_ptr<Edge>, EdgeIDLess> getSetEdges() const;
 
+	std::shared_ptr<InputPort> createInputPort(std::string xmlId);
+	std::shared_ptr<InputPort> insertNewInputPort();
 	void insertPort(std::shared_ptr<InputPort> port);
 	void insertPort(std::shared_ptr<InputPort> port, size_t position);
 	void insertPort(std::shared_ptr<OutputPort> port);
@@ -201,6 +203,7 @@ public:
 
 	std::set<std::shared_ptr<Layer>, LayerIDLess> getInputLayers();
 	std::set<std::shared_ptr<Layer>, LayerIDLess> getOutputLayers();
+	int64_t getMaxPortXmlId() const;
 private:
 	ax::NodeEditor::NodeId id_gui;
 	std::shared_ptr<Layers> parent;
