@@ -2,12 +2,11 @@
 #include "ICommand.h"
 
 #include "../IRModel.h"
-#include "CommandCenter.h"
 
 
-class AddLayer :public ICommand {
+class insertLayer :public ICommand {
 public:
-	AddLayer(std::shared_ptr<IRModel> irModelGui) : irModelGui(irModelGui) {}
+	insertLayer(std::shared_ptr<IRModel> irModelGui) : irModelGui(irModelGui) {}
 	std::shared_ptr<Layer> getLayer() const { return layer; }
 private:
 	void doAct() override;

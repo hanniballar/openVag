@@ -18,7 +18,7 @@ void DeleteInputPort::doAct()
 
 void DeleteInputPort::undoAct()
 {
-    parent->addPort(port, position);
+    parent->insertPort(port, position);
     commandCenter.undoAll();
     commandCenter.reset();
     port.reset();

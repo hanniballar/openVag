@@ -43,7 +43,7 @@ void parsePorts(XMLElement* ports, std::shared_ptr<Layer> parent) {
     if(ports == nullptr) return;
     auto xmlElement = ports->FirstChildElement("port");
     while (xmlElement != nullptr) {
-        parent->addPort(parsePort<LayerPortGuiType>(xmlElement, parent));
+        parent->insertPort(parsePort<LayerPortGuiType>(xmlElement, parent));
         xmlElement = xmlElement->NextSiblingElement();
     }
 }
@@ -67,7 +67,7 @@ void parseLayer(XMLElement* xmlLayer, std::shared_ptr<Layers> parent) {
     }
 
     auto layerGui = std::make_shared<Layer>(GetNextId(), xmlLayer, parent);
-    parent->addLayer(layerGui);
+    parent->insertLayer(layerGui);
     auto inputs = xmlLayer->FirstChildElement("input");
     parsePorts<InputPort>(inputs, layerGui);
     auto outputs = xmlLayer->FirstChildElement("output");
@@ -128,7 +128,7 @@ std::shared_ptr<Edges> parseEdges(XMLElement* xmlEdges, std::shared_ptr<Network>
     std::shared_ptr<Edges> edges = std::make_shared<Edges>(xmlEdges, parent);
     XMLElement* edge = xmlEdges->FirstChildElement("edge");
     while (edge != nullptr) {
-        edges->addEdge(parseEdge(edge, edges));
+        edges->insertEdge(parseEdge(edge, edges));
         edge = edge->NextSiblingElement();
     }
     return edges;

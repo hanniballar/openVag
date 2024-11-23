@@ -67,7 +67,7 @@ void contextMenu(std::shared_ptr<IRModel> irModel, CommandCenter& commandCenter)
         }
         if (ImGui::BeginPopup("Create New Node")) {
             if (ImGui::MenuItem("New Layer")) {
-                auto addLayerC = std::make_shared<AddLayer>(irModel);
+                auto addLayerC = std::make_shared<insertLayer>(irModel);
                 commandCenter.execute(addLayerC);
                 auto newLayer = addLayerC->getLayer();
                 ax::NodeEditor::SetNodePosition(newLayer->getId(), openPopupPosition);

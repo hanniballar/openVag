@@ -34,10 +34,10 @@ set(Sources
 	commands/AddAttributeXMLElement.h
 	commands/DeleteAttributeXMLElement.cpp
 	commands/DeleteAttributeXMLElement.h
-	commands/AddEdge.cpp
-	commands/AddEdge.h
-	commands/AddLayer.cpp
-	commands/AddLayer.h
+	commands/InsertEdge.cpp
+	commands/InsertEdge.h
+	commands/InsertLayer.cpp
+	commands/InsertLayer.h
 	commands/AddXMLLayer.cpp
 	commands/AddXMLLayer.h
 	commands/DeleteLayer.cpp
@@ -48,6 +48,8 @@ set(Sources
 	commands/DeleteOutputPort.h
 	commands/DeleteEdge.cpp
 	commands/DeleteEdge.h
+	commands/InsertInputPort.cpp
+	commands/InsertInputPort.h
 	misc/debugger/openVag.natstepfilter
 )
 

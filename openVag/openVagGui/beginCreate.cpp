@@ -20,7 +20,7 @@ void beginCreate(std::shared_ptr<IRModel> irModelGui, CommandCenter& commandCent
 
             if (outputPort && inputPort && (irModelGui->getNetwork()->getEdges()->getEdge(outputPort, inputPort) == nullptr)) {
                 if (ax::NodeEditor::AcceptNewItem(ImColor(128, 255, 128), 4.0f)) {
-                    commandCenter.execute(std::make_shared<AddEdge>(irModelGui, outputPort, inputPort));
+                    commandCenter.execute(std::make_shared<InsertEdge>(irModelGui, outputPort, inputPort));
                 }
             }
             else {

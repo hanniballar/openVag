@@ -16,7 +16,7 @@ void DeleteEdge::doAct()
 
 void DeleteEdge::undoAct()
 {
-    parent->addEdge(edge, position);
+    parent->insertEdge(edge, position);
     edge.reset();
     parent.reset();
     position = 0;

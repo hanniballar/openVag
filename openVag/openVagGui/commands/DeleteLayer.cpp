@@ -20,7 +20,7 @@ void DeleteLayer::doAct()
 
 void DeleteLayer::undoAct()
 {
-    parent->addLayer(layer, position);
+    parent->insertLayer(layer, position);
     commandCenter.undoAll();
     commandCenter.reset();
     layer.reset();

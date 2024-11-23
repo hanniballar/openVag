@@ -1,16 +1,16 @@
-#include "AddLayer.h"
+#include "InsertLayer.h"
 
 #include <cassert>
 
 #include "../OpenVag.h"
 
-void AddLayer::doAct()
+void insertLayer::doAct()
 {
     layer = irModelGui->getNetwork()->getLayers()->insertNewLayer();
     this->doFlag = false;
 }
 
-void AddLayer::undoAct()
+void insertLayer::undoAct()
 {
     irModelGui->getNetwork()->getLayers()->deleteLayer(layer);
     layer.reset();
