@@ -102,6 +102,7 @@ public:
 
 	const ax::NodeEditor::LinkId getId() const { return id_gui; }
 	const std::shared_ptr<Edges>& getParent() const { return parent; }
+	void setParent(const std::shared_ptr<Edges>& _parent) { this->parent = _parent; }
 	void resetParent() { parent.reset(); }
 	const std::shared_ptr<XMLNodeWrapper>& getXmlElement() const { return xmlElement; }
 	size_t getXmlPosition() const;
@@ -168,6 +169,7 @@ public:
 
 	const ax::NodeEditor::NodeId getId() const { return id_gui; }
 	const std::shared_ptr<Layers>& getParent() const { return parent; }
+	void setParent(const std::shared_ptr<Layers>& _parent) { this->parent = _parent; }
 	void resetParent() { parent.reset(); }
 	const std::shared_ptr<XMLNodeWrapper>& getXmlElement() const { return xmlElement; }
 	std::shared_ptr<XMLNodeWrapper> getXmlInputElement() const;

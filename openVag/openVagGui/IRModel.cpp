@@ -117,11 +117,14 @@ void Layers::removeLayer(const std::shared_ptr<Layer>& layer)
     assert(itMapXMLIdToSetLayer->second.find(layer) != itMapXMLIdToSetLayer->second.end());
     itMapXMLIdToSetLayer->second.erase(layer);
     if (itMapXMLIdToSetLayer->second.size() == 0) mapXMLIdToSetLayer.erase(itMapXMLIdToSetLayer);
+
+    layer->resetParent();
 }
 
 void Layers::addLayer(std::shared_ptr<Layer> layer)
 {
     assert(mapNodeIdToLayer.find(layer->getId()) == mapNodeIdToLayer.end());
+    layer->setParent(shared_from_this());
     mapNodeIdToLayer[layer->getId()] = layer;
 
     if (mapXMLIdToSetLayer.find(layer->getXmlId()) == mapXMLIdToSetLayer.end()) {
@@ -267,8 +270,8 @@ void Layer::addPort(std::shared_ptr<OutputPort> port, size_t position)
 void Layer::removePort(const std::shared_ptr<InputPort>& port)
 {
     setInputPort.erase(port);
-    port->resetParent();
     getParent()->removePort(port);
+    port->resetParent();
 }
 
 void Layer::deletePort(const std::shared_ptr<InputPort>& port)
@@ -280,8 +283,8 @@ void Layer::deletePort(const std::shared_ptr<InputPort>& port)
 void Layer::removePort(const std::shared_ptr<OutputPort>& port)
 {
     setOutputPort.erase(port);
-    port->resetParent();
     getParent()->removePort(port);
+    port->resetParent();
 }
 
 void Layer::deletePort(const std::shared_ptr<OutputPort>& port)
@@ -398,6 +401,7 @@ std::shared_ptr<Edge> Edges::insertNewEdge(ax::NodeEditor::LinkId id_gui, const 
 void Edges::addEdge(std::shared_ptr<Edge> edge)
 {
     assert(mapLinkIdToEdge.find(edge->getId()) == mapLinkIdToEdge.end());
+    edge->setParent(shared_from_this());
     mapLinkIdToEdge[edge->getId()] = edge;
     if (mapFromLayerIdToSetEdge.find(edge->getFromLayer()->getId()) == mapFromLayerIdToSetEdge.end()) {
         mapFromLayerIdToSetEdge[edge->getFromLayer()->getId()] = {};
@@ -431,6 +435,7 @@ void Edges::removeEdge(const std::shared_ptr<Edge>& edge)
     if (mapFromLayerIdToSetEdge[edge->getFromLayer()->getId()].size() == 0) mapFromLayerIdToSetEdge.erase(edge->getFromLayer()->getId());
 
     mapLinkIdToEdge.erase(edge->getId());
+    edge->resetParent();
 }
 
 std::shared_ptr<Layers> Edges::getLayers() {

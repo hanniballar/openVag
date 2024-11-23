@@ -14,5 +14,6 @@ private:
 	std::shared_ptr<Layers> parent;
 	std::shared_ptr<Layer> layer;
 	size_t position = 0;
+	CommandCenter commandCenter;
 };
 
