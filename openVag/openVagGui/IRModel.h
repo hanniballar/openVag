@@ -229,8 +229,8 @@ public:
 	void deleteLayer(const std::shared_ptr<Layer>& layer);
 	void removeLayer(const std::shared_ptr<Layer>& layer);
 
-	void InsertLayer(std::shared_ptr<Layer> layer);
-	void InsertLayer(std::shared_ptr<Layer> layer, size_t position);
+	void insertLayer(std::shared_ptr<Layer> layer);
+	void insertLayer(std::shared_ptr<Layer> layer, size_t position);
 	void insertPort(std::shared_ptr<InputPort> port);
 	void removePort(std::shared_ptr<InputPort> port);
 	void insertPort(std::shared_ptr<OutputPort> port);
