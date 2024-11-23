@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "commands/AddEdge.h"
+#include "commands/InsertEdge.h"
 #include "OpenVag.h"
 
 void beginCreate(std::shared_ptr<IRModel> irModelGui, CommandCenter& commandCenter) {
