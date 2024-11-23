@@ -13,6 +13,9 @@
                     <dim>100</dim>
                 </port>
             </output>
+            <input>
+                <port id="1"/>
+            </input>
         </layer>
         <layer id="1" name="conv1/weights" type="Const" version="opset1">
             <!-- Const is only operation from opset1 that refers to the IR binary file by specifying offset and size in bytes relative to the beginning of the file. -->
@@ -31,6 +34,9 @@
                     <dim>3</dim>
                 </port>
             </output>
+            <input>
+                <port id="3"/>
+            </input>
         </layer>
         <layer id="2" name="conv1" type="Convolution" version="opset1">
             <data auto_pad="same_upper" dilations="1,1" output_padding="0,0" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
@@ -92,6 +98,7 @@
         <edge from-layer="1" from-port="1" to-layer="2" to-port="1"/>
         <edge from-layer="2" from-port="2" to-layer="3" to-port="0"/>
         <edge from-layer="3" from-port="1" to-layer="4" to-port="0"/>
+        <edge from-layer="3" from-port="1" to-layer="0" to-port="1"/>
     </edges>
     <meta_data>
         <!-- This section that is not related to a topology; contains auxiliary information that serves for the debugging purposes. -->

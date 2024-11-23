@@ -8,11 +8,12 @@
 #include "commands/DeleteInputPort.h"
 #include "commands/DeleteOutputPort.h"
 #include "commands/DeleteEdge.h"
+#include "commands/InsertInputPort.h"
 
 void contextMenu(std::shared_ptr<IRModel> irModel, CommandCenter& commandCenter) {
     auto openPopupPosition = ImGui::GetMousePos();
-    static ax::NodeEditor::PinId contextpinId = 0;
     static ax::NodeEditor::NodeId contextNodeId = 0;
+    static ax::NodeEditor::PinId contextpinId = 0;
     static ax::NodeEditor::LinkId contextLinkId = 0;
 
     ax::NodeEditor::Suspend(); {
@@ -41,16 +42,17 @@ void contextMenu(std::shared_ptr<IRModel> irModel, CommandCenter& commandCenter)
             ImGui::EndPopup();
         }
         if (ImGui::BeginPopup("Pin Context Menu")) {
+
             if (ImGui::MenuItem("Delete port")) {
                 auto inputPort = irModel->getNetwork()->getLayers()->getInputPort(contextpinId);
                 if (inputPort) {
-                    auto deletePortC = std::make_shared<DeleteInputPort>(inputPort); //Delete edge need to be created first
+                    auto deletePortC = std::make_shared<DeleteInputPort>(inputPort);
                     commandCenter.execute(deletePortC);
                 }
                 else {
                     auto outputPort = irModel->getNetwork()->getLayers()->getOutputPort(contextpinId);
                     assert(outputPort);
-                    auto deletePortC = std::make_shared<DeleteOutputPort>(outputPort); //Delete edge need to be created first
+                    auto deletePortC = std::make_shared<DeleteOutputPort>(outputPort);
                     commandCenter.execute(deletePortC);
                 }
                 
@@ -58,9 +60,15 @@ void contextMenu(std::shared_ptr<IRModel> irModel, CommandCenter& commandCenter)
             ImGui::EndPopup();
         }
         if (ImGui::BeginPopup("Node Context Menu")) {
+            if (ImGui::MenuItem("New inputPort")) {
+                auto layer = irModel->getNetwork()->getLayers()->getLayer(contextNodeId);
+                auto insertInputPort = std::make_shared<InsertInputPort>(layer);
+                commandCenter.execute(insertInputPort);
+            }
+            ImGui::Separator();
             if (ImGui::MenuItem("Delete Layer")) {
                 auto layer = irModel->getNetwork()->getLayers()->getLayer(contextNodeId);
-                auto deleteLayerC = std::make_shared<DeleteLayer>(layer); //Delete port and edge need to be created first
+                auto deleteLayerC = std::make_shared<DeleteLayer>(layer);
                 commandCenter.execute(deleteLayerC);
             }
             ImGui::EndPopup();

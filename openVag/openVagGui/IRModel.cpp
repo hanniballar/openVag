@@ -252,8 +252,9 @@ std::shared_ptr<InputPort> Layer::createInputPort(std::string xmlId) {
 }
 
 std::shared_ptr<InputPort> Layer::insertNewInputPort() {
-    auto maxId = getMaxPortXmlId();
-    auto inputPort = createInputPort(std::to_string(maxId));
+    auto xmlId = std::to_string(getMaxPortXmlId() + 1);
+    auto inputPort = createInputPort(xmlId);
+    getXmlInputElement()->el->InsertEndChild(inputPort->getXmlElement()->el);
     insertPort(inputPort);
     return inputPort;
 }
@@ -358,6 +359,7 @@ int64_t Layer::getMaxPortXmlId() const {
         maxId = std::max(maxId, xmlIdNum);
     }
     for (const auto& port : getSetOutputPort()) {
+        auto xmlId = port->getXmlId(); //ToDo remove
         std::stringstream ss(port->getXmlId());
         int64_t xmlIdNum = 0;
         ss >> xmlIdNum;
