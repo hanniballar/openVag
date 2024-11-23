@@ -183,8 +183,8 @@ public:
 	const char* getName() const { const auto name = xmlElement->el->ToElement()->Attribute("name"); return name ? name : ""; }
 	const char* getType() const { const auto type = xmlElement->el->ToElement()->Attribute("type"); return type ? type : ""; }
 
-	const std::set<std::shared_ptr<OutputPort>, PortIDLess>& getSetOutputPort() const { return setOutputPort; }
-	const std::set<std::shared_ptr<InputPort>, PortIDLess >& getSetInputPort() const { return setInputPort; }
+	std::set<std::shared_ptr<OutputPort>, PortIDLess> getSetOutputPort() const { return setOutputPort; }
+	std::set<std::shared_ptr<InputPort>, PortIDLess > getSetInputPort() const { return setInputPort; }
 	std::set<std::shared_ptr<Edge>, EdgeIDLess> getSetEdges() const;
 
 	void addPort(std::shared_ptr<InputPort> port);
