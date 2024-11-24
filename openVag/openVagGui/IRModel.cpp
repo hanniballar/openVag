@@ -64,29 +64,6 @@ int64_t Layers::getMaxLayerXmlId() const {
     return maxId;
 }
 
-std::shared_ptr<Layer> Layers::insertNewLayer()
-{
-    auto xmlId = std::to_string(getMaxLayerXmlId() + 1);
-    std::string name = std::string("openVagLayer") + xmlId;
-    
-    return insertNewLayer(xmlId, name, std::string("Const"));
-}
-
-std::shared_ptr<Layer> Layers::insertNewLayer(std::string xmlId, std::string name, std::string type)
-{
-    auto layer = std::make_shared<Layer>(getXmlElement()->el->GetDocument(), xmlId, name, type);
-    layer->setParent(shared_from_this());
-    xmlElement->el->InsertEndChild(layer->getXmlElement()->el);
-
-    assert(mapNodeIdToLayer.find(layer->getId()) == mapNodeIdToLayer.end());
-    mapNodeIdToLayer[layer->getId()] = layer;
-
-    assert(mapXMLIdToSetLayer.find(xmlId) == mapXMLIdToSetLayer.end());
-    mapXMLIdToSetLayer[xmlId].insert(layer);
-
-    return layer;
-}
-
 void Layers::deleteLayer(const std::shared_ptr<Layer>& layer)
 {
     removeLayer(layer);
@@ -108,6 +85,23 @@ void Layers::removeLayer(const std::shared_ptr<Layer>& layer)
     if (itMapXMLIdToSetLayer->second.size() == 0) mapXMLIdToSetLayer.erase(itMapXMLIdToSetLayer);
 
     layer->resetParent();
+}
+
+std::shared_ptr<Layer> Layers::insertNewLayer()
+{
+    auto xmlId = std::to_string(getMaxLayerXmlId() + 1);
+    std::string name = std::string("openVagLayer") + xmlId;
+
+    return insertNewLayer(xmlId, name, std::string("Const"));
+}
+
+std::shared_ptr<Layer> Layers::insertNewLayer(std::string xmlId, std::string name, std::string type)
+{
+    auto layer = std::make_shared<Layer>(getXmlElement()->el->GetDocument(), xmlId, name, type);
+    xmlElement->el->InsertEndChild(layer->getXmlElement()->el);
+    insertLayer(layer);
+
+    return layer;
 }
 
 void Layers::insertLayer(std::shared_ptr<Layer> layer)
@@ -252,7 +246,7 @@ std::shared_ptr<InputPort> Layer::createInputPort(std::string xmlId) {
 
 std::shared_ptr<InputPort> Layer::insertNewInputPort() {
     auto xmlId = std::to_string(getMaxPortXmlId() + 1);
-    auto inputPort = createInputPort(xmlId);
+    auto inputPort = std::make_shared<InputPort>(getXmlElement()->el->GetDocument(), xmlId);
     getXmlInputElement()->el->InsertEndChild(inputPort->getXmlElement()->el);
     insertPort(inputPort);
     return inputPort;
@@ -260,6 +254,7 @@ std::shared_ptr<InputPort> Layer::insertNewInputPort() {
 
 void Layer::insertPort(std::shared_ptr<InputPort> port)
 {
+    port->setParent(shared_from_this());
     setInputPort.insert(port);
     getParent()->insertPort(port);
 }
@@ -367,18 +362,7 @@ int64_t Layer::getMaxPortXmlId() const {
     return maxId;
 }
 
-tinyxml2::XMLElement* Edges::createXmlEdge(std::string from_layer, std::string from_port, std::string to_layer, std::string to_port)
-{
-    auto xmlEdge = getXmlElement()->el->GetDocument()->NewElement("edge");
-    xmlEdge->SetAttribute("from-layer", from_layer.c_str());
-    xmlEdge->SetAttribute("from-port", from_port.c_str());
-    xmlEdge->SetAttribute("to-layer", to_layer.c_str());
-    xmlEdge->SetAttribute("to-port", to_port.c_str());
-
-    return xmlEdge;
-}
-
-std::shared_ptr<Edge> Edges::createEdge(ax::NodeEditor::LinkId id, std::string from_layer, std::string from_port, std::string to_layer, std::string to_port, tinyxml2::XMLElement* xmlElement)
+std::shared_ptr<Edge> Edges::insertNewEdge(ax::NodeEditor::LinkId id, const std::string& from_layer, const std::string& from_port, const std::string& to_layer, const std::string& to_port, size_t xmlPos)
 {
     auto inputLayer = getLayers()->getLayer(to_layer);
     auto outputLayer = getLayers()->getLayer(from_layer);
@@ -388,14 +372,8 @@ std::shared_ptr<Edge> Edges::createEdge(ax::NodeEditor::LinkId id, std::string f
     assert(outputPort != nullptr);
     assert(inputPort != nullptr);
 
-    return std::make_shared<Edge>(id, outputPort, inputPort, xmlElement, shared_from_this());
-}
-
-std::shared_ptr<Edge> Edges::insertNewEdge(ax::NodeEditor::LinkId id, const std::string& from_layer, const std::string& from_port, const std::string& to_layer, const std::string& to_port, size_t xmlPos)
-{
-    auto xmlEdge = createXmlEdge(from_layer, from_port, to_layer, to_port);
-    insertNodeAtPosition(xmlEdge, xmlElement->el, xmlPos);
-    auto edge = createEdge(id, from_layer, from_port, to_layer, to_port, xmlEdge);
+    auto edge = std::make_shared<Edge>(getXmlElement()->el->GetDocument(), outputPort, inputPort);
+    insertNodeAtPosition(edge->getXmlElement()->el, xmlElement->el, xmlPos);
     insertEdge(edge);
 
     return edge;
@@ -411,13 +389,18 @@ std::shared_ptr<Edge> Edges::insertNewEdge(ax::NodeEditor::LinkId id, const std:
         return res;
         }) == end());
 
-    auto xmlEdge = createXmlEdge(from_layer, from_port, to_layer, to_port);
+    auto inputLayer = getLayers()->getLayer(to_layer);
+    auto outputLayer = getLayers()->getLayer(from_layer);
+    auto inputPort = inputLayer->getInputPort(to_port);
+    auto outputPort = outputLayer->getOutputPort(from_port);
 
-    xmlElement->el->InsertEndChild(xmlEdge);
+    assert(outputPort != nullptr);
+    assert(inputPort != nullptr);
 
-    auto edge = createEdge(id, from_layer, from_port, to_layer, to_port, xmlEdge);
+    auto edge = std::make_shared<Edge>(getXmlElement()->el->GetDocument(), outputPort, inputPort);
+    xmlElement->el->InsertEndChild(edge->getXmlElement()->el);
+
     insertEdge(edge);
-
     return edge;
 }
 
@@ -426,6 +409,8 @@ void Edges::insertEdge(std::shared_ptr<Edge> edge)
     assert(mapLinkIdToEdge.find(edge->getId()) == mapLinkIdToEdge.end());
     edge->setParent(shared_from_this());
     mapLinkIdToEdge[edge->getId()] = edge;
+    auto res1 = edge->getFromLayer();
+    auto res = edge->getFromLayer()->getId(); //ToDo Remove
     if (mapFromLayerIdToSetEdge.find(edge->getFromLayer()->getId()) == mapFromLayerIdToSetEdge.end()) {
         mapFromLayerIdToSetEdge[edge->getFromLayer()->getId()] = {};
     }
@@ -490,8 +475,27 @@ const std::shared_ptr<Edge>& Edges::getEdge(ax::NodeEditor::LinkId id) const
     return (it != mapLinkIdToEdge.end()) ? it->second : emptyEdge;
 }
 
+Edge::Edge(tinyxml2::XMLDocument* xmlDocument, const std::shared_ptr<OutputPort>& outputPort, const std::shared_ptr<InputPort>& inputPort) : id (GetNextId()), outputPort(outputPort), inputPort(inputPort)
+{
+    auto xmlEdgeRaw = xmlDocument->NewElement("edge");
+    xmlEdgeRaw->SetAttribute("from-layer", outputPort->getParent()->getXmlId());
+    xmlEdgeRaw->SetAttribute("from-port", outputPort->getXmlId());
+    xmlEdgeRaw->SetAttribute("to-layer", inputPort->getParent()->getXmlId());
+    xmlEdgeRaw->SetAttribute("to-port", inputPort->getXmlId());
+
+    xmlElement = XMLNodeWrapper::make_shared(xmlEdgeRaw);
+}
+
 size_t Edge::getXmlPosition() const {
     return getXmlSiblingPosition(getXmlElement()->el);
+}
+
+Port::Port(tinyxml2::XMLDocument* xmlDocument, std::string xmlId) : id(GetNextId())
+{
+    auto xmlPortRaw = xmlDocument->NewElement("port");
+    xmlPortRaw->SetAttribute("id", xmlId.c_str());
+
+    xmlElement = XMLNodeWrapper::make_shared(xmlPortRaw);
 }
 
 const std::shared_ptr<Layers>& Port::getLayers() const

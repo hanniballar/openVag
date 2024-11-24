@@ -117,7 +117,15 @@ std::shared_ptr<Edge> parseEdge(XMLElement* edge, std::shared_ptr<Edges> parent)
         throw ParseIRModelException(msg.c_str());
     }
 
-    return parent->createEdge(GetNextId(), from_layer, from_port, to_layer, to_port, edge);
+    auto inputLayer = parent->getLayers()->getLayer(to_layer);
+    auto outputLayer = parent->getLayers()->getLayer(from_layer);
+    auto inputPort = inputLayer->getInputPort(to_port);
+    auto outputPort = outputLayer->getOutputPort(from_port);
+
+    assert(outputPort != nullptr);
+    assert(inputPort != nullptr);
+
+    return std::make_shared<Edge>(GetNextId(), outputPort, inputPort, edge, parent);
 }
 
 std::shared_ptr<Edges> parseEdges(XMLElement* xmlEdges, std::shared_ptr<Network> parent) {
