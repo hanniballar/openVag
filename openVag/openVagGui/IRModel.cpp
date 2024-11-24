@@ -349,7 +349,7 @@ std::set<std::shared_ptr<Layer>, LayerIDLess> Layer::getOutputLayers()
 }
 
 int64_t Layer::getMaxPortXmlId() const {
-    int64_t maxId = 0;
+    int64_t maxId = -1;
 
     for (const auto& port : getSetInputPort()) {
         std::stringstream ss(port->getXmlId());

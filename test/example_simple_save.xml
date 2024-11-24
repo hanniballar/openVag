@@ -85,6 +85,11 @@
                 </port>
             </input>
         </layer>
+        <layer id="5" name="openVagLayer5" type="Const">
+            <input>
+                <port id="0"/>
+            </input>
+        </layer>
     </layers>
     <edges>
         <!-- Connections between layer nodes: based on ids for layers and ports used in the descriptions above -->
