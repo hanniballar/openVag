@@ -53,16 +53,6 @@ static void insertNodeAtPosition(tinyxml2::XMLNode* insertThis, tinyxml2::XMLNod
     }
 }
 
-tinyxml2::XMLElement* Layers::createXmlLayer(std::string xmlId, std::string name, std::string type) const
-{
-    auto xmlLayer = getXmlElement()->el->GetDocument()->NewElement("layer");
-    xmlLayer->SetAttribute("xmlId", xmlId.c_str());
-    xmlLayer->SetAttribute("name", name.c_str());
-    xmlLayer->SetAttribute("type", type.c_str());
-
-    return xmlLayer;
-}
-
 int64_t Layers::getMaxLayerXmlId() const {
     int64_t maxId = 0;
     for (const auto& nodeIdToLayer : mapNodeIdToLayer) {
@@ -78,19 +68,18 @@ std::shared_ptr<Layer> Layers::insertNewLayer()
 {
     auto xmlId = std::to_string(getMaxLayerXmlId() + 1);
     std::string name = std::string("openVagLayer") + xmlId;
-    ax::NodeEditor::NodeId id = GetNextId();
     
-    return insertNewLayer(id, xmlId, name, std::string("Const"));
+    return insertNewLayer(xmlId, name, std::string("Const"));
 }
 
-std::shared_ptr<Layer> Layers::insertNewLayer(ax::NodeEditor::NodeId id, std::string xmlId, std::string name, std::string type)
+std::shared_ptr<Layer> Layers::insertNewLayer(std::string xmlId, std::string name, std::string type)
 {
-    auto xmlLayer = createXmlLayer(xmlId, name, type);
-    xmlElement->el->InsertEndChild(xmlLayer);
+    auto layer = std::make_shared<Layer>(getXmlElement()->el->GetDocument(), xmlId, name, type);
+    layer->setParent(shared_from_this());
+    xmlElement->el->InsertEndChild(layer->getXmlElement()->el);
 
-    auto layer = std::make_shared<Layer>(id, xmlLayer, getParent()->getLayers());
-    assert(mapNodeIdToLayer.find(id) == mapNodeIdToLayer.end());
-    mapNodeIdToLayer[id] = layer;
+    assert(mapNodeIdToLayer.find(layer->getId()) == mapNodeIdToLayer.end());
+    mapNodeIdToLayer[layer->getId()] = layer;
 
     assert(mapXMLIdToSetLayer.find(xmlId) == mapXMLIdToSetLayer.end());
     mapXMLIdToSetLayer[xmlId].insert(layer);
@@ -204,6 +193,16 @@ std::shared_ptr<Edges> Layer::getEdges() const {
     return getNetwork()->getEdges();
 }
 
+Layer::Layer(tinyxml2::XMLDocument* xmlDocument, std::string xmlId, std::string name, std::string type) : id(GetNextId())
+{
+    auto xmlLayerRaw = xmlDocument->NewElement("layer");
+    xmlLayerRaw->SetAttribute("id", xmlId.c_str());
+    xmlLayerRaw->SetAttribute("name", name.c_str());
+    xmlLayerRaw->SetAttribute("type", type.c_str());
+
+    xmlElement = XMLNodeWrapper::make_shared(xmlLayerRaw);
+}
+
 std::shared_ptr<XMLNodeWrapper> Layer::getXmlInputElement() const
 {
     auto xmlElRaw = getXmlElement()->el;
@@ -244,9 +243,9 @@ std::set<std::shared_ptr<Edge>, EdgeIDLess> Layer::getSetEdges() const
 std::shared_ptr<InputPort> Layer::createInputPort(std::string xmlId) {
     auto xmlport = getXmlElement()->el->GetDocument()->NewElement("port");
     xmlport->SetAttribute("id", xmlId.c_str());
-    ax::NodeEditor::PinId id_gui = GetNextId();
+    ax::NodeEditor::PinId id = GetNextId();
     std::shared_ptr<Layer> parent = shared_from_this();
-    auto inputPort = std::make_shared<InputPort>(id_gui, xmlport, parent);
+    auto inputPort = std::make_shared<InputPort>(id, xmlport, parent);
 
     return inputPort;
 }
@@ -379,7 +378,7 @@ tinyxml2::XMLElement* Edges::createXmlEdge(std::string from_layer, std::string f
     return xmlEdge;
 }
 
-std::shared_ptr<Edge> Edges::createEdge(ax::NodeEditor::LinkId id_gui, std::string from_layer, std::string from_port, std::string to_layer, std::string to_port, tinyxml2::XMLElement* xmlElement)
+std::shared_ptr<Edge> Edges::createEdge(ax::NodeEditor::LinkId id, std::string from_layer, std::string from_port, std::string to_layer, std::string to_port, tinyxml2::XMLElement* xmlElement)
 {
     auto inputLayer = getLayers()->getLayer(to_layer);
     auto outputLayer = getLayers()->getLayer(from_layer);
@@ -389,20 +388,20 @@ std::shared_ptr<Edge> Edges::createEdge(ax::NodeEditor::LinkId id_gui, std::stri
     assert(outputPort != nullptr);
     assert(inputPort != nullptr);
 
-    return std::make_shared<Edge>(id_gui, outputPort, inputPort, xmlElement, shared_from_this());
+    return std::make_shared<Edge>(id, outputPort, inputPort, xmlElement, shared_from_this());
 }
 
-std::shared_ptr<Edge> Edges::insertNewEdge(ax::NodeEditor::LinkId id_gui, const std::string& from_layer, const std::string& from_port, const std::string& to_layer, const std::string& to_port, size_t xmlPos)
+std::shared_ptr<Edge> Edges::insertNewEdge(ax::NodeEditor::LinkId id, const std::string& from_layer, const std::string& from_port, const std::string& to_layer, const std::string& to_port, size_t xmlPos)
 {
     auto xmlEdge = createXmlEdge(from_layer, from_port, to_layer, to_port);
     insertNodeAtPosition(xmlEdge, xmlElement->el, xmlPos);
-    auto edge = createEdge(id_gui, from_layer, from_port, to_layer, to_port, xmlEdge);
+    auto edge = createEdge(id, from_layer, from_port, to_layer, to_port, xmlEdge);
     insertEdge(edge);
 
     return edge;
 }
 
-std::shared_ptr<Edge> Edges::insertNewEdge(ax::NodeEditor::LinkId id_gui, const std::string& from_layer, const std::string& from_port, const std::string& to_layer, const std::string& to_port)
+std::shared_ptr<Edge> Edges::insertNewEdge(ax::NodeEditor::LinkId id, const std::string& from_layer, const std::string& from_port, const std::string& to_layer, const std::string& to_port)
 {
     assert (std::find_if(begin(), end(), [&](std::shared_ptr<Edge>& edge) {
         auto res = from_layer == edge->getOutputPort()->getParent()->getXmlId()
@@ -416,7 +415,7 @@ std::shared_ptr<Edge> Edges::insertNewEdge(ax::NodeEditor::LinkId id_gui, const 
 
     xmlElement->el->InsertEndChild(xmlEdge);
 
-    auto edge = createEdge(id_gui, from_layer, from_port, to_layer, to_port, xmlEdge);
+    auto edge = createEdge(id, from_layer, from_port, to_layer, to_port, xmlEdge);
     insertEdge(edge);
 
     return edge;

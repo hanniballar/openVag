@@ -446,7 +446,7 @@ bool OpenVag::Run()
             int uniqueId = 1;
             // Start drawing nodes.
             if (firstFrame) {
-                irModel = parseIRModel("D:/work/openVag/test/example_simple_error.xml");
+                irModel = parseIRModel("D:/work/openVag/test/example_simple.xml");
                 drawLayerNodes(irModel->getNetwork()->getLayers());
                 drawModelEdges(irModel->getNetwork()->getEdges());
 
