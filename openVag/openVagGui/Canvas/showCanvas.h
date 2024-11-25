@@ -1,5 +1,7 @@
 #pragma once
 #include "imgui_node_editor.h"
-#include "../commands//CommandCenter.h"
+#include "../commands/CommandCenter.h"
+#include "../IRModel.h"
+#include "../GraphLayout.h"
 
-void ShowMetricsWindow(CommandCenter& commandCenter, ax::NodeEditor::EditorContext* m_Context, bool* p_open = NULL);
+void ShowCanvas(std::shared_ptr<IRModel> irModel, CommandCenter& commandCenter, GraphLayout& graphLayout, ax::NodeEditor::EditorContext* m_Context, bool* p_open = NULL);

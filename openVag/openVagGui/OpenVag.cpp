@@ -10,11 +10,9 @@
 
 #include "parseIRModel.h"
 #include "IRModel.h"
-#include "drawLayerNodes.h"
-#include "drawEdges.h"
-#include "beginCreate.h"
 #include "GraphLayout.h"
 #include "contextMenu.h"
+#include "Canvas/showCanvas.h"
 
 #ifdef _DEBUG
 #define DX12_ENABLE_DEBUG_LAYER
@@ -442,6 +440,7 @@ bool OpenVag::Run()
 
         ImGuiID did = ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_AutoHideTabBar);
 
+        ShowCanvas(irModel, commandCenter, graphLayout, m_Context);
         ImGui::ShowMetricsWindow();
 
         // Rendering
