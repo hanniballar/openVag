@@ -364,6 +364,8 @@ bool OpenVag::Create()
     bool show_demo_window = true;
     bool show_another_window = false;
 
+    irModel = parseIRModel("D:/work/openVag/test/example_simple.xml");
+
     return true;
 }
 
@@ -439,31 +441,7 @@ bool OpenVag::Run()
         }
 
         ImGuiID did = ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_AutoHideTabBar);
-        {
-            ImGui::Begin("Canvas");
-            ax::NodeEditor::SetCurrentEditor(m_Context);
-            ax::NodeEditor::Begin("My Editor", ImVec2(0.0, 0.0f));
-            int uniqueId = 1;
-            // Start drawing nodes.
-            if (firstFrame) {
-                irModel = parseIRModel("D:/work/openVag/test/example_simple.xml");
-                drawLayerNodes(irModel->getNetwork()->getLayers());
-                drawModelEdges(irModel->getNetwork()->getEdges());
 
-                graphLayout.layoutNodes(irModel);
-                firstFrame = false;
-            }
-            else {
-                drawLayerNodes(irModel->getNetwork()->getLayers());
-                drawModelEdges(irModel->getNetwork()->getEdges());
-                beginCreate(irModel, commandCenter);
-                graphLayout.layoutNodes(irModel);
-                contextMenu(irModel, commandCenter);
-            }
-            ax::NodeEditor::End();
-            ax::NodeEditor::SetCurrentEditor(nullptr);
-            ImGui::End();
-        }
         ImGui::ShowMetricsWindow();
 
         // Rendering

@@ -50,6 +50,8 @@ set(Sources
 	commands/DeleteEdge.h
 	commands/InsertInputPort.cpp
 	commands/InsertInputPort.h
+	Canvas/showCanvas.cpp
+	Canvas/showCanvas.h
 	misc/debugger/openVag.natstepfilter
 )
 
