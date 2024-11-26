@@ -6,24 +6,26 @@
 #include "beginCreate.h"
 #include "contextMenu.h"
 
-static GraphLayout graphLayout(30, 20);
+namespace Canvas {
+    static GraphLayout graphLayout(30, 20);
 
-void ShowCanvas(std::shared_ptr<IRModel> irModel, CommandCenter& commandCenter, bool reLayoutNodes, ax::NodeEditor::EditorContext* m_Context, bool* p_open)
-{
-    ImGui::Begin("Canvas");
-    ax::NodeEditor::SetCurrentEditor(m_Context);
-    ax::NodeEditor::Begin("My Editor", ImVec2(0.0, 0.0f));
+    void ShowCanvas(std::shared_ptr<IRModel> irModel, CommandCenter& commandCenter, bool reLayoutNodes, ax::NodeEditor::EditorContext* m_Context, bool* p_open)
+    {
+        ImGui::Begin("Canvas");
+        ax::NodeEditor::SetCurrentEditor(m_Context);
+        ax::NodeEditor::Begin("My Editor", ImVec2(0.0, 0.0f));
 
-    drawLayerNodes(irModel->getNetwork()->getLayers());
-    drawModelEdges(irModel->getNetwork()->getEdges());
-    if (reLayoutNodes) {
-        graphLayout.layoutNodes(irModel);
+        drawLayerNodes(irModel->getNetwork()->getLayers());
+        drawModelEdges(irModel->getNetwork()->getEdges());
+        if (reLayoutNodes) {
+            graphLayout.layoutNodes(irModel);
+        }
+
+        beginCreate(irModel, commandCenter);
+        contextMenu(irModel, commandCenter);
+
+        ax::NodeEditor::End();
+        ax::NodeEditor::SetCurrentEditor(nullptr);
+        ImGui::End();
     }
-
-    beginCreate(irModel, commandCenter);
-    contextMenu(irModel, commandCenter);
-
-    ax::NodeEditor::End();
-    ax::NodeEditor::SetCurrentEditor(nullptr);
-    ImGui::End();
 }

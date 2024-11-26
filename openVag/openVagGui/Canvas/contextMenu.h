@@ -4,4 +4,6 @@
 
 #include "../commands/CommandCenter.h"
 
-void contextMenu(std::shared_ptr<IRModel> irModel, CommandCenter& commandCenter);
+namespace Canvas {
+    void contextMenu(std::shared_ptr<IRModel> irModel, CommandCenter& commandCenter);
+}

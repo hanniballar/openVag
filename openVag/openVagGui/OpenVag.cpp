@@ -439,7 +439,7 @@ bool OpenVag::Run()
 
         ImGuiID did = ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_AutoHideTabBar);
 
-        ShowCanvas(irModel, commandCenter, reLayoutNodes, m_Context);
+        Canvas::ShowCanvas(irModel, commandCenter, reLayoutNodes, m_Context);
         ImGui::ShowMetricsWindow();
 
         // Rendering

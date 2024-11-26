@@ -1,3 +1,5 @@
 #include "../IRModel.h"
 
-void drawLayerNodes(std::shared_ptr<Layers> layers);
+namespace Canvas {
+    void drawLayerNodes(std::shared_ptr<Layers> layers);
+}
