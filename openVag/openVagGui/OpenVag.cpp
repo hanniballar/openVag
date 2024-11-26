@@ -11,7 +11,6 @@
 #include "parseIRModel.h"
 #include "IRModel.h"
 #include "GraphLayout.h"
-#include "contextMenu.h"
 #include "Canvas/showCanvas.h"
 
 #ifdef _DEBUG
@@ -404,7 +403,7 @@ bool OpenVag::Run()
         ImGui_ImplDX12_NewFrame();
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
-
+        bool reLayoutNodes = false;
         if (ImGui::BeginMainMenuBar()) {
             if (ImGui::BeginMenu("File")) {
                 if (ImGui::MenuItem("Save", "CTRL+S", false, commandCenter.getUndoSize())) {
@@ -421,7 +420,7 @@ bool OpenVag::Run()
                 }
                 ImGui::Separator();
                 if (ImGui::MenuItem("ReLayout")) {
-                    graphLayout.enableLayout();
+                    reLayoutNodes = true;
                 }
                 ImGui::EndMenu();
             }
@@ -440,7 +439,7 @@ bool OpenVag::Run()
 
         ImGuiID did = ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_AutoHideTabBar);
 
-        ShowCanvas(irModel, commandCenter, graphLayout, m_Context);
+        ShowCanvas(irModel, commandCenter, reLayoutNodes, m_Context);
         ImGui::ShowMetricsWindow();
 
         // Rendering

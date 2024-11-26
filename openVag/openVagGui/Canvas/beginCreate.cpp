@@ -2,8 +2,8 @@
 
 #include <iostream>
 
-#include "commands/InsertEdge.h"
-#include "OpenVag.h"
+#include "../commands/InsertEdge.h"
+#include "../OpenVag.h"
 
 void beginCreate(std::shared_ptr<IRModel> irModelGui, CommandCenter& commandCenter) {
     if (ax::NodeEditor::BeginCreate(ImColor(255, 255, 255), 1.0f)) {

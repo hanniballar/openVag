@@ -1,3 +1,3 @@
-#include "IRModel.h"
+#include "../IRModel.h"
 
 void drawLayerNodes(std::shared_ptr<Layers> layers);

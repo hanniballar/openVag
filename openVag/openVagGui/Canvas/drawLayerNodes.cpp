@@ -1,7 +1,7 @@
 #include "drawLayerNodes.h"
 #include <string>
 
-#include "OpenVag.h"
+#include "../OpenVag.h"
 
 void drawLayerNode(std::shared_ptr<Layer> layer) {
     ax::NodeEditor::BeginNode(layer->getId());

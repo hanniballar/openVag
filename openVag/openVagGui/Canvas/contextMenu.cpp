@@ -3,12 +3,12 @@
 #include "imgui.h"
 #include "imgui_node_editor.h"
 
-#include "commands/InsertLayer.h"
-#include "commands/DeleteLayer.h"
-#include "commands/DeleteInputPort.h"
-#include "commands/DeleteOutputPort.h"
-#include "commands/DeleteEdge.h"
-#include "commands/InsertInputPort.h"
+#include "../commands/InsertLayer.h"
+#include "../commands/DeleteLayer.h"
+#include "../commands/DeleteInputPort.h"
+#include "../commands/DeleteOutputPort.h"
+#include "../commands/DeleteEdge.h"
+#include "../commands/InsertInputPort.h"
 
 void contextMenu(std::shared_ptr<IRModel> irModel, CommandCenter& commandCenter) {
     auto openPopupPosition = ImGui::GetMousePos();

@@ -11,7 +11,4 @@ public:
 	bool Run();
 	bool Quit();
 	~OpenVag();
-
-private:
-	GraphLayout graphLayout = { 30, 20 };
 };

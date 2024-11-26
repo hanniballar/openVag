@@ -6,22 +6,14 @@ set(Sources
 	main.cpp
 	OpenVag.h
 	OpenVag.cpp
-	beginCreate.cpp
-	beginCreate.h
-	drawLayerNodes.cpp
-	drawLayerNodes.h
 	IRModel.h
 	IRModel.cpp
-	drawEdges.cpp
-	drawEdges.h
 	parseIRModel.cpp
 	parseIRModel.h
 	XMLNodeWrapper.cpp
 	XMLNodeWrapper.h
 	GraphLayout.cpp
 	GraphLayout.h
-	contextMenu.cpp
-	contextMenu.h
 	commands/CommandCenter.cpp
 	commands/CommandCenter.h
 	commands/ICommand.cpp
@@ -52,6 +44,14 @@ set(Sources
 	commands/InsertInputPort.h
 	Canvas/showCanvas.cpp
 	Canvas/showCanvas.h
+	Canvas/beginCreate.cpp
+	Canvas/beginCreate.h
+	Canvas/contextMenu.cpp
+	Canvas/contextMenu.h
+	Canvas/drawEdges.cpp
+	Canvas/drawEdges.h
+	Canvas/drawLayerNodes.cpp
+	Canvas/drawLayerNodes.h
 	misc/debugger/openVag.natstepfilter
 )
 
