@@ -8,6 +8,9 @@
 #include <tchar.h>
 #include "imgui_node_editor.h"
 
+#include <iostream> //ToDo remove
+#include <string_view>
+
 #include "parseIRModel.h"
 #include "IRModel.h"
 #include "GraphLayout.h"
@@ -441,6 +444,16 @@ bool OpenVag::Run()
 
         Canvas::ShowCanvas(irModel, commandCenter, reLayoutNodes, m_Context);
         ImGui::ShowMetricsWindow();
+        
+        if (ImGui::Begin("Find")) {
+            ax::NodeEditor::SetCurrentEditor(m_Context);
+            static char buf[100] = "*";
+            ImGui::InputText("##Find", buf, IM_ARRAYSIZE(buf), ImGuiInputTextFlags_None);
+
+
+            ax::NodeEditor::SetCurrentEditor(nullptr);
+
+        } ImGui::End();
 
         // Rendering
         ImGui::Render();
