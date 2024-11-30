@@ -62,21 +62,34 @@ namespace Canvas {
                 ImGui::EndPopup();
             }
             if (ImGui::BeginPopup("Node Context Menu")) {
-                if (ImGui::MenuItem("New input port")) {
-                    auto layer = irModel->getNetwork()->getLayers()->getLayer(contextNodeId);
-                    auto insertInputPort = std::make_shared<InsertInputPort>(layer);
-                    commandCenter.execute(insertInputPort);
+                auto selectedObjectCount = ax::NodeEditor::GetSelectedObjectCount();
+                if (selectedObjectCount > 1) {
+                    if (ImGui::MenuItem("Delete Layers")) {
+                        std::vector<ax::NodeEditor::NodeId> selectedNodes;
+                        int nodeCount = ax::NodeEditor::GetSelectedNodes(selectedNodes.data(), static_cast<int>(selectedNodes.size()));
+
+                        auto layer = irModel->getNetwork()->getLayers()->getLayer(contextNodeId);
+                        auto deleteLayerC = std::make_shared<DeleteLayer>(layer);
+                        commandCenter.execute(deleteLayerC);
+                    }
                 }
-                if (ImGui::MenuItem("New output port")) {
-                    auto layer = irModel->getNetwork()->getLayers()->getLayer(contextNodeId);
-                    auto insertOutputPort = std::make_shared<InsertOutputPort>(layer);
-                    commandCenter.execute(insertOutputPort);
-                }
-                ImGui::Separator();
-                if (ImGui::MenuItem("Delete Layer")) {
-                    auto layer = irModel->getNetwork()->getLayers()->getLayer(contextNodeId);
-                    auto deleteLayerC = std::make_shared<DeleteLayer>(layer);
-                    commandCenter.execute(deleteLayerC);
+                else {
+                    if (ImGui::MenuItem("New input port")) {
+                        auto layer = irModel->getNetwork()->getLayers()->getLayer(contextNodeId);
+                        auto insertInputPort = std::make_shared<InsertInputPort>(layer);
+                        commandCenter.execute(insertInputPort);
+                    }
+                    if (ImGui::MenuItem("New output port")) {
+                        auto layer = irModel->getNetwork()->getLayers()->getLayer(contextNodeId);
+                        auto insertOutputPort = std::make_shared<InsertOutputPort>(layer);
+                        commandCenter.execute(insertOutputPort);
+                    }
+                    ImGui::Separator();
+                    if (ImGui::MenuItem("Delete Layer")) {
+                        auto layer = irModel->getNetwork()->getLayers()->getLayer(contextNodeId);
+                        auto deleteLayerC = std::make_shared<DeleteLayer>(layer);
+                        commandCenter.execute(deleteLayerC);
+                    }
                 }
                 ImGui::EndPopup();
             }
