@@ -16,6 +16,9 @@ namespace Canvas {
         }
         ImGui::Text((std::string("Name: ") + layer->getName()).c_str());
         ImGui::Text((std::string("ID: ") + layer->getXmlId()).c_str());
+        ImGui::SameLine(); //SeNe remove
+        ImGui::Text((std::string("Gui ID: ") + std::to_string(layer->getId().Get())).c_str()); //SeNe remove
+
         ImGui::Text((std::string("Type: ") + layer->getType()).c_str());
 
         for (const auto& outputPort : layer->getSetOutputPort()) {

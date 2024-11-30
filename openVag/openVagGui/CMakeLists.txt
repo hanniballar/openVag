@@ -65,3 +65,5 @@ find_package(imgui_node_editor REQUIRED)
 target_link_libraries(openVagGUI PRIVATE imgui imgui_node_editor)
 target_link_libraries(openVagGUI PRIVATE d3d12.lib d3dcompiler.lib dxgi.lib)
 target_link_libraries(openVagGUI PRIVATE tinyxml2)
+
+target_include_directories(openVagGUI PRIVATE ${CMAKE_SOURCE_DIR}/external/wildcards)

@@ -27,8 +27,6 @@ namespace Canvas {
                 else {
                     ax::NodeEditor::RejectNewItem(ImColor(255, 0, 0), 2.0f);
                 }
-
-                std::cout << startPinId.Get() << " | " << endPinId.Get() << std::endl;
             }
         } ax::NodeEditor::EndCreate();
     }
