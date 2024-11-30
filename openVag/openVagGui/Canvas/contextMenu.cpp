@@ -9,6 +9,7 @@
 #include "../commands/DeleteOutputPort.h"
 #include "../commands/DeleteEdge.h"
 #include "../commands/InsertInputPort.h"
+#include "../commands/InsertOutputPort.h"
 
 namespace Canvas {
     void contextMenu(std::shared_ptr<IRModel> irModel, CommandCenter& commandCenter) {
@@ -61,10 +62,15 @@ namespace Canvas {
                 ImGui::EndPopup();
             }
             if (ImGui::BeginPopup("Node Context Menu")) {
-                if (ImGui::MenuItem("New inputPort")) {
+                if (ImGui::MenuItem("New input port")) {
                     auto layer = irModel->getNetwork()->getLayers()->getLayer(contextNodeId);
                     auto insertInputPort = std::make_shared<InsertInputPort>(layer);
                     commandCenter.execute(insertInputPort);
+                }
+                if (ImGui::MenuItem("New output port")) {
+                    auto layer = irModel->getNetwork()->getLayers()->getLayer(contextNodeId);
+                    auto insertOutputPort = std::make_shared<InsertOutputPort>(layer);
+                    commandCenter.execute(insertOutputPort);
                 }
                 ImGui::Separator();
                 if (ImGui::MenuItem("Delete Layer")) {

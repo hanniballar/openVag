@@ -252,6 +252,14 @@ std::shared_ptr<InputPort> Layer::insertNewInputPort() {
     return inputPort;
 }
 
+std::shared_ptr<OutputPort> Layer::insertNewOutputPort() {
+    auto xmlId = std::to_string(getMaxPortXmlId() + 1);
+    auto outputPort = std::make_shared<OutputPort>(getXmlElement()->el->GetDocument(), xmlId);
+    getXmlInputElement()->el->InsertEndChild(outputPort->getXmlElement()->el);
+    insertPort(outputPort);
+    return outputPort;
+}
+
 void Layer::insertPort(std::shared_ptr<InputPort> port)
 {
     port->setParent(shared_from_this());

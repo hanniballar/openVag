@@ -92,6 +92,7 @@ public:
 
 class OutputPort : public Port, public std::enable_shared_from_this<OutputPort> {
 public:
+	OutputPort(tinyxml2::XMLDocument* xmlDocument, std::string xmlId) : Port(xmlDocument, xmlId) {}
 	OutputPort(ax::NodeEditor::PinId id, tinyxml2::XMLElement* xmlElement, std::shared_ptr<Layer> parent) : Port(id, xmlElement, parent) {}
 	std::set<std::shared_ptr<Edge>, EdgeIDLess> getSetEdges() const override;
 };
@@ -190,6 +191,7 @@ public:
 
 	std::shared_ptr<InputPort> createInputPort(std::string xmlId);
 	std::shared_ptr<InputPort> insertNewInputPort();
+	std::shared_ptr<OutputPort> insertNewOutputPort();
 	void insertPort(std::shared_ptr<InputPort> port);
 	void insertPort(std::shared_ptr<InputPort> port, size_t position);
 	void insertPort(std::shared_ptr<OutputPort> port);
