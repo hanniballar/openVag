@@ -10,6 +10,7 @@
 #include "../commands/DeleteEdge.h"
 #include "../commands/InsertInputPort.h"
 #include "../commands/InsertOutputPort.h"
+#include "../commands/ComposedCommand.h"
 
 namespace Canvas {
     void contextMenu(std::shared_ptr<IRModel> irModel, CommandCenter& commandCenter) {
@@ -65,12 +66,17 @@ namespace Canvas {
                 auto selectedObjectCount = ax::NodeEditor::GetSelectedObjectCount();
                 if (selectedObjectCount > 1) {
                     if (ImGui::MenuItem("Delete Layers")) {
-                        std::vector<ax::NodeEditor::NodeId> selectedNodes;
-                        int nodeCount = ax::NodeEditor::GetSelectedNodes(selectedNodes.data(), static_cast<int>(selectedNodes.size()));
-
-                        auto layer = irModel->getNetwork()->getLayers()->getLayer(contextNodeId);
-                        auto deleteLayerC = std::make_shared<DeleteLayer>(layer);
-                        commandCenter.execute(deleteLayerC);
+                        std::vector<ax::NodeEditor::NodeId> vecSelectedNodeId;
+                        vecSelectedNodeId.resize(ax::NodeEditor::GetSelectedObjectCount());
+                        int nodeCount = ax::NodeEditor::GetSelectedNodes(vecSelectedNodeId.data(), static_cast<int>(vecSelectedNodeId.size()));
+                        vecSelectedNodeId.resize(nodeCount);
+                        CommandCenter commandCC;
+                        for (const auto selectedNodeId : vecSelectedNodeId) {
+                            auto layer = irModel->getNetwork()->getLayers()->getLayer(selectedNodeId);
+                            commandCC.add(std::make_shared<DeleteLayer>(layer));
+                        }
+                        auto composedCommand = std::make_shared<ComposedCommand>(commandCC);
+                        commandCenter.execute(composedCommand);
                     }
                 }
                 else {
