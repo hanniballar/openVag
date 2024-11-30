@@ -1,7 +1,5 @@
 #include "InsertInputPort.h"
 
-#include <cassert>
-
 #include "../OpenVag.h"
 
 void InsertInputPort::doAct() {

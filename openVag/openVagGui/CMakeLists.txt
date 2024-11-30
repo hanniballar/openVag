@@ -16,6 +16,8 @@ set(Sources
 	GraphLayout.h
 	commands/CommandCenter.cpp
 	commands/CommandCenter.h
+	commands/ComposedCommand.cpp
+	commands/ComposedCommand.h
 	commands/ICommand.cpp
 	commands/ICommand.h
 	commands/RemoveXMLElement.cpp
