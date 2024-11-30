@@ -203,7 +203,18 @@ std::shared_ptr<XMLNodeWrapper> Layer::getXmlInputElement() const
     auto xmlInputElementRaw = xmlElRaw->FirstChildElement("input");
     if (xmlInputElementRaw == nullptr) {
         xmlInputElementRaw = xmlElRaw->GetDocument()->NewElement("input");
-        xmlElRaw->InsertEndChild(xmlInputElementRaw);
+        auto xmlOutputElementRaw = xmlElRaw->FirstChildElement("output");
+        if (xmlOutputElementRaw == nullptr)
+            xmlElRaw->InsertEndChild(xmlInputElementRaw);
+        else {
+            auto prev = xmlOutputElementRaw->PreviousSiblingElement();
+            if (prev == nullptr) {
+                xmlElRaw->InsertFirstChild(xmlInputElementRaw);
+            }
+            else {
+                xmlElRaw->InsertAfterChild(prev, xmlInputElementRaw);
+            }
+        }
     }
 
     return XMLNodeWrapper::make_shared(xmlInputElementRaw);
@@ -212,13 +223,16 @@ std::shared_ptr<XMLNodeWrapper> Layer::getXmlInputElement() const
 std::shared_ptr<XMLNodeWrapper> Layer::getXmlOutputElement() const
 {
     auto xmlElRaw = getXmlElement()->el;
-    auto xmlInputElementRaw = xmlElRaw->FirstChildElement("output");
-    if (xmlInputElementRaw == nullptr) {
-        xmlInputElementRaw = xmlElRaw->GetDocument()->NewElement("output");
-        xmlElRaw->InsertEndChild(xmlInputElementRaw);
+    auto xmlOutputElementRaw = xmlElRaw->FirstChildElement("output");
+    if (xmlOutputElementRaw == nullptr) {
+        xmlOutputElementRaw = xmlElRaw->GetDocument()->NewElement("output");
+        auto xmlInputElementRaw = xmlElRaw->FirstChildElement("input");
+        if (xmlInputElementRaw == nullptr)
+            xmlElRaw->InsertEndChild(xmlOutputElementRaw);
+        else xmlElRaw->InsertAfterChild(xmlInputElementRaw, xmlOutputElementRaw);
     }
 
-    return XMLNodeWrapper::make_shared(xmlInputElementRaw);
+    return XMLNodeWrapper::make_shared(xmlOutputElementRaw);
 }
 
 size_t Layer::getXmlPosition() const {
@@ -255,7 +269,7 @@ std::shared_ptr<InputPort> Layer::insertNewInputPort() {
 std::shared_ptr<OutputPort> Layer::insertNewOutputPort() {
     auto xmlId = std::to_string(getMaxPortXmlId() + 1);
     auto outputPort = std::make_shared<OutputPort>(getXmlElement()->el->GetDocument(), xmlId);
-    getXmlInputElement()->el->InsertEndChild(outputPort->getXmlElement()->el);
+    getXmlOutputElement()->el->InsertEndChild(outputPort->getXmlElement()->el);
     insertPort(outputPort);
     return outputPort;
 }
@@ -297,7 +311,12 @@ void Layer::removePort(const std::shared_ptr<InputPort>& port)
 void Layer::deletePort(const std::shared_ptr<InputPort>& port)
 {
     removePort(port);
-    getXmlInputElement()->el->DeleteChild(port->getXmlElement()->el);
+    auto xmlInputElementRaw = getXmlInputElement()->el;
+    xmlInputElementRaw->DeleteChild(port->getXmlElement()->el);
+    if (xmlInputElementRaw->NoChildren()) {
+        xmlInputElementRaw->Parent()->DeleteChild(xmlInputElementRaw);
+    }
+
 }
 
 void Layer::removePort(const std::shared_ptr<OutputPort>& port)
@@ -310,7 +329,11 @@ void Layer::removePort(const std::shared_ptr<OutputPort>& port)
 void Layer::deletePort(const std::shared_ptr<OutputPort>& port)
 {
     removePort(port);
-    getXmlOutputElement()->el->DeleteChild(port->getXmlElement()->el);
+    auto xmlOutputElementRaw = getXmlOutputElement()->el;
+    xmlOutputElementRaw->DeleteChild(port->getXmlElement()->el);
+    if (xmlOutputElementRaw->NoChildren()) {
+        xmlOutputElementRaw->Parent()->DeleteChild(xmlOutputElementRaw);
+    }
 }
 
 std::shared_ptr<InputPort> Layer::getInputPort(std::string xmlId)
