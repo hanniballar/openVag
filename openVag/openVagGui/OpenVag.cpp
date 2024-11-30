@@ -15,7 +15,7 @@
 #include "IRModel.h"
 #include "GraphLayout.h"
 #include "Canvas/showCanvas.h"
-#include "wildcards.hpp"
+#include "Find/showFind.h"
 
 #ifdef _DEBUG
 #define DX12_ENABLE_DEBUG_LAYER
@@ -444,58 +444,8 @@ bool OpenVag::Run()
         ImGuiID did = ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_AutoHideTabBar);
 
         Canvas::ShowCanvas(irModel, commandCenter, reLayoutNodes, m_Context);
+        Find::ShowFind(irModel, m_Context);
         ImGui::ShowMetricsWindow();
-
-        if (ImGui::Begin("Find")) {
-            ax::NodeEditor::SetCurrentEditor(m_Context);
-
-            auto& io = ImGui::GetIO();
-
-            std::vector<ax::NodeEditor::NodeId> selectedNodes;
-            std::vector<ax::NodeEditor::LinkId> selectedLinks;
-            selectedNodes.resize(ax::NodeEditor::GetSelectedObjectCount());
-            selectedLinks.resize(ax::NodeEditor::GetSelectedObjectCount());
-
-            int nodeCount = ax::NodeEditor::GetSelectedNodes(selectedNodes.data(), static_cast<int>(selectedNodes.size()));
-            int linkCount = ax::NodeEditor::GetSelectedLinks(selectedLinks.data(), static_cast<int>(selectedLinks.size()));
-
-            selectedNodes.resize(nodeCount);
-            selectedLinks.resize(linkCount);
-
-            static char buf[100] = "*";
-            ImGui::InputText("##Find", buf, IM_ARRAYSIZE(buf), ImGuiInputTextFlags_None);
-
-            for (const auto& layer : *(irModel->getNetwork()->getLayers()))
-            {
-                ImGui::PushID(layer->getId().AsPointer());
-                bool isSelected = std::find(selectedNodes.begin(), selectedNodes.end(), layer->getId()) != selectedNodes.end();
-
-                if (ImGui::Selectable((std::string(layer->getName()) + "##" + std::to_string(reinterpret_cast<uintptr_t>(layer->getId().AsPointer()))).c_str(), &isSelected)) {
-                    std::cout << "Selectable layer->getId() = " << layer->getId().Get() << std::endl;
-                    if (io.KeyCtrl)
-                    {
-                        if (isSelected) {
-                            ax::NodeEditor::SelectNode(layer->getId(), true);
-                            std::cout << "SelectNode(layer->getId(), true);  -> layer->getId() = " << layer->getId().Get() << std::endl;
-                        }
-                        else {
-                            ax::NodeEditor::DeselectNode(layer->getId());
-                            std::cout << "DeselectNode(layer->getId());  -> layer->getId() = " << layer->getId().Get() << std::endl;
-                        }
-                    }
-                    else {
-                        ax::NodeEditor::SelectNode(layer->getId(), false);
-                        std::cout << "SelectNode(layer->getId(), false);  -> layer->getId() = " << layer->getId().Get() << std::endl;
-                    }
-
-                    ax::NodeEditor::NavigateToSelection();
-                }
-                ImGui::PopID();
-            }
-
-            ax::NodeEditor::SetCurrentEditor(nullptr);
-
-        } ImGui::End();
 
         // Rendering
         ImGui::Render();
