@@ -1,80 +1,26 @@
-<?xml version="1.0" ?>
-<net name="model_file_name" version="10">
+<net name="openVag.xml" version="10">
     <layers>
-        <layer id="0" name="input" type="Parameter" version="opset1">
-            <data element_type="f32" shape="1,3,32,100"/>
-            <!-- attributes of operation -->
+        <layer id="1" name="openVagLayer1" type="Const">
             <output>
-                <!-- description of output ports with type of element and tensor dimensions -->
-                <port id="0" precision="FP32">
-                    <dim>1</dim>
-                    <dim>3</dim>
-                    <dim>32</dim>
-                    <dim>100</dim>
-                </port>
+                <port id="0"/>
+                <port id="1"/>
             </output>
         </layer>
-        <layer id="1" name="conv1/weights" type="Const" version="opset1">
-            <!-- Const is only operation from opset1 that refers to the IR binary file by specifying offset and size in bytes relative to the beginning of the file. -->
-            <data element_type="f32" offset="0" shape="64,3,3,3" size="6912"/>
-            <output>
-                <port id="1" precision="FP32">
-                    <dim>64</dim>
-                    <dim>3</dim>
-                    <dim>3</dim>
-                    <dim>3</dim>
-                </port>
-                <port id="2" precision="FP32">
-                    <dim>64</dim>
-                    <dim>3</dim>
-                    <dim>3</dim>
-                    <dim>3</dim>
-                </port>
-            </output>
-        </layer>
-        <layer id="3" name="conv1/activation" type="ReLU" version="opset1">
+        <layer id="2" name="openVagLayer2" type="Const">
             <input>
-                <port id="0">
-                    <dim>1</dim>
-                    <dim>64</dim>
-                    <dim>32</dim>
-                    <dim>100</dim>
-                </port>
+                <port id="0"/>
+                <port id="1"/>
             </input>
-            <output>
-                <port id="1" precision="FP32">
-                    <dim>1</dim>
-                    <dim>64</dim>
-                    <dim>32</dim>
-                    <dim>100</dim>
-                </port>
-            </output>
         </layer>
-        <layer id="4" name="output" type="Result" version="opset1">
-            <input>
-                <port id="0">
-                    <dim>1</dim>
-                    <dim>64</dim>
-                    <dim>32</dim>
-                    <dim>100</dim>
-                </port>
-            </input>
+        <layer id="3" name="openVagLayer3" type="Const">
+            <output>
+                <port id="0"/>
+            </output>
         </layer>
     </layers>
     <edges>
-        <!-- Connections between layer nodes: based on ids for layers and ports used in the descriptions above -->
-        <edge from-layer="3" from-port="1" to-layer="4" to-port="0"/>
+        <edge from-layer="1" from-port="0" to-layer="2" to-port="0"/>
+        <edge from-layer="3" from-port="0" to-layer="2" to-port="1"/>
+        <edge from-layer="1" from-port="1" to-layer="2" to-port="1"/>
     </edges>
-    <meta_data>
-        <!-- This section that is not related to a topology; contains auxiliary information that serves for the debugging purposes. -->
-        <MO_version value="2022.3"/>
-        <cli_parameters>
-            <blobs_as_inputs value="True"/>
-            <caffe_parser_path value="DIR"/>
-            <data_type value="float"/>
-
-            ...
-
-            <!-- Omitted a long list of CLI options that always are put here by MO for debugging purposes. --></cli_parameters>
-    </meta_data>
 </net>

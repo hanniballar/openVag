@@ -275,17 +275,18 @@ void Layer::insertPort(std::shared_ptr<InputPort> port)
     getParent()->insertPort(port);
 }
 
+void Layer::insertPort(std::shared_ptr<OutputPort> port)
+{
+    port->setParent(shared_from_this());
+    setOutputPort.insert(port);
+    getParent()->insertPort(port);
+}
+
 void Layer::insertPort(std::shared_ptr<InputPort> port, size_t position)
 {
     insertNodeAtPosition(port->getXmlElement()->el, getXmlInputElement()->el, position);
     port->setParent(shared_from_this());
     insertPort(port);
-}
-
-void Layer::insertPort(std::shared_ptr<OutputPort> port)
-{
-    setOutputPort.insert(port);
-    getParent()->insertPort(port);
 }
 
 void Layer::insertPort(std::shared_ptr<OutputPort> port, size_t position)

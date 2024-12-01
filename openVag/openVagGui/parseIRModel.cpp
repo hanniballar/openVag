@@ -160,7 +160,7 @@ std::shared_ptr<IRModel> parseIRModel(const char* xmlContent, size_t nBytes) {
 
     XMLElement* net = doc->RootElement();
     if (net == nullptr) {
-        std::cerr << "No root element" << std::endl;
+        std::cerr << "No net element" << std::endl;
         return {};
     }
 
@@ -168,6 +168,22 @@ std::shared_ptr<IRModel> parseIRModel(const char* xmlContent, size_t nBytes) {
         std::cerr << "IR should start with net element" << std::endl;
         return {};
     }
+
+    std::shared_ptr<IRModel> irModelGui = std::make_shared<IRModel>(doc);
+    irModelGui->setNetwork(parseNet(net, irModelGui));
+    return irModelGui;
+}
+
+std::shared_ptr<IRModel> parseIRModel() {
+    std::shared_ptr<XMLDocument> doc = std::make_shared<XMLDocument>();
+    tinyxml2::XMLElement* net = doc->NewElement("net");
+    doc->InsertFirstChild(net);
+    net->SetAttribute("name", "openVag.xml");
+    net->SetAttribute("version", "10");
+    tinyxml2::XMLElement* layers = doc->NewElement("layers");
+    net->InsertFirstChild(layers);
+    tinyxml2::XMLElement* edges = doc->NewElement("edges");
+    net->InsertEndChild(edges);
 
     std::shared_ptr<IRModel> irModelGui = std::make_shared<IRModel>(doc);
     irModelGui->setNetwork(parseNet(net, irModelGui));

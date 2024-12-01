@@ -186,8 +186,8 @@ public:
 	std::shared_ptr<InputPort> insertNewInputPort();
 	std::shared_ptr<OutputPort> insertNewOutputPort();
 	void insertPort(std::shared_ptr<InputPort> port);
-	void insertPort(std::shared_ptr<InputPort> port, size_t position);
 	void insertPort(std::shared_ptr<OutputPort> port);
+	void insertPort(std::shared_ptr<InputPort> port, size_t position);
 	void insertPort(std::shared_ptr<OutputPort> port, size_t position);
 	void removePort(const std::shared_ptr<InputPort>& port);
 	void deletePort(const std::shared_ptr<InputPort>& port);

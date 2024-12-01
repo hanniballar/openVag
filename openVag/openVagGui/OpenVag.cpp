@@ -365,7 +365,7 @@ bool OpenVag::Create()
     bool show_demo_window = true;
     bool show_another_window = false;
 
-    irModel = parseIRModel("D:/work/openVag/test/example_simple.xml");
+    irModel = parseIRModel();
 
     return true;
 }
