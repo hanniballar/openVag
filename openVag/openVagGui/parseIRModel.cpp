@@ -125,7 +125,7 @@ std::shared_ptr<Edge> parseEdge(XMLElement* edge, std::shared_ptr<Edges> parent)
     assert(outputPort != nullptr);
     assert(inputPort != nullptr);
 
-    return std::make_shared<Edge>(GetNextId(), outputPort, inputPort, edge, parent);
+    return std::make_shared<Edge>(outputPort, inputPort, edge, parent);
 }
 
 std::shared_ptr<Edges> parseEdges(XMLElement* xmlEdges, std::shared_ptr<Network> parent) {

@@ -1,12 +1,8 @@
 #include "InsertEdge.h"
 
-#include <cassert>
-
-#include "../OpenVag.h"
-
 void InsertEdge::doAct()
 {
-    undoEdge = irModelGui->getNetwork()->getEdges()->insertNewEdge(GetNextId(), from_layer, from_port, to_layer, to_port);
+    undoEdge = irModelGui->getNetwork()->getEdges()->insertNewEdge(from_layer, from_port, to_layer, to_port);
     this->doFlag = false;
 }
 

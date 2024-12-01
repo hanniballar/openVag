@@ -383,7 +383,7 @@ int64_t Layer::getMaxPortXmlId() const {
     return maxId;
 }
 
-std::shared_ptr<Edge> Edges::insertNewEdge(ax::NodeEditor::LinkId id, const std::string& from_layer, const std::string& from_port, const std::string& to_layer, const std::string& to_port, size_t xmlPos)
+std::shared_ptr<Edge> Edges::insertNewEdge(const std::string& from_layer, const std::string& from_port, const std::string& to_layer, const std::string& to_port, size_t xmlPos)
 {
     auto inputLayer = getLayers()->getLayer(to_layer);
     auto outputLayer = getLayers()->getLayer(from_layer);
@@ -400,7 +400,7 @@ std::shared_ptr<Edge> Edges::insertNewEdge(ax::NodeEditor::LinkId id, const std:
     return edge;
 }
 
-std::shared_ptr<Edge> Edges::insertNewEdge(ax::NodeEditor::LinkId id, const std::string& from_layer, const std::string& from_port, const std::string& to_layer, const std::string& to_port)
+std::shared_ptr<Edge> Edges::insertNewEdge(const std::string& from_layer, const std::string& from_port, const std::string& to_layer, const std::string& to_port)
 {
     assert (std::find_if(begin(), end(), [&](std::shared_ptr<Edge>& edge) {
         auto res = from_layer == edge->getOutputPort()->getParent()->getXmlId()
@@ -505,6 +505,10 @@ Edge::Edge(tinyxml2::XMLDocument* xmlDocument, const std::shared_ptr<OutputPort>
     xmlEdgeRaw->SetAttribute("to-port", inputPort->getXmlId());
 
     xmlElement = XMLNodeWrapper::make_shared(xmlEdgeRaw);
+}
+
+Edge::Edge(std::shared_ptr<OutputPort> outputPort, std::shared_ptr<InputPort> inputPort, tinyxml2::XMLElement* edge, std::shared_ptr<Edges> parent) : id(GetNextId()), outputPort(outputPort), inputPort(inputPort), parent(parent) {
+    this->xmlElement = XMLNodeWrapper::make_shared(edge);
 }
 
 size_t Edge::getXmlPosition() const {
