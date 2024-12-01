@@ -248,16 +248,6 @@ std::set<std::shared_ptr<Edge>, EdgeIDLess> Layer::getSetEdges() const
     return allEdges;
 }
 
-std::shared_ptr<InputPort> Layer::createInputPort(std::string xmlId) {
-    auto xmlport = getXmlElement()->el->GetDocument()->NewElement("port");
-    xmlport->SetAttribute("id", xmlId.c_str());
-    ax::NodeEditor::PinId id = GetNextId();
-    std::shared_ptr<Layer> parent = shared_from_this();
-    auto inputPort = std::make_shared<InputPort>(id, xmlport, parent);
-
-    return inputPort;
-}
-
 std::shared_ptr<InputPort> Layer::insertNewInputPort() {
     auto xmlId = std::to_string(getMaxPortXmlId() + 1);
     auto inputPort = std::make_shared<InputPort>(getXmlElement()->el->GetDocument(), xmlId);
@@ -527,6 +517,10 @@ Port::Port(tinyxml2::XMLDocument* xmlDocument, std::string xmlId) : id(GetNextId
     xmlPortRaw->SetAttribute("id", xmlId.c_str());
 
     xmlElement = XMLNodeWrapper::make_shared(xmlPortRaw);
+}
+
+Port::Port(tinyxml2::XMLElement* xmlElement, std::shared_ptr<Layer> parent) : id(GetNextId()), parent(parent) {
+    this->xmlElement = XMLNodeWrapper::make_shared(xmlElement);
 }
 
 const std::shared_ptr<Layers>& Port::getLayers() const

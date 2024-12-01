@@ -53,9 +53,7 @@ struct EdgeIDLess
 class Port : public std::enable_shared_from_this<Port> {
 public:
 	Port(tinyxml2::XMLDocument* xmlDocument, std::string xmlId);
-	Port(ax::NodeEditor::PinId id, tinyxml2::XMLElement* xmlElement, std::shared_ptr<Layer> parent) : id(id), parent(parent) {
-		this->xmlElement = XMLNodeWrapper::make_shared(xmlElement);
-	}
+	Port(tinyxml2::XMLElement* xmlElement, std::shared_ptr<Layer> parent);
 
 	const char* getXmlId() const { const auto id = xmlElement->el->ToElement()->Attribute("id"); return id ? id : ""; }
 	const ax::NodeEditor::PinId& getId() const { return id; }
@@ -86,14 +84,14 @@ struct PortIDLess
 class InputPort : public Port, public std::enable_shared_from_this<InputPort> {
 public:
 	InputPort(tinyxml2::XMLDocument* xmlDocument, std::string xmlId) : Port(xmlDocument, xmlId) {}
-	InputPort(ax::NodeEditor::PinId id, tinyxml2::XMLElement* xmlElement, std::shared_ptr<Layer> parent) : Port(id, xmlElement, parent) {}
+	InputPort(tinyxml2::XMLElement* xmlElement, std::shared_ptr<Layer> parent) : Port(xmlElement, parent) {}
 	std::set<std::shared_ptr<Edge>, EdgeIDLess> getSetEdges() const override;
 };
 
 class OutputPort : public Port, public std::enable_shared_from_this<OutputPort> {
 public:
 	OutputPort(tinyxml2::XMLDocument* xmlDocument, std::string xmlId) : Port(xmlDocument, xmlId) {}
-	OutputPort(ax::NodeEditor::PinId id, tinyxml2::XMLElement* xmlElement, std::shared_ptr<Layer> parent) : Port(id, xmlElement, parent) {}
+	OutputPort(tinyxml2::XMLElement* xmlElement, std::shared_ptr<Layer> parent) : Port(xmlElement, parent) {}
 	std::set<std::shared_ptr<Edge>, EdgeIDLess> getSetEdges() const override;
 };
 
@@ -189,7 +187,6 @@ public:
 	std::set<std::shared_ptr<InputPort>, PortIDLess > getSetInputPort() const { return setInputPort; }
 	std::set<std::shared_ptr<Edge>, EdgeIDLess> getSetEdges() const;
 
-	std::shared_ptr<InputPort> createInputPort(std::string xmlId);
 	std::shared_ptr<InputPort> insertNewInputPort();
 	std::shared_ptr<OutputPort> insertNewOutputPort();
 	void insertPort(std::shared_ptr<InputPort> port);

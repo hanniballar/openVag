@@ -32,31 +32,6 @@
                 </port>
             </output>
         </layer>
-        <layer id="2" name="conv1" type="Convolution" version="opset1">
-            <data auto_pad="same_upper" dilations="1,1" output_padding="0,0" pads_begin="1,1" pads_end="1,1" strides="1,1"/>
-            <input>
-                <port id="0">
-                    <dim>1</dim>
-                    <dim>3</dim>
-                    <dim>32</dim>
-                    <dim>100</dim>
-                </port>
-                <port id="1">
-                    <dim>64</dim>
-                    <dim>3</dim>
-                    <dim>3</dim>
-                    <dim>3</dim>
-                </port>
-            </input>
-            <output>
-                <port id="2" precision="FP32">
-                    <dim>1</dim>
-                    <dim>64</dim>
-                    <dim>32</dim>
-                    <dim>100</dim>
-                </port>
-            </output>
-        </layer>
         <layer id="3" name="conv1/activation" type="ReLU" version="opset1">
             <input>
                 <port id="0">
@@ -88,9 +63,6 @@
     </layers>
     <edges>
         <!-- Connections between layer nodes: based on ids for layers and ports used in the descriptions above -->
-        <edge from-layer="0" from-port="0" to-layer="2" to-port="0"/>
-        <edge from-layer="1" from-port="1" to-layer="2" to-port="1"/>
-        <edge from-layer="2" from-port="2" to-layer="3" to-port="0"/>
         <edge from-layer="3" from-port="1" to-layer="4" to-port="0"/>
     </edges>
     <meta_data>

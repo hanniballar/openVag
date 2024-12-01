@@ -35,7 +35,7 @@ std::shared_ptr<LayerPortGuiType> parsePort(XMLElement* port, std::shared_ptr<La
         throw ParseIRModelException(msg.c_str());
     }
 
-    return std::make_shared<LayerPortGuiType>(GetNextId(), port, parent);
+    return std::make_shared<LayerPortGuiType>(port, parent);
 }
 
 template <class LayerPortGuiType>
