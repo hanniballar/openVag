@@ -161,9 +161,7 @@ struct LayerIDLess;
 class Layer : public std::enable_shared_from_this<Layer> {
 public:
 	Layer(tinyxml2::XMLDocument* xmlDocument, std::string xmlId, std::string name, std::string type);
-	Layer(ax::NodeEditor::NodeId id, tinyxml2::XMLElement* xmlLayer, const std::shared_ptr<Layers>& parent) : id(id), parent(parent) {
-		this->xmlElement = XMLNodeWrapper::make_shared(xmlLayer);
-	}
+	Layer(tinyxml2::XMLElement* xmlLayer, const std::shared_ptr<Layers>& parent);
 
 	const ax::NodeEditor::NodeId getId() const { return id; }
 	const std::shared_ptr<Layers>& getParent() const { return parent; }

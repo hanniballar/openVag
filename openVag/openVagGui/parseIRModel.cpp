@@ -66,7 +66,7 @@ void parseLayer(XMLElement* xmlLayer, std::shared_ptr<Layers> parent) {
         throw ParseIRModelException(msg.c_str());
     }
 
-    auto layerGui = std::make_shared<Layer>(GetNextId(), xmlLayer, parent);
+    auto layerGui = std::make_shared<Layer>(xmlLayer, parent);
     parent->insertLayer(layerGui);
     auto inputs = xmlLayer->FirstChildElement("input");
     parsePorts<InputPort>(inputs, layerGui);

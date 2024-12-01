@@ -197,6 +197,10 @@ Layer::Layer(tinyxml2::XMLDocument* xmlDocument, std::string xmlId, std::string 
     xmlElement = XMLNodeWrapper::make_shared(xmlLayerRaw);
 }
 
+Layer::Layer(tinyxml2::XMLElement* xmlLayer, const std::shared_ptr<Layers>& parent) : id(GetNextId()), parent(parent) {
+    this->xmlElement = XMLNodeWrapper::make_shared(xmlLayer);
+}
+
 std::shared_ptr<XMLNodeWrapper> Layer::getXmlInputElement() const
 {
     auto xmlElRaw = getXmlElement()->el;
