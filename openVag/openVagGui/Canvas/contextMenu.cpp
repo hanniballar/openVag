@@ -36,11 +36,29 @@ namespace Canvas {
         } ax::NodeEditor::Resume();
         ax::NodeEditor::Suspend(); {
             if (ImGui::BeginPopup("Link Context Menu")) {
-                if (ImGui::MenuItem("Delete edge")) {
-                    auto edge = irModel->getNetwork()->getEdges()->getEdge(contextLinkId);
-                    assert(edge);
-                    auto deleteEdgeC = std::make_shared<DeleteEdge>(edge);
-                    commandCenter.execute(deleteEdgeC);
+                auto selectedObjectCount = ax::NodeEditor::GetSelectedObjectCount();
+                if (selectedObjectCount > 1) {
+                    if (ImGui::MenuItem("Delete Edges")) {
+                        std::vector<ax::NodeEditor::LinkId> vecSelectedLinkId;
+                        vecSelectedLinkId.resize(selectedObjectCount);
+                        int nodeCount = ax::NodeEditor::GetSelectedLinks(vecSelectedLinkId.data(), static_cast<int>(vecSelectedLinkId.size()));
+                        vecSelectedLinkId.resize(nodeCount);
+                        CommandCenter commandCC;
+                        for (const auto selectedLinkId : vecSelectedLinkId) {
+                            auto edge = irModel->getNetwork()->getEdges()->getEdge(selectedLinkId);
+                            commandCC.add(std::make_shared<DeleteEdge>(edge));
+                        }
+                        auto composedCommand = std::make_shared<ComposedCommand>(commandCC);
+                        commandCenter.execute(composedCommand);
+                    }
+                }
+                else {
+                    if (ImGui::MenuItem("Delete edge")) {
+                        auto edge = irModel->getNetwork()->getEdges()->getEdge(contextLinkId);
+                        assert(edge);
+                        auto deleteEdgeC = std::make_shared<DeleteEdge>(edge);
+                        commandCenter.execute(deleteEdgeC);
+                    }
                 }
                 ImGui::EndPopup();
             }
@@ -67,7 +85,7 @@ namespace Canvas {
                 if (selectedObjectCount > 1) {
                     if (ImGui::MenuItem("Delete Layers")) {
                         std::vector<ax::NodeEditor::NodeId> vecSelectedNodeId;
-                        vecSelectedNodeId.resize(ax::NodeEditor::GetSelectedObjectCount());
+                        vecSelectedNodeId.resize(selectedObjectCount);
                         int nodeCount = ax::NodeEditor::GetSelectedNodes(vecSelectedNodeId.data(), static_cast<int>(vecSelectedNodeId.size()));
                         vecSelectedNodeId.resize(nodeCount);
                         CommandCenter commandCC;

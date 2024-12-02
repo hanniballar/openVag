@@ -369,7 +369,8 @@ bool OpenVag::Create()
     // Our state
     bool show_demo_window = true;
     bool show_another_window = false;
-
+    
+    openFile = "D:\\work\\openVag\\test\\example_simple.xml";
     irModel = parseIRModel(openFile);
 
     return true;
@@ -414,13 +415,18 @@ bool OpenVag::Run()
         ImGui::NewFrame();
         bool reLayoutNodes = false;
         bool openIrModel = false;
+        bool startSaveAs = false;
         if (ImGui::BeginMainMenuBar()) {
             if (ImGui::BeginMenu("File")) {
                 if (ImGui::MenuItem("Open", "CTRL+O", false)) {
                     openIrModel = true;
                 }
+                ImGui::Separator();
                 if (ImGui::MenuItem("Save", "CTRL+S", false, commandCenter.getUndoSize())) {
-                    irModel->saveToFile("D:/work/openVag/test/example_simple_save.xml");
+                    irModel->saveToFile(openFile.c_str());
+                }
+                if (ImGui::MenuItem("Save As...", "CTRL+SHIFT+S")) {
+                    startSaveAs = true;
                 }
                 ImGui::EndMenu();
             }
@@ -447,12 +453,17 @@ bool OpenVag::Run()
             commandCenter.redo();
         }
         if (ImGui::Shortcut(ImGuiMod_Ctrl | ImGuiKey_S, ImGuiInputFlags_RouteAlways)) {
-            irModel->saveToFile("D:/work/openVag/test/example_simple_save.xml");
+            irModel->saveToFile("D:\\work\\openVag\\test\\example_simple_save.xml"); //ToDo remove
+            //irModel->saveToFile(openFile.c_str());
+        }
+        if (ImGui::Shortcut(ImGuiMod_Ctrl | ImGuiMod_Shift | ImGuiKey_S, ImGuiInputFlags_RouteAlways)) {
+            startSaveAs = true;
         }
         if (ImGui::Shortcut(ImGuiMod_Ctrl | ImGuiKey_O, ImGuiInputFlags_RouteAlways)) {
             openIrModel = true;
         }
 
+        
         if (openIrModel) {
             IGFD::FileDialogConfig config;
             if (openFile.empty()) {
@@ -462,12 +473,25 @@ bool OpenVag::Run()
                 std::filesystem::path p(openFile);
                 config.path = p.parent_path().string();
             }
-            ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Open File", ".xml", config);
+            ImGuiFileDialog::Instance()->OpenDialog("OpenFileDlgKey", "Open File", ".xml", config);
+            openIrModel = false;
+        }
+
+        if (startSaveAs) {
+            IGFD::FileDialogConfig config;
+            if (openFile.empty()) {
+                config.path = ".";
+            }
+            else {
+                std::filesystem::path p(openFile);
+                config.path = p.parent_path().string();
+            }
+            ImGuiFileDialog::Instance()->OpenDialog("SaveFileDlgKey", "Save File", ".xml", config);
             openIrModel = false;
         }
 
         bool selectFirstLayer = false;
-        if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey")) {
+        if (ImGuiFileDialog::Instance()->Display("OpenFileDlgKey")) {
             if (ImGuiFileDialog::Instance()->IsOk()) { // action if OK
                 openFile = ImGuiFileDialog::Instance()->GetFilePathName();
                 irModel = parseIRModel(openFile);
@@ -476,6 +500,15 @@ bool OpenVag::Run()
             }
             ImGuiFileDialog::Instance()->Close();
         }
+
+        if (ImGuiFileDialog::Instance()->Display("SaveFileDlgKey")) {
+            if (ImGuiFileDialog::Instance()->IsOk()) { // action if OK
+                openFile = ImGuiFileDialog::Instance()->GetFilePathName();
+                irModel->saveToFile(openFile.c_str());
+            }
+            ImGuiFileDialog::Instance()->Close();
+        }
+
         ImGuiID did = ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_AutoHideTabBar);
 
         Canvas::ShowCanvas(irModel, commandCenter, reLayoutNodes, m_Context);
