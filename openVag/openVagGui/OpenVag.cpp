@@ -449,6 +449,9 @@ bool OpenVag::Run()
         if (ImGui::Shortcut(ImGuiMod_Ctrl | ImGuiKey_S, ImGuiInputFlags_RouteAlways)) {
             irModel->saveToFile("D:/work/openVag/test/example_simple_save.xml");
         }
+        if (ImGui::Shortcut(ImGuiMod_Ctrl | ImGuiKey_O, ImGuiInputFlags_RouteAlways)) {
+            openIrModel = true;
+        }
 
         if (openIrModel) {
             IGFD::FileDialogConfig config;
