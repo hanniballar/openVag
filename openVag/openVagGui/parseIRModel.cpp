@@ -191,6 +191,7 @@ std::shared_ptr<IRModel> parseIRModel() {
 }
 
 std::shared_ptr<IRModel> parseIRModel(const std::string& fileName) {
+    if (fileName.empty()) return parseIRModel();
     std::ifstream file(fileName);
     if (!file) {
         std::cerr << "Failed to open file: " << fileName << std::endl;

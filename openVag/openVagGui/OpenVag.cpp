@@ -16,6 +16,7 @@
 #include "GraphLayout.h"
 #include "Canvas/showCanvas.h"
 #include "Find/showFind.h"
+#include "ImGuiFileDialog.h"
 
 #ifdef _DEBUG
 #define DX12_ENABLE_DEBUG_LAYER
@@ -69,6 +70,8 @@ static ax::NodeEditor::EditorContext* m_Context = nullptr;
 
 static std::shared_ptr<IRModel> irModel;
 static int64_t uniqueId = 1;
+
+static std::string openFile;
 
 int64_t GetNextId() { return uniqueId++; }
 // Helper functions
@@ -365,7 +368,7 @@ bool OpenVag::Create()
     bool show_demo_window = true;
     bool show_another_window = false;
 
-    irModel = parseIRModel();
+    irModel = parseIRModel(openFile);
 
     return true;
 }
@@ -410,6 +413,11 @@ bool OpenVag::Run()
         bool reLayoutNodes = false;
         if (ImGui::BeginMainMenuBar()) {
             if (ImGui::BeginMenu("File")) {
+                if (ImGui::MenuItem("Open", "CTRL+O", false)) {
+                    IGFD::FileDialogConfig config;
+                    config.path = ".";
+                    ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Open File", ".xml", config);
+                }
                 if (ImGui::MenuItem("Save", "CTRL+S", false, commandCenter.getUndoSize())) {
                     irModel->saveToFile("D:/work/openVag/test/example_simple_save.xml");
                 }
@@ -441,9 +449,30 @@ bool OpenVag::Run()
             irModel->saveToFile("D:/work/openVag/test/example_simple_save.xml");
         }
 
+        bool selectFirstLayer = false;
+        if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey")) {
+            if (ImGuiFileDialog::Instance()->IsOk()) { // action if OK
+                openFile = ImGuiFileDialog::Instance()->GetFilePathName();
+                irModel = parseIRModel(openFile);
+                reLayoutNodes = true;
+                selectFirstLayer = true;
+            }
+
+            // close
+            ImGuiFileDialog::Instance()->Close();
+        }
         ImGuiID did = ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_AutoHideTabBar);
 
         Canvas::ShowCanvas(irModel, commandCenter, reLayoutNodes, m_Context);
+        ax::NodeEditor::SetCurrentEditor(m_Context);
+        if (selectFirstLayer) {
+            const auto layers = irModel->getNetwork()->getLayers();
+            if (layers->begin() != layers->end()) {
+                ax::NodeEditor::SelectNode((*(layers->begin()))->getId(), false);
+                ax::NodeEditor::NavigateToSelection();
+            }
+        }
+        ax::NodeEditor::SetCurrentEditor(nullptr);
         Find::ShowFind(irModel, m_Context);
         ImGui::ShowMetricsWindow();
 
