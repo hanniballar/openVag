@@ -6,6 +6,7 @@
 #include <d3d12.h>
 #include <dxgi1_4.h>
 #include <tchar.h>
+#include <filesystem> //ToDo remove
 #include "imgui_node_editor.h"
 
 #include <iostream> //ToDo remove
@@ -17,6 +18,7 @@
 #include "Canvas/showCanvas.h"
 #include "Find/showFind.h"
 #include "ImGuiFileDialog.h"
+
 
 #ifdef _DEBUG
 #define DX12_ENABLE_DEBUG_LAYER
@@ -411,12 +413,11 @@ bool OpenVag::Run()
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
         bool reLayoutNodes = false;
+        bool openIrModel = false;
         if (ImGui::BeginMainMenuBar()) {
             if (ImGui::BeginMenu("File")) {
                 if (ImGui::MenuItem("Open", "CTRL+O", false)) {
-                    IGFD::FileDialogConfig config;
-                    config.path = ".";
-                    ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Open File", ".xml", config);
+                    openIrModel = true;
                 }
                 if (ImGui::MenuItem("Save", "CTRL+S", false, commandCenter.getUndoSize())) {
                     irModel->saveToFile("D:/work/openVag/test/example_simple_save.xml");
@@ -449,6 +450,19 @@ bool OpenVag::Run()
             irModel->saveToFile("D:/work/openVag/test/example_simple_save.xml");
         }
 
+        if (openIrModel) {
+            IGFD::FileDialogConfig config;
+            if (openFile.empty()) {
+                config.path = ".";
+            }
+            else {
+                std::filesystem::path p(openFile);
+                config.path = p.parent_path().string();
+            }
+            ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Open File", ".xml", config);
+            openIrModel = false;
+        }
+
         bool selectFirstLayer = false;
         if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey")) {
             if (ImGuiFileDialog::Instance()->IsOk()) { // action if OK
@@ -457,8 +471,6 @@ bool OpenVag::Run()
                 reLayoutNodes = true;
                 selectFirstLayer = true;
             }
-
-            // close
             ImGuiFileDialog::Instance()->Close();
         }
         ImGuiID did = ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_AutoHideTabBar);
@@ -466,11 +478,11 @@ bool OpenVag::Run()
         Canvas::ShowCanvas(irModel, commandCenter, reLayoutNodes, m_Context);
         ax::NodeEditor::SetCurrentEditor(m_Context);
         if (selectFirstLayer) {
-            const auto layers = irModel->getNetwork()->getLayers();
-            if (layers->begin() != layers->end()) {
-                ax::NodeEditor::SelectNode((*(layers->begin()))->getId(), false);
-                ax::NodeEditor::NavigateToSelection();
-            }
+                const auto layers = irModel->getNetwork()->getLayers();
+                if (layers->begin() != layers->end()) {
+                    ax::NodeEditor::SelectNode((*(layers->begin()))->getId(), false);
+                    ax::NodeEditor::NavigateToSelection();
+                }
         }
         ax::NodeEditor::SetCurrentEditor(nullptr);
         Find::ShowFind(irModel, m_Context);
