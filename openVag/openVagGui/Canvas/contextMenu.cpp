@@ -41,8 +41,8 @@ namespace Canvas {
                     if (ImGui::MenuItem("Delete Edges")) {
                         std::vector<ax::NodeEditor::LinkId> vecSelectedLinkId;
                         vecSelectedLinkId.resize(selectedObjectCount);
-                        int nodeCount = ax::NodeEditor::GetSelectedLinks(vecSelectedLinkId.data(), static_cast<int>(vecSelectedLinkId.size()));
-                        vecSelectedLinkId.resize(nodeCount);
+                        int linkCount = ax::NodeEditor::GetSelectedLinks(vecSelectedLinkId.data(), static_cast<int>(vecSelectedLinkId.size()));
+                        vecSelectedLinkId.resize(linkCount);
                         CommandCenter commandCC;
                         for (const auto selectedLinkId : vecSelectedLinkId) {
                             auto edge = irModel->getNetwork()->getEdges()->getEdge(selectedLinkId);
@@ -86,8 +86,8 @@ namespace Canvas {
                     if (ImGui::MenuItem("Delete Layers")) {
                         std::vector<ax::NodeEditor::NodeId> vecSelectedNodeId;
                         vecSelectedNodeId.resize(selectedObjectCount);
-                        int nodeCount = ax::NodeEditor::GetSelectedNodes(vecSelectedNodeId.data(), static_cast<int>(vecSelectedNodeId.size()));
-                        vecSelectedNodeId.resize(nodeCount);
+                        int linkCount = ax::NodeEditor::GetSelectedNodes(vecSelectedNodeId.data(), static_cast<int>(vecSelectedNodeId.size()));
+                        vecSelectedNodeId.resize(linkCount);
                         CommandCenter commandCC;
                         for (const auto selectedNodeId : vecSelectedNodeId) {
                             auto layer = irModel->getNetwork()->getLayers()->getLayer(selectedNodeId);

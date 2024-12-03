@@ -56,6 +56,10 @@ set(Sources
 	Canvas/drawLayerNodes.h
 	Find/showFind.cpp
 	Find/showFind.h
+	Properties/showProperties.cpp
+	Properties/showProperties.h
+	Properties/showEdgeProperties.cpp
+	Properties/showEdgeProperties.h
 	utils/MapValueIterator.h
 	misc/debugger/openVag.natstepfilter
 )

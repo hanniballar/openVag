@@ -17,6 +17,7 @@
 #include "GraphLayout.h"
 #include "Canvas/showCanvas.h"
 #include "Find/showFind.h"
+#include "Properties/showProperties.h"
 #include "ImGuiFileDialog.h"
 
 
@@ -522,6 +523,7 @@ bool OpenVag::Run()
         }
         ax::NodeEditor::SetCurrentEditor(nullptr);
         Find::ShowFind(irModel, m_Context);
+        showProperties(irModel, commandCenter, m_Context);
         ImGui::ShowMetricsWindow();
 
         // Rendering
