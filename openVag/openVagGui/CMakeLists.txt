@@ -58,8 +58,8 @@ set(Sources
 	Find/showFind.h
 	Properties/showProperties.cpp
 	Properties/showProperties.h
-	Properties/showEdgeProperties.cpp
-	Properties/showEdgeProperties.h
+	Properties/fillEdgeProperties.cpp
+	Properties/fillEdgeProperties.h
 	utils/MapValueIterator.h
 	misc/debugger/openVag.natstepfilter
 )
