@@ -113,6 +113,8 @@ public:
 	const std::shared_ptr<Layer>& getFromLayer() const { return outputPort->getParent(); }
 	const std::shared_ptr<Layer>& getToLayer() const { return inputPort->getParent(); }
 
+	void modify(std::map<std::string, std::string> mapAttributes);
+
 private:
 	ax::NodeEditor::LinkId id;
 	std::shared_ptr<Edges> parent;

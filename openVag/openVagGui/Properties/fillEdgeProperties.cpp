@@ -3,9 +3,12 @@
 #include <algorithm>
 #include <sstream>
 #include <cassert>
+#include <map>
 
 #include "imgui.h"
 #include "imgui_node_editor.h"
+
+#include "../commands/ModifyEdge.h"
 
 static std::vector<const char*> getVecPossibleFromLayersId(std::shared_ptr<IRModel> irModel) {
     std::vector<const char*> vecPossibleFromLayers;
@@ -124,46 +127,57 @@ void fillEdgeProperties(const std::vector<ax::NodeEditor::LinkId>& vecSelectedLi
     for (const auto& linkid : vecSelectedLinkId) {
         const auto& edge = irModel->getNetwork()->getEdges()->getEdge(linkid);
 
-        if (ImGui::CollapsingHeader(collapsingHeaderEdgeName(edge).c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
-            auto edgeComboSelectors = [&]() {
-                auto it = mapEdgeToSelectors.find(edge);
-                if (it == mapEdgeToSelectors.end()) {
-                    it = mapEdgeToSelectors.insert({ edge, calcEdgeComboItemSelectors(edge, vecPossibleFromLayers, vecPossibleToLayers) }).first;
+        ImGui::PushID(edge->getId().AsPointer()); {
+            if (ImGui::CollapsingHeader(collapsingHeaderEdgeName(edge).c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+                auto edgeComboSelectors = [&]() {
+                    auto it = mapEdgeToSelectors.find(edge);
+                    if (it == mapEdgeToSelectors.end()) {
+                        it = mapEdgeToSelectors.insert({ edge, calcEdgeComboItemSelectors(edge, vecPossibleFromLayers, vecPossibleToLayers) }).first;
+                    }
+                    return &(it->second);
+                    }();
+
+                int selectedFromLayer = edgeComboSelectors->fromLayer;
+                ImGui::Combo((std::string(std::string("from-layer") + "##" + std::to_string(edge->getId().Get()))).c_str(), &selectedFromLayer, vecPossibleFromLayers.data(), static_cast<int>(vecPossibleFromLayers.size()), -1);
+                std::shared_ptr<Layer> fromLayer = irModel->getNetwork()->getLayers()->getLayer(vecPossibleFromLayers[selectedFromLayer]);
+                if (selectedFromLayer != edgeComboSelectors->fromLayer) {
+                    edgeComboSelectors->fromPort = -1;
+                    edgeComboSelectors->fromLayer = selectedFromLayer;
                 }
-                return &(it->second);
-            }();
 
-            int selectedFromLayer = edgeComboSelectors->fromLayer;
-            ImGui::Combo("from-layer", &selectedFromLayer, vecPossibleFromLayers.data(), static_cast<int>(vecPossibleFromLayers.size()), -1);
-            std::shared_ptr<Layer> fromLayer = irModel->getNetwork()->getLayers()->getLayer(vecPossibleFromLayers[selectedFromLayer]);
-            if (selectedFromLayer != edgeComboSelectors->fromLayer) {
-                edgeComboSelectors->fromPort = -1;
-                edgeComboSelectors->fromLayer = selectedFromLayer;
-            }
-
-            auto vecOutputPortId = getVecOutputPortId(fromLayer);
+                auto vecOutputPortId = getVecOutputPortId(fromLayer);
             ImGui::Combo("from-port", &edgeComboSelectors->fromPort, vecOutputPortId.data(), static_cast<int>(vecOutputPortId.size()), -1);
 
-            int selectedToLayer = edgeComboSelectors->toLayer;
+                int selectedToLayer = edgeComboSelectors->toLayer;
             ImGui::Combo("to-layer", &selectedToLayer, vecPossibleToLayers.data(), static_cast<int>(vecPossibleToLayers.size()), -1);
-            std::shared_ptr<Layer> toLayer = irModel->getNetwork()->getLayers()->getLayer(vecPossibleToLayers[selectedToLayer]);
-            if (selectedToLayer != edgeComboSelectors->toLayer) {
-                edgeComboSelectors->toPort = -1; 
-                edgeComboSelectors->toLayer = selectedToLayer;
-            }
+                std::shared_ptr<Layer> toLayer = irModel->getNetwork()->getLayers()->getLayer(vecPossibleToLayers[selectedToLayer]);
+                if (selectedToLayer != edgeComboSelectors->toLayer) {
+                    edgeComboSelectors->toPort = -1;
+                    edgeComboSelectors->toLayer = selectedToLayer;
+                }
 
-            auto vecInputPortId = getVecInputPortId(toLayer);
+                auto vecInputPortId = getVecInputPortId(toLayer);
             ImGui::Combo("to-port", &edgeComboSelectors->toPort, vecInputPortId.data(), static_cast<int>(vecInputPortId.size()), -1);
 
-            auto origSelectors = calcEdgeComboItemSelectors(edge, vecPossibleFromLayers, vecPossibleToLayers);
-            if (*edgeComboSelectors != origSelectors) {
-                ImGui::Dummy(ImVec2(0, 2));
-                ImGui::Button("Save");
-                ImGui::SameLine();
-                if (ImGui::Button("Reset")) {
-                    mapEdgeToSelectors[edge] = origSelectors;
+                auto origSelectors = calcEdgeComboItemSelectors(edge, vecPossibleFromLayers, vecPossibleToLayers);
+                if (*edgeComboSelectors != origSelectors) {
+                    ImGui::Dummy(ImVec2(0, 2));
+                    if (edgeComboSelectors->fromPort > -1 && edgeComboSelectors->toPort > -1) {
+                        if (ImGui::Button("Save")) {
+                            std::map<std::string, std::string> mapAttribute =
+                            { {"from-layer", vecPossibleFromLayers[edgeComboSelectors->fromLayer]},
+                                {"from-port", vecOutputPortId[edgeComboSelectors->fromPort]},
+                                {"to-layer", vecPossibleToLayers[edgeComboSelectors->toLayer]},
+                                {"to-port", vecInputPortId[edgeComboSelectors->toPort]} };
+                            commandCenter.execute(std::make_shared<ModifyEdge>(edge, mapAttribute));
+                        }
+                        ImGui::SameLine();
+                    }
+                    if (ImGui::Button("Reset")) {
+                        mapEdgeToSelectors[edge] = origSelectors;
+                    }
                 }
             }
-        }
+        } ImGui::PopID();
     }
 }

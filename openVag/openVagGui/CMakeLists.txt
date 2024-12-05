@@ -44,6 +44,8 @@ set(Sources
 	commands/InsertInputPort.h
 	commands/InsertOutputPort.cpp
 	commands/InsertOutputPort.h
+	commands/ModifyEdge.cpp
+	commands/ModifyEdge.h
 	Canvas/showCanvas.cpp
 	Canvas/showCanvas.h
 	Canvas/beginCreate.cpp

@@ -435,8 +435,6 @@ void Edges::insertEdge(std::shared_ptr<Edge> edge)
     assert(mapLinkIdToEdge.find(edge->getId()) == mapLinkIdToEdge.end());
     edge->setParent(shared_from_this());
     mapLinkIdToEdge[edge->getId()] = edge;
-    auto res1 = edge->getFromLayer();
-    auto res = edge->getFromLayer()->getId(); //ToDo Remove
     if (mapFromLayerIdToSetEdge.find(edge->getFromLayer()->getId()) == mapFromLayerIdToSetEdge.end()) {
         mapFromLayerIdToSetEdge[edge->getFromLayer()->getId()] = {};
     }
@@ -518,6 +516,35 @@ Edge::Edge(std::shared_ptr<OutputPort> outputPort, std::shared_ptr<InputPort> in
 
 size_t Edge::getXmlPosition() const {
     return getXmlSiblingPosition(getXmlElement()->el);
+}
+
+void Edge::modify(std::map<std::string, std::string> mapAttribute)
+{
+    const auto parent = getParent();
+    parent->removeEdge(shared_from_this());
+
+    std::set<std::string> setAllowedAttribute = { "from-layer", "from-port", "to-layer", "to-port" };
+
+    auto xmlElementRaw = getXmlElement()->el->ToElement();
+    for (const auto& [attrName, attrValue] : mapAttribute) {
+        assert(setAllowedAttribute.find(attrName) != setAllowedAttribute.end());
+        xmlElementRaw->SetAttribute(attrName.c_str(), attrValue.c_str());
+    }
+
+    auto from_layer = xmlElementRaw->Attribute("from-layer");
+    auto from_port = xmlElementRaw->Attribute("from-port");
+    auto to_layer = xmlElementRaw->Attribute("to-layer");
+    auto to_port = xmlElementRaw->Attribute("to-port");
+
+    auto inputLayer = parent->getLayers()->getLayer(to_layer);
+    auto outputLayer = parent->getLayers()->getLayer(from_layer);
+    inputPort = inputLayer->getInputPort(to_port);
+    outputPort = outputLayer->getOutputPort(from_port);
+
+    assert(outputPort != nullptr);
+    assert(inputPort != nullptr);
+
+    parent->insertEdge(shared_from_this());
 }
 
 Port::Port(tinyxml2::XMLDocument* xmlDocument, std::string xmlId) : id(GetNextId())
