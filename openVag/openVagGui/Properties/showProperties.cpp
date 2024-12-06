@@ -1,5 +1,6 @@
 #include "showProperties.h"
 #include "fillEdgeProperties.h"
+#include "fillLayerProperties.h"
 
 void showProperties(std::shared_ptr<IRModel> irModel, CommandCenter& commandCenter, ax::NodeEditor::EditorContext* m_Context, bool* p_open)
 {
@@ -12,8 +13,12 @@ void showProperties(std::shared_ptr<IRModel> irModel, CommandCenter& commandCent
     int linkCount = ax::NodeEditor::GetSelectedLinks(vecSelectedLinkId.data(), static_cast<int>(vecSelectedLinkId.size()));
     int nodeCount = ax::NodeEditor::GetSelectedNodes(vecSelectedNodeId.data(), static_cast<int>(vecSelectedNodeId.size()));
     ImGui::Begin("Properties");
+    if (nodeCount) {
+        fillLayerProperties(vecSelectedNodeId, irModel, commandCenter);
+    }
     if (linkCount) {
-        fillEdgeProperties(vecSelectedLinkId, irModel, commandCenter, m_Context);
+        fillEdgeProperties(vecSelectedLinkId, irModel, commandCenter);
+        
     }
     ImGui::End();
     ax::NodeEditor::SetCurrentEditor(nullptr);

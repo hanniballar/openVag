@@ -90,7 +90,7 @@ struct EdgeComboSelectors {
     }
 };
 
-static EdgeComboSelectors calcEdgeComboItemSelectors(const std::shared_ptr<Edge>& edge, std::vector<const char*> vecFromLayerId, std::vector<const char*> vecToLayerId) {
+static EdgeComboSelectors composeEdgeComboItemSelectors(const std::shared_ptr<Edge>& edge, std::vector<const char*> vecFromLayerId, std::vector<const char*> vecToLayerId) {
     EdgeComboSelectors selectors;
     {
         auto it = std::find(vecFromLayerId.begin(), vecFromLayerId.end(), edge->getFromLayer()->getXmlId());
@@ -119,7 +119,7 @@ static EdgeComboSelectors calcEdgeComboItemSelectors(const std::shared_ptr<Edge>
 }
 
 std::map<std::shared_ptr<Edge>, EdgeComboSelectors> mapEdgeToSelectors;
-void fillEdgeProperties(const std::vector<ax::NodeEditor::LinkId>& vecSelectedLinkId, std::shared_ptr<IRModel> irModel, CommandCenter& commandCenter, ax::NodeEditor::EditorContext* m_Context, bool* p_open)
+void fillEdgeProperties(const std::vector<ax::NodeEditor::LinkId>& vecSelectedLinkId, std::shared_ptr<IRModel> irModel, CommandCenter& commandCenter)
 {
     auto vecPossibleFromLayers = getVecPossibleFromLayersId(irModel);
     auto vecPossibleToLayers = getVecPossibleToLayersId(irModel);
@@ -132,7 +132,7 @@ void fillEdgeProperties(const std::vector<ax::NodeEditor::LinkId>& vecSelectedLi
                 auto edgeComboSelectors = [&]() {
                     auto it = mapEdgeToSelectors.find(edge);
                     if (it == mapEdgeToSelectors.end()) {
-                        it = mapEdgeToSelectors.insert({ edge, calcEdgeComboItemSelectors(edge, vecPossibleFromLayers, vecPossibleToLayers) }).first;
+                        it = mapEdgeToSelectors.insert({ edge, composeEdgeComboItemSelectors(edge, vecPossibleFromLayers, vecPossibleToLayers) }).first;
                     }
                     return &(it->second);
                     }();
@@ -159,7 +159,7 @@ void fillEdgeProperties(const std::vector<ax::NodeEditor::LinkId>& vecSelectedLi
                 auto vecInputPortId = getVecInputPortId(toLayer);
             ImGui::Combo("to-port", &edgeComboSelectors->toPort, vecInputPortId.data(), static_cast<int>(vecInputPortId.size()), -1);
 
-                auto origSelectors = calcEdgeComboItemSelectors(edge, vecPossibleFromLayers, vecPossibleToLayers);
+                auto origSelectors = composeEdgeComboItemSelectors(edge, vecPossibleFromLayers, vecPossibleToLayers);
                 if (*edgeComboSelectors != origSelectors) {
                     ImGui::Dummy(ImVec2(0, 2));
                     if (edgeComboSelectors->fromPort > -1 && edgeComboSelectors->toPort > -1) {

@@ -62,6 +62,8 @@ set(Sources
 	Properties/showProperties.h
 	Properties/fillEdgeProperties.cpp
 	Properties/fillEdgeProperties.h
+	Properties/fillLayerProperties.cpp
+	Properties/fillLayerProperties.h
 	utils/MapValueIterator.h
 	misc/debugger/openVag.natstepfilter
 )
