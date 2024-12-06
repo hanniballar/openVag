@@ -20,12 +20,8 @@ set(Sources
 	commands/ICommand.h
 	commands/RemoveXMLElement.cpp
 	commands/RemoveXMLElement.h
-	commands/ModifyAttributeXMLElement.cpp
-	commands/ModifyAttributeXMLElement.h
 	commands/AddAttributeXMLElement.cpp
 	commands/AddAttributeXMLElement.h
-	commands/DeleteAttributeXMLElement.cpp
-	commands/DeleteAttributeXMLElement.h
 	commands/InsertEdge.cpp
 	commands/InsertEdge.h
 	commands/InsertLayer.cpp
@@ -46,6 +42,8 @@ set(Sources
 	commands/InsertOutputPort.h
 	commands/ModifyEdge.cpp
 	commands/ModifyEdge.h
+	commands/SetLayerAttributes.cpp
+	commands/SetLayerAttributes.h
 	Canvas/showCanvas.cpp
 	Canvas/showCanvas.h
 	Canvas/beginCreate.cpp

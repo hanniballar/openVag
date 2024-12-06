@@ -161,6 +161,18 @@ const std::shared_ptr<Layer>& Layers::getLayer(std::string id) const
     return *(getSetLayer(id).begin());
 }
 
+void Layers::changeLayerXmlId(std::shared_ptr<Layer> layer, std::string oldXmlId, std::string newXmlId)
+{
+    auto it = mapXMLIdToSetLayer.find(oldXmlId);
+    assert(it != mapXMLIdToSetLayer.end());
+    it->second.erase(layer);
+    if (it->second.empty()) mapXMLIdToSetLayer.erase(it);
+    if (mapXMLIdToSetLayer.find(newXmlId) == mapXMLIdToSetLayer.end()) {
+        mapXMLIdToSetLayer[newXmlId] = {};
+    }
+    mapXMLIdToSetLayer[newXmlId].insert(layer);
+}
+
 const std::set<std::shared_ptr<Layer>, LayerIDLess>& Layers::getSetLayer(std::string id) const
 {
     auto it = mapXMLIdToSetLayer.find(id);
@@ -388,6 +400,38 @@ int64_t Layer::getMaxPortXmlId() const {
     return maxId;
 }
 
+static void deleteAllAttributes(tinyxml2::XMLElement* xmlElementRaw) {
+    for (const auto* attr = xmlElementRaw->FirstAttribute();
+        attr != nullptr;
+        xmlElementRaw->DeleteAttribute(attr->Name()), attr = xmlElementRaw->FirstAttribute()) {
+    }
+}
+
+void Layer::modifyAttributes(std::vector<std::pair<std::string, std::string>> vecAttribute)
+{
+    const auto oldId = getXmlId();
+    auto xmlElementRaw = getXmlElement()->el->ToElement();
+    deleteAllAttributes(xmlElementRaw);
+    for (const auto& [attrName, attrValue] : vecAttribute) {
+        xmlElementRaw->SetAttribute(attrName.c_str(), attrValue.c_str());
+    }
+
+    const auto newId = getXmlId();
+    if (oldId != newId) {
+        auto layers = getParent();
+        layers->changeLayerXmlId(shared_from_this(), oldId, newId);
+        auto edges = getEdges();
+        auto setToLayersEdges = edges->getSetEdgesToLayer(getId());
+        for (auto& edge : setToLayersEdges) {
+            edge->modifyAttributes({ { "to-layer", newId} });
+        }
+        auto setFromLayersEdges = edges->getSetEdgesFromLayer(getId());
+        for (auto& edge : setFromLayersEdges) {
+            edge->modifyAttributes({ { "from-layer", newId } });
+        }
+    }
+}
+
 std::shared_ptr<Edge> Edges::insertNewEdge(const std::string& from_layer, const std::string& from_port, const std::string& to_layer, const std::string& to_port, size_t xmlPos)
 {
     auto inputLayer = getLayers()->getLayer(to_layer);
@@ -518,7 +562,7 @@ size_t Edge::getXmlPosition() const {
     return getXmlSiblingPosition(getXmlElement()->el);
 }
 
-void Edge::modify(std::map<std::string, std::string> mapAttribute)
+void Edge::modifyAttributes(std::map<std::string, std::string> mapAttribute)
 {
     const auto parent = getParent();
     parent->removeEdge(shared_from_this());

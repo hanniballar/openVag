@@ -113,8 +113,7 @@ public:
 	const std::shared_ptr<Layer>& getFromLayer() const { return outputPort->getParent(); }
 	const std::shared_ptr<Layer>& getToLayer() const { return inputPort->getParent(); }
 
-	void modify(std::map<std::string, std::string> mapAttributes);
-
+	void modifyAttributes(std::map<std::string, std::string> mapAttributes);
 private:
 	ax::NodeEditor::LinkId id;
 	std::shared_ptr<Edges> parent;
@@ -202,6 +201,7 @@ public:
 	std::set<std::shared_ptr<Layer>, LayerIDLess> getInputLayers();
 	std::set<std::shared_ptr<Layer>, LayerIDLess> getOutputLayers();
 	int64_t getMaxPortXmlId() const;
+	void modifyAttributes(std::vector<std::pair<std::string, std::string>> vecAttribute);
 private:
 	ax::NodeEditor::NodeId id;
 	std::shared_ptr<Layers> parent;
@@ -247,6 +247,7 @@ public:
 	MapValueIterator<std::map<ax::NodeEditor::NodeId, std::shared_ptr<Layer>, NodeIdLess>> end() { return mapNodeIdToLayer.end(); }
 
 	const std::shared_ptr<XMLNodeWrapper>& getXmlElement() const { return xmlElement; }
+	void changeLayerXmlId(std::shared_ptr<Layer> layer, std::string oldXmlId, std::string newXmlId);
 
 private:
 	const std::set<std::shared_ptr<Layer>, LayerIDLess>& getSetLayer(std::string id) const;

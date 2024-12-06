@@ -1,7 +1,5 @@
 #include "ModifyEdge.h"
 
-#include "ModifyAttributeXMLElement.h"
-
 #include <algorithm>
 
 void ModifyEdge::doAct() {
@@ -11,7 +9,7 @@ void ModifyEdge::doAct() {
         mapOldAttributes[attrName] = xmlElementRaw->Attribute(attrName.c_str());
     }
 
-    edge->modify(mapAttribute);
+    edge->modifyAttributes(mapAttribute);
     mapAttribute = mapOldAttributes;
     this->doFlag = false;
 }
