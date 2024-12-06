@@ -409,14 +409,14 @@ static void deleteAllAttributes(tinyxml2::XMLElement* xmlElementRaw) {
 
 void Layer::modifyAttributes(std::vector<std::pair<std::string, std::string>> vecAttribute)
 {
-    const auto oldId = getXmlId();
+    const auto oldId = std::string(getXmlId());
     auto xmlElementRaw = getXmlElement()->el->ToElement();
     deleteAllAttributes(xmlElementRaw);
     for (const auto& [attrName, attrValue] : vecAttribute) {
         xmlElementRaw->SetAttribute(attrName.c_str(), attrValue.c_str());
     }
 
-    const auto newId = getXmlId();
+    const auto newId = std::string(getXmlId());
     if (oldId != newId) {
         auto layers = getParent();
         layers->changeLayerXmlId(shared_from_this(), oldId, newId);

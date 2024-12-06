@@ -524,8 +524,10 @@ bool OpenVag::Run()
         ax::NodeEditor::SetCurrentEditor(nullptr);
         Find::ShowFind(irModel, m_Context);
         showProperties(irModel, commandCenter, m_Context);
-        ImGui::ShowMetricsWindow();
 
+#ifndef NDEBUG
+        ImGui::ShowMetricsWindow();
+#endif // !NDEBUG
         // Rendering
         ImGui::Render();
 

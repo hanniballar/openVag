@@ -4,6 +4,9 @@
 #include <map>
 #include <set>
 #include <utility>
+#include <algorithm>
+
+#include "../commands/SetLayerAttributes.h"
 
 std::vector<std::pair<std::string, std::string>> composeLayerAttributes(std::shared_ptr<Layer> layer) {
     auto xmlElementRaw = layer->getXmlElement()->el->ToElement();
@@ -35,6 +38,7 @@ void fillLayerProperties(const std::vector<ax::NodeEditor::NodeId>& vecSelectedN
             }();
         ImGui::PushID(layer->getId().AsPointer()); {
             if (ImGui::CollapsingHeader(collapsingHeaderLayerName(layer).c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+                std::vector< std::pair<std::string, std::string>*> vecRemoveValues;
                 for (auto& layerAttribute : *vecLayerAttribute) {
                     char inputTextbuf[100] = "";
                     strcpy_s(inputTextbuf, 100, layerAttribute.first.c_str());
@@ -50,8 +54,15 @@ void fillLayerProperties(const std::vector<ax::NodeEditor::NodeId>& vecSelectedN
                     layerAttribute.second = inputTextbuf;
                     ImGui::SameLine();
                     ImGui::PushID((void*)&layerAttribute); {
-                        ImGui::Button("-");
+                        if (ImGui::Button("-")) {
+                            vecRemoveValues.emplace_back(&layerAttribute);
+                        }
                     } ImGui::PopID();
+                }
+                if (vecRemoveValues.size()) {
+                    vecLayerAttribute->erase(std::remove_if(vecLayerAttribute->begin(), vecLayerAttribute->end(), [&](const auto& val) {
+                        return std::find(vecRemoveValues.begin(), vecRemoveValues.end(), &val) != vecRemoveValues.end();
+                        }), vecLayerAttribute->end());
                 }
                 if (ImGui::Button((std::string("+") + "##" + std::to_string(layer->getId().Get())).c_str())) {
                     vecLayerAttribute->emplace_back("", "");
@@ -68,9 +79,11 @@ void fillLayerProperties(const std::vector<ax::NodeEditor::NodeId>& vecSelectedN
                         //not allowed attributes
                         if (std::find_if(vecLayerAttribute->begin(), vecLayerAttribute->end(), [&](const std::pair<std::string, std::string>& attributeData) {return attributeData.first == ""; }) != vecLayerAttribute->end()) return false;
                         return true;
-                        }();
+                    }();
                     if (isSaveAllowed) {
-                        ImGui::Button("Save");
+                        if (ImGui::Button("Save")) {
+                            commandCenter.execute(std::make_shared<SetLayerAttributes>(layer, *vecLayerAttribute));
+                        }
                         ImGui::SameLine();
                     }
                     if (ImGui::Button("Reset")) {
