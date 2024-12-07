@@ -484,7 +484,6 @@ bool OpenVag::Run()
             ImGui::End();
         }
 
-
         if (openIrModel) {
             IGFD::FileDialogConfig config;
             if (openFile.empty()) {
