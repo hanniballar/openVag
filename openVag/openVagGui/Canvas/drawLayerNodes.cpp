@@ -6,17 +6,15 @@
 namespace Canvas {
     void drawLayerNode(std::shared_ptr<Layer> layer) {
         ax::NodeEditor::BeginNode(layer->getId());
-        for (const auto& inputPort : layer->getSetInputPort()) {
-            ax::NodeEditor::PushStyleVar(ax::NodeEditor::StyleVar_PinArrowSize, 5.0f);
-            ax::NodeEditor::PushStyleVar(ax::NodeEditor::StyleVar_PinArrowWidth, 5.0f); {
+        ax::NodeEditor::PushStyleVar(ax::NodeEditor::StyleVar_PinArrowSize, 5.0f);
+        ax::NodeEditor::PushStyleVar(ax::NodeEditor::StyleVar_PinArrowWidth, 5.0f); {
+            for (const auto& inputPort : layer->getSetInputPort()) {
                 ax::NodeEditor::BeginPin(inputPort->getId(), ax::NodeEditor::PinKind::Input);
-            } ax::NodeEditor::PopStyleVar(2);
-            ImGui::Text(inputPort->getXmlId());
-            ax::NodeEditor::EndPin();
-            if (inputPort != *(layer->getSetInputPort().rbegin())) {
-                ImGui::SameLine();
+                ImGui::Text(inputPort->getXmlId());
+                ax::NodeEditor::EndPin();
+                if (inputPort != *(layer->getSetInputPort().rbegin())) { ImGui::SameLine(); }
             }
-        }
+        } ax::NodeEditor::PopStyleVar(2);
         ImGui::Text((std::string("Name: ") + layer->getName()).c_str());
         ImGui::Text((std::string("ID: ") + layer->getXmlId()).c_str());
 #ifndef NDEBUG
