@@ -62,8 +62,10 @@ set(Sources
 	Properties/fillEdgeProperties.h
 	Properties/fillLayerProperties.cpp
 	Properties/fillLayerProperties.h
+	Resources/openVag.rc
 	utils/MapValueIterator.h
 	misc/debugger/openVag.natstepfilter
+	Resources/openVag.rc
 )
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${Sources})
