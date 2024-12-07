@@ -20,6 +20,7 @@
 #include "Properties/showProperties.h"
 #include "ImGuiFileDialog.h"
 
+#include "git.h"
 
 #ifdef _DEBUG
 #define DX12_ENABLE_DEBUG_LAYER
@@ -377,9 +378,8 @@ bool OpenVag::Create()
     return true;
 }
 
-static bool firstFrame = true;
-static bool secoundFrame = false;
 static CommandCenter commandCenter;
+static bool showAbout = false;
 
 bool OpenVag::Run()
 {
@@ -417,6 +417,7 @@ bool OpenVag::Run()
         bool reLayoutNodes = false;
         bool openIrModel = false;
         bool startSaveAs = false;
+
         if (ImGui::BeginMainMenuBar()) {
             if (ImGui::BeginMenu("File")) {
                 if (ImGui::MenuItem("Open", "CTRL+O", false)) {
@@ -429,7 +430,13 @@ bool OpenVag::Run()
                 if (ImGui::MenuItem("Save As...", "CTRL+SHIFT+S")) {
                     startSaveAs = true;
                 }
+                ImGui::Separator();
+                if (ImGui::MenuItem("Exit")) {
+                    Quit();
+                    std::exit(0);
+                }
                 ImGui::EndMenu();
+
             }
             if (ImGui::BeginMenu("Edit")) {
                 if (ImGui::MenuItem("Undo", "CTRL+Z", false, commandCenter.getUndoSize())) {
@@ -442,6 +449,10 @@ bool OpenVag::Run()
                 if (ImGui::MenuItem("ReLayout")) {
                     reLayoutNodes = true;
                 }
+                ImGui::EndMenu();
+            }
+            if (ImGui::BeginMenu("Help")) {
+                ImGui::MenuItem("About", nullptr, &showAbout);
                 ImGui::EndMenu();
             }
             ImGui::EndMainMenuBar();
@@ -464,7 +475,16 @@ bool OpenVag::Run()
             openIrModel = true;
         }
 
-        
+        if (showAbout && ImGui::Begin("About openVag", &showAbout, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            std::string version = "1.0.0";
+            std::string aboutMsg = "openVag version: " + version + " build number: " + git_Describe();
+            ImGui::Text(aboutMsg.c_str());
+
+            ImGui::End();
+        }
+
+
         if (openIrModel) {
             IGFD::FileDialogConfig config;
             if (openFile.empty()) {
