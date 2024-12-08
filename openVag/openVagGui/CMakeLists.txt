@@ -70,7 +70,7 @@ set(Sources
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${Sources})
 
-add_executable(openVagGUI ${Sources})
+add_executable(openVagGUI WIN32 ${Sources})
 
 find_package(tinyxml2 REQUIRED)
 find_package(imgui REQUIRED)
