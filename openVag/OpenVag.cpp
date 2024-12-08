@@ -8,7 +8,6 @@
 #include <tchar.h>
 #include <filesystem>
 #include "imgui_node_editor.h"
-
 #include <string_view>
 
 #include "parseIRModel.h"
