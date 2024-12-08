@@ -8,6 +8,7 @@
 # endif
 
 int Main(int argc, char** argv) {
+
     OpenVag openVag;
     if (openVag.Create())
         openVag.Run();

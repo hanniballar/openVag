@@ -6,10 +6,9 @@
 #include <d3d12.h>
 #include <dxgi1_4.h>
 #include <tchar.h>
-#include <filesystem> //ToDo remove
+#include <filesystem>
 #include "imgui_node_editor.h"
 
-#include <iostream> //ToDo remove
 #include <string_view>
 
 #include "parseIRModel.h"
@@ -22,6 +21,13 @@
 
 #include "git.h"
 
+#ifdef _WIN32
+#include <windows.h>    //GetModuleFileNameW
+#else
+#include <limits.h>
+#include <unistd.h>     //readlink
+#endif
+
 #ifdef _DEBUG
 #define DX12_ENABLE_DEBUG_LAYER
 #endif
@@ -32,6 +38,19 @@
 #endif
 
 #include "imgui_internal.h"
+
+std::filesystem::path getexepath()
+{
+#ifdef _WIN32
+    wchar_t path[MAX_PATH] = { 0 };
+    GetModuleFileNameW(NULL, path, MAX_PATH);
+    return path;
+#else
+    char result[PATH_MAX];
+    ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
+    return std::string(result, (count > 0) ? count : 0);
+#endif
+}
 
 struct FrameContext
 {
@@ -314,6 +333,16 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     return ::DefWindowProcW(hWnd, msg, wParam, lParam);
 }
 
+static std::string makeIniFileAvailable() {
+    auto exePath = getexepath();
+    auto iniFilename = exePath.parent_path().append("openVag.ini");
+    if (!std::filesystem::exists(iniFilename)) {
+        auto defaultIniFilename = exePath.parent_path().append("openVag_default.ini");
+        std::filesystem::copy_file(defaultIniFilename, iniFilename, std::filesystem::copy_options::skip_existing);
+    }
+    return iniFilename.string();
+}
+
 bool OpenVag::Create()
 {
     // Create application window
@@ -354,6 +383,8 @@ bool OpenVag::Create()
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
+    static std::string iniFile = makeIniFileAvailable();
+    io.IniFilename = iniFile.c_str();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
