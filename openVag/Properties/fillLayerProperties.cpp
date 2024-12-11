@@ -43,22 +43,20 @@ void fillLayerProperties(const std::vector<ax::NodeEditor::NodeId>& vecSelectedN
                 for (auto& layerAttribute : *vecLayerAttribute) {
                     char inputTextbuf[100] = "";
                     strcpy_s(inputTextbuf, 100, layerAttribute.first.c_str());
-                    ImGui::PushItemWidth(80); ImGui::PushID((void*)&(layerAttribute.first)); {
-                        ImGui::InputText("##", inputTextbuf, IM_ARRAYSIZE(inputTextbuf));
-                    } ImGui::PopID(); ImGui::PopItemWidth();
+                    ImGui::PushItemWidth(80); {
+                        ImGui::InputText((std::string("##") + layerAttribute.first).c_str(), inputTextbuf, IM_ARRAYSIZE(inputTextbuf));
+                    } ImGui::PopItemWidth();
                     layerAttribute.first = inputTextbuf;
                     ImGui::SameLine();
                     strcpy_s(inputTextbuf, 100, layerAttribute.second.c_str());
-                    ImGui::PushItemWidth(150); ImGui::PushID((void*)&(layerAttribute.second)); {
-                        ImGui::InputText("##", inputTextbuf, IM_ARRAYSIZE(inputTextbuf));
-                    } ImGui::PopID(); ImGui::PopItemWidth();
+                    ImGui::PushItemWidth(150); {
+                        ImGui::InputText((std::string("##") + layerAttribute.first + "Value").c_str(), inputTextbuf, IM_ARRAYSIZE(inputTextbuf));
+                    } ImGui::PopItemWidth();
                     layerAttribute.second = inputTextbuf;
                     ImGui::SameLine();
-                    ImGui::PushID((void*)&layerAttribute); {
-                        if (ImGui::Button("-")) {
-                            vecRemoveValues.emplace_back(&layerAttribute);
-                        }
-                    } ImGui::PopID();
+                    if (ImGui::Button((std::string("-##") + layerAttribute.first + "Delete").c_str())) {
+                        vecRemoveValues.emplace_back(&layerAttribute);
+                    }
                 }
                 if (vecRemoveValues.size()) {
                     vecLayerAttribute->erase(std::remove_if(vecLayerAttribute->begin(), vecLayerAttribute->end(), [&](const auto& val) {
