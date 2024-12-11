@@ -16,7 +16,6 @@
 #include "GraphLayout.h"
 #include "Canvas/showCanvas.h"
 #include "Find/showFind.h"
-#include "utils/StringHelper.h"
 #include "Properties/showProperties.h"
 #include "ImGuiFileDialog.h"
 #include "openVag_default_ini.h"
