@@ -574,6 +574,7 @@ bool OpenVag::Run()
                 std::string newOpenFile = ImGuiFileDialog::Instance()->GetFilePathName();
                 try {
                     irModel = parseIRModel(newOpenFile);
+                    commandCenter.reset();
                     openFile = newOpenFile;
                 }
                 catch(const std::exception& ex) {
