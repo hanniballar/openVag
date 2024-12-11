@@ -16,6 +16,7 @@
 #include "GraphLayout.h"
 #include "Canvas/showCanvas.h"
 #include "Find/showFind.h"
+#include "utils/StringHelper.h"
 #include "Properties/showProperties.h"
 #include "ImGuiFileDialog.h"
 #include "openVag_default_ini.h"
@@ -568,14 +569,33 @@ bool OpenVag::Run()
         }
 
         bool selectFirstLayer = false;
+        static std::string parseIRModelMsg;
         if (ImGuiFileDialog::Instance()->Display("OpenFileDlgKey")) {
-            if (ImGuiFileDialog::Instance()->IsOk()) { // action if OK
-                openFile = ImGuiFileDialog::Instance()->GetFilePathName();
-                irModel = parseIRModel(openFile);
+            if (ImGuiFileDialog::Instance()->IsOk()) {
+                std::string newOpenFile = ImGuiFileDialog::Instance()->GetFilePathName();
+                try {
+                    irModel = parseIRModel(newOpenFile);
+                    openFile = newOpenFile;
+                }
+                catch(const std::exception& ex) {
+                    ImGui::OpenPopup("Error while parsing IR model");
+                    parseIRModelMsg = ex.what();
+                }
                 reLayoutNodes = true;
                 selectFirstLayer = true;
             }
             ImGuiFileDialog::Instance()->Close();
+        }
+
+        if (ImGui::BeginPopupModal("Error while parsing IR model", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+            ImGui::Text(parseIRModelMsg.c_str());
+            ImGui::Dummy(ImVec2(ImGui::CalcTextSize("Error while parsing IR model").x, 1));
+            ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize("Close").x) * 0.5f);
+            if (ImGui::Button("Close")) {
+                parseIRModelMsg.clear();
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
         }
 
         if (ImGuiFileDialog::Instance()->Display("SaveFileDlgKey")) {

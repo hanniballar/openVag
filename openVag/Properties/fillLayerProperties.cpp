@@ -80,7 +80,7 @@ void fillLayerProperties(const std::vector<ax::NodeEditor::NodeId>& vecSelectedN
                         return true;
                     }();
                     if (isSaveAllowed) {
-                        if (ImGui::Button("Save")) {
+                        if (ImGui::Button("Apply")) {
                             commandCenter.execute(std::make_shared<SetLayerAttributes>(layer, *vecLayerAttribute));
                         }
                         ImGui::SameLine();

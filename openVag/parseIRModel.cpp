@@ -8,6 +8,7 @@
 #include <memory>
 #include <map>
 #include <set>
+#include <filesystem>
 
 #include "IRModel.h"
 #include "tinyxml2.h"
@@ -19,6 +20,7 @@ class ParseIRModelException : public std::exception {
 private:
     std::string message;
 public:
+    ParseIRModelException(const std::string& msg) : message(msg) {}
     ParseIRModelException(const char* msg) : message(msg) {}
 
     const char* what() const noexcept override {
@@ -53,17 +55,17 @@ void parseLayer(XMLElement* xmlLayer, std::shared_ptr<Layers> parent) {
     auto layerID = xmlLayer->Attribute("id");
     if (layerID == nullptr) {
         std::string msg = "Layer on line " + xmlLayer->GetLineNum() + std::string(" does not contain an 'id' attribute");
-        throw ParseIRModelException(msg.c_str());
+        throw ParseIRModelException(msg);
     }
     auto name = xmlLayer->Attribute("name");
     if (name == nullptr) {
         std::string msg = "Layer on line " + xmlLayer->GetLineNum() + std::string(" does not contain an 'name' attribute");
-        throw ParseIRModelException(msg.c_str());
+        throw ParseIRModelException(msg);
     }
     auto type = xmlLayer->Attribute("type");
     if (type == nullptr) {
         std::string msg = "Layer on line " + xmlLayer->GetLineNum() + std::string(" does not contain an 'type' attribute");
-        throw ParseIRModelException(msg.c_str());
+        throw ParseIRModelException(msg);
     }
 
     auto layerGui = std::make_shared<Layer>(xmlLayer, parent);
@@ -96,25 +98,25 @@ std::shared_ptr<Edge> parseEdge(XMLElement* edge, std::shared_ptr<Edges> parent)
     auto from_layer = edge->Attribute("from-layer");
     if (from_layer == nullptr) {
         std::string msg = "Edge on line " + edge->GetLineNum() + std::string(" does not contain an 'from-layer' attribute");
-        throw ParseIRModelException(msg.c_str());
+        throw ParseIRModelException(msg);
     }
 
     auto from_port = edge->Attribute("from-port");
     if (from_port == nullptr) {
         std::string msg = "Edge on line " + edge->GetLineNum() + std::string(" does not contain an 'from-port' attribute");
-        throw ParseIRModelException(msg.c_str());
+        throw ParseIRModelException(msg);
     }
 
     auto to_layer = edge->Attribute("to-layer");
     if (to_layer == nullptr) {
         std::string msg = "Edge on line " + edge->GetLineNum() + std::string(" does not contain an 'to-layer' attribute");
-        throw ParseIRModelException(msg.c_str());
+        throw ParseIRModelException(msg);
     }
 
     auto to_port = edge->Attribute("to-port");
     if (to_port == nullptr) {
         std::string msg = "Edge on line " + edge->GetLineNum() + std::string(" does not contain an 'to-port' attribute");
-        throw ParseIRModelException(msg.c_str());
+        throw ParseIRModelException(msg);
     }
 
     auto inputLayer = parent->getLayers()->getLayer(to_layer);
@@ -154,19 +156,16 @@ static std::shared_ptr<Network> parseNet(XMLElement* net, std::shared_ptr<IRMode
 std::shared_ptr<IRModel> parseIRModel(const char* xmlContent, size_t nBytes) {
     std::shared_ptr<XMLDocument> doc = std::make_shared<XMLDocument>();
     if (doc->Parse(xmlContent) != XML_SUCCESS) {
-        std::cerr << "Failed to parse XML" << std::endl;
-        return {};
+        throw ParseIRModelException("Failed to parse XML");
     }
 
     XMLElement* net = doc->RootElement();
     if (net == nullptr) {
-        std::cerr << "No net element" << std::endl;
-        return {};
+        throw ParseIRModelException("No net xml element");
     }
 
     if (std::string(net->Value()) != "net") {
-        std::cerr << "IR should start with net element" << std::endl;
-        return {};
+        throw ParseIRModelException("IR should start with net element");
     }
 
     std::shared_ptr<IRModel> irModelGui = std::make_shared<IRModel>(doc);
@@ -192,9 +191,11 @@ std::shared_ptr<IRModel> parseIRModel() {
 
 std::shared_ptr<IRModel> parseIRModel(const std::string& fileName) {
     if (fileName.empty()) return parseIRModel();
-    std::ifstream file(fileName);
+    std::filesystem::path filePath = fileName;
+    const auto f = std::filesystem::absolute(filePath).string();
+    std::ifstream file(filePath);
     if (!file) {
-        std::cerr << "Failed to open file: " << fileName << std::endl;
+        throw ParseIRModelException(std::string("Failed to open file: ") + fileName);
         return {};
     }
 
