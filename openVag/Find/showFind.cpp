@@ -1,7 +1,10 @@
 #include "showFind.h"
+
 #include <iostream>
 #include <string>
 #include <vector>
+#include <sstream>
+#include <set>
 
 static bool wildCard(const std::string& txt, const std::string& pat) {
     auto n = txt.size();
@@ -40,6 +43,23 @@ static bool wildCard(const std::string& txt, const std::string& pat) {
     return dp[n][m];
 }
 
+static std::string edgeToString(const std::shared_ptr<Edge>& edge) {
+    std::stringstream ss;
+    ss << edge->getFromLayer()->getXmlId() << ":" << edge->getOutputPort()->getXmlId() << "->" << edge->getToLayer()->getXmlId() << ":" << edge->getInputPort()->getXmlId();
+    return ss.str();
+}
+
+static std::set<std::string> getAllLayerAttributesNames(const std::shared_ptr<IRModel>& irModel) {
+    std::set<std::string> setAttributes;
+    for (const auto& layer : *irModel->getNetwork()->getLayers()) {
+        tinyxml2::XMLElement* xmlElement = layer->getXmlElement()->el->ToElement();
+        for (auto xmlAttr = xmlElement->FirstAttribute(); xmlAttr != nullptr; xmlAttr = xmlAttr->Next()) {
+            setAttributes.insert(xmlAttr->Name());
+        }
+    }
+    return setAttributes;
+}
+
 namespace Find {
     void Find::ShowFind(std::shared_ptr<IRModel> irModel, ax::NodeEditor::EditorContext* m_Context, bool* p_open)
     {
@@ -52,44 +72,100 @@ namespace Find {
             std::vector<ax::NodeEditor::LinkId> selectedLinks;
             selectedNodes.resize(ax::NodeEditor::GetSelectedObjectCount());
             selectedLinks.resize(ax::NodeEditor::GetSelectedObjectCount());
-
             int nodeCount = ax::NodeEditor::GetSelectedNodes(selectedNodes.data(), static_cast<int>(selectedNodes.size()));
             int linkCount = ax::NodeEditor::GetSelectedLinks(selectedLinks.data(), static_cast<int>(selectedLinks.size()));
-
             selectedNodes.resize(nodeCount);
             selectedLinks.resize(linkCount);
 
             static char findBuf[100] = "*";
             ImGui::InputText("##Find", findBuf, IM_ARRAYSIZE(findBuf), ImGuiInputTextFlags_None);
-
-            for (const auto& layer : *(irModel->getNetwork()->getLayers()))
+            std::vector<const char*> vecType = { "Layer", "Edge" };
+            static size_t typeSelector = 0;
+            if (ImGui::BeginCombo("##ShowFindType", vecType[typeSelector], ImGuiComboFlags_WidthFitPreview | ImGuiComboFlags_HeightSmall | ImGuiComboFlags_NoArrowButton))
             {
-                if (!wildCard(layer->getName(), std::string(findBuf))) continue;
+                for (size_t pos = 0; pos < vecType.size(); pos++) {
+                    const bool is_selected = (typeSelector == pos);
+                    if (ImGui::Selectable(vecType[pos], is_selected))
+                        typeSelector = pos;
 
-                ImGui::PushID(layer->getId().AsPointer());
-                bool isSelected = std::find(selectedNodes.begin(), selectedNodes.end(), layer->getId()) != selectedNodes.end();
+                    if (is_selected)
+                        ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndCombo();
+            }
+            if (typeSelector == 0) { //Type == Layer
+                std::set<std::string> setLayerAttribute = getAllLayerAttributesNames(irModel);
+                static std::string selectedLayerAttribute = "name";
+                ImGui::SameLine();
+                if (ImGui::BeginCombo("##ShowFindLayerAttribute", selectedLayerAttribute.c_str(), ImGuiComboFlags_WidthFitPreview | ImGuiComboFlags_HeightSmall | ImGuiComboFlags_NoArrowButton))
+                {
+                    for (const auto layerAttribute : setLayerAttribute) {
+                        const bool is_selected = (selectedLayerAttribute == layerAttribute);
+                        if (ImGui::Selectable(layerAttribute.c_str(), is_selected))
+                            selectedLayerAttribute = layerAttribute;
 
-                if (ImGui::Selectable((std::string(layer->getName()) + "##" + std::to_string(reinterpret_cast<uintptr_t>(layer->getId().AsPointer()))).c_str(), &isSelected)) {
-                    if (io.KeyCtrl)
-                    {
-                        if (isSelected) {
-                            ax::NodeEditor::SelectNode(layer->getId(), true);
+                        if (is_selected)
+                            ImGui::SetItemDefaultFocus();
+                    }
+                    ImGui::EndCombo();
+                }
+                for (const auto& layer : *(irModel->getNetwork()->getLayers()))
+                {
+                    const auto& attributeValue = layer->getAttributteValue(selectedLayerAttribute);
+                    if (attributeValue != nullptr && !wildCard(attributeValue, std::string(findBuf))) continue;
+                    ImGui::PushID(layer->getId().AsPointer());
+                    bool isSelected = std::find(selectedNodes.begin(), selectedNodes.end(), layer->getId()) != selectedNodes.end();
+                    const auto layerSelectableName = [&]() {
+                        if (selectedLayerAttribute == "name") return std::string(layer->getName());
+                        return std::string(layer->getName()) + " " + selectedLayerAttribute + ": " + attributeValue;
+                        }();
+                    if (ImGui::Selectable((layerSelectableName + "##" + std::to_string(layer->getId().Get())).c_str(), &isSelected)) {
+                        if (io.KeyCtrl)
+                        {
+                            if (isSelected) {
+                                ax::NodeEditor::SelectNode(layer->getId(), true);
+                            }
+                            else {
+                                ax::NodeEditor::DeselectNode(layer->getId());
+                            }
                         }
                         else {
-                            ax::NodeEditor::DeselectNode(layer->getId());
+                            ax::NodeEditor::SelectNode(layer->getId(), false);
                         }
-                    }
-                    else {
-                        ax::NodeEditor::SelectNode(layer->getId(), false);
-                    }
 
-                    ax::NodeEditor::NavigateToSelection();
+                        ax::NodeEditor::NavigateToSelection();
+                    }
+                    ImGui::PopID();
                 }
-                ImGui::PopID();
             }
+            else { //Type == Edge
+                for (const auto& edge : *(irModel->getNetwork()->getEdges()))
+                {
+                    std::string edgeName = edgeToString(edge);
+                    if (!wildCard(edgeName, std::string(findBuf))) continue;
 
+                    ImGui::PushID(edge->getId().AsPointer());
+                    bool isSelected = std::find(selectedLinks.begin(), selectedLinks.end(), edge->getId()) != selectedLinks.end();
+
+                    if (ImGui::Selectable((edgeName + "##" + std::to_string(reinterpret_cast<uintptr_t>(edge->getId().AsPointer()))).c_str(), &isSelected)) {
+                        if (io.KeyCtrl)
+                        {
+                            if (isSelected) {
+                                ax::NodeEditor::SelectLink(edge->getId(), true);
+                            }
+                            else {
+                                ax::NodeEditor::DeselectLink(edge->getId());
+                            }
+                        }
+                        else {
+                            ax::NodeEditor::SelectLink(edge->getId(), false);
+                        }
+                        ax::NodeEditor::NavigateToSelection();
+                    }
+                    ImGui::PopID();
+                }
+            }
             ax::NodeEditor::SetCurrentEditor(nullptr);
-
         } ImGui::End();
     }
 }

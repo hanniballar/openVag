@@ -15,8 +15,11 @@
 #include "IRModel.h"
 #include "GraphLayout.h"
 #include "Canvas/showCanvas.h"
+#include "Canvas/copySelectedItems.h"
+#include "Canvas/pasteClipboardText.h"
 #include "Find/showFind.h"
 #include "Properties/showProperties.h"
+#include "Validation/showValidation.h"
 #include "ImGuiFileDialog.h"
 #include "openVag_default_ini.h"
 
@@ -421,7 +424,7 @@ bool OpenVag::Create()
     bool show_another_window = false;
     
 #ifndef NDEBUG
-    openFile = "D:\\work\\openVag\\test\\example_simple.xml";
+    openFile = "D:\\work\\openVag\\test\\example.xml";
 #endif // !NDEBUG
     irModel = parseIRModel(openFile);
 
@@ -464,11 +467,13 @@ bool OpenVag::Run()
         ImGui_ImplDX12_NewFrame();
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
-        bool reLayoutNodes = false;
+        Canvas::RelayoutType relayoutType = Canvas::RelayoutType::None;
         bool openIrModel = false;
         bool startSaveAs = false;
+        bool pasteSuccsesfull = true;
 
         if (ImGui::BeginMainMenuBar()) {
+            ax::NodeEditor::SetCurrentEditor(m_Context);
             if (ImGui::BeginMenu("File")) {
                 if (ImGui::MenuItem("Open", "CTRL+O", false)) {
                     openIrModel = true;
@@ -496,8 +501,18 @@ bool OpenVag::Run()
                     commandCenter.redo();
                 }
                 ImGui::Separator();
+                if (ImGui::MenuItem("Copy", "CTRL+C", false, ax::NodeEditor::GetSelectedObjectCount() > 0)) {
+                    copySelectedItems(irModel);
+                }
+                if (ImGui::MenuItem("Paste", "CTRL+V", false, isValidPasteCliboard())) {
+                    pasteSuccsesfull = pasteCliboardText(irModel, commandCenter);
+                    if (pasteSuccsesfull) {
+                        relayoutType = Canvas::RelayoutType::Selection;
+                    }
+                }
+                ImGui::Separator();
                 if (ImGui::MenuItem("ReLayout")) {
-                    reLayoutNodes = true;
+                    relayoutType = Canvas::RelayoutType::All;
                 }
                 ImGui::EndMenu();
             }
@@ -506,7 +521,14 @@ bool OpenVag::Run()
                 ImGui::EndMenu();
             }
             ImGui::EndMainMenuBar();
+            ax::NodeEditor::SetCurrentEditor(nullptr);
         }
+
+        if (pasteSuccsesfull == false) {
+            ImGui::OpenPopup("Paste error");
+            pasteSuccsesfull = true;
+        }
+        displayPasteError();
 
         if (ImGui::Shortcut(ImGuiMod_Ctrl | ImGuiKey_Z, ImGuiInputFlags_RouteAlways)) {
             commandCenter.undo();
@@ -516,7 +538,7 @@ bool OpenVag::Run()
         }
         if (ImGui::Shortcut(ImGuiMod_Ctrl | ImGuiKey_S, ImGuiInputFlags_RouteAlways)) {
 #ifndef NDEBUG
-            irModel->saveToFile("D:\\work\\openVag\\test\\example_simple_save.xml");
+            irModel->saveToFile("D:\\work\\openVag\\test\\example_save.xml");
 #else
             irModel->saveToFile(openFile.c_str());
 #endif // !NDEBUG
@@ -530,7 +552,7 @@ bool OpenVag::Run()
 
         if (showAbout && ImGui::Begin("About openVag", &showAbout, ImGuiWindowFlags_AlwaysAutoResize))
         {
-            std::string version = "1.0.1";
+            std::string version = "1.1.0";
             std::string aboutMsg = "openVag version: " + version + " build number: " + git_Describe();
 #ifndef NDEBUG
             aboutMsg += " Debug";
@@ -568,14 +590,37 @@ bool OpenVag::Run()
         }
 
         bool selectFirstLayer = false;
+        static std::string parseIRModelMsg;
         if (ImGuiFileDialog::Instance()->Display("OpenFileDlgKey")) {
-            if (ImGuiFileDialog::Instance()->IsOk()) { // action if OK
-                openFile = ImGuiFileDialog::Instance()->GetFilePathName();
-                irModel = parseIRModel(openFile);
-                reLayoutNodes = true;
+            if (ImGuiFileDialog::Instance()->IsOk()) {
+                std::string newOpenFile = ImGuiFileDialog::Instance()->GetFilePathName();
+                try {
+                    const auto vecModifyIRHandler = irModel->getVecModifyIRHandler();
+                    irModel = parseIRModel(newOpenFile);
+                    for (const auto& handler : vecModifyIRHandler) { irModel->registerHandlerModifyIR(handler); }
+                    irModel->sendEventModifyIR();
+                    commandCenter.reset();
+                    openFile = newOpenFile;
+                }
+                catch(const std::exception& ex) {
+                    ImGui::OpenPopup("Error while parsing IR model");
+                    parseIRModelMsg = ex.what();
+                }
+                relayoutType = Canvas::RelayoutType::All;;
                 selectFirstLayer = true;
             }
             ImGuiFileDialog::Instance()->Close();
+        }
+
+        if (ImGui::BeginPopupModal("Error while parsing IR model", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+            ImGui::Text(parseIRModelMsg.c_str());
+            ImGui::Dummy(ImVec2(ImGui::CalcTextSize("Error while parsing IR model").x, 1));
+            ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize("Close").x) * 0.5f);
+            if (ImGui::Button("Close")) {
+                parseIRModelMsg.clear();
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
         }
 
         if (ImGuiFileDialog::Instance()->Display("SaveFileDlgKey")) {
@@ -588,7 +633,7 @@ bool OpenVag::Run()
 
         ImGuiID did = ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_AutoHideTabBar);
 
-        Canvas::ShowCanvas(irModel, commandCenter, reLayoutNodes, m_Context);
+        Canvas::ShowCanvas(irModel, commandCenter, relayoutType, m_Context);
         ax::NodeEditor::SetCurrentEditor(m_Context);
         if (selectFirstLayer) {
                 const auto layers = irModel->getNetwork()->getLayers();
@@ -600,6 +645,7 @@ bool OpenVag::Run()
         ax::NodeEditor::SetCurrentEditor(nullptr);
         Find::ShowFind(irModel, m_Context);
         showProperties(irModel, commandCenter, m_Context);
+        showValidation(irModel, m_Context);
 
 #ifndef NDEBUG
         ImGui::ShowMetricsWindow();

@@ -9,7 +9,7 @@ void DeleteInputPort::doAct()
 {
     position = port->getXmlPosition();
     parent = port->getParent();
-    for (const auto edge : port->getSetEdges()) { commandCenter.execute(std::make_shared<DeleteEdge>(edge)); }
+    for (const auto edge : port->getSetEdge()) { commandCenter.execute(std::make_shared<DeleteEdge>(edge)); }
     auto xmlElClone = port->getXmlElement()->el->DeepClone(port->getXmlElement()->el->GetDocument());
     parent->deletePort(port);
     port->getXmlElement()->set(xmlElClone);

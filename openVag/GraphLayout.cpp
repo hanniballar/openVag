@@ -22,7 +22,7 @@ class Graph {
 public:
     Graph(const std::shared_ptr<Layer>& startLayer);
     std::set<std::shared_ptr<Layer>> getAllLayers();
-    void layoutLayers(float horizontalSpacing, float verticalSpacing, float horizontalOffset);
+    void layoutLayers(float horizontalSpacing, float verticalSpacing, ImVec2 startPos);
     ImVec2 getSize(float horizontalSpacing, float verticalSpacing) const;
 private:
     std::list<Row>::iterator getItRow(std::shared_ptr<Layer>);
@@ -72,14 +72,14 @@ std::set<std::shared_ptr<Layer>> Graph::getAllLayers()
     return setLayers;
 }
 
-void Graph::layoutLayers(float horizontalSpacing, float verticalSpacing, float horizontalOffset)
+void Graph::layoutLayers(float horizontalSpacing, float verticalSpacing, ImVec2 startPos)
 {
     auto graphSize = getSize(horizontalSpacing, verticalSpacing);
     float verticalOffset = 0;
     for (const auto& row : listRow) {
         auto rowSize = row.getSize(horizontalSpacing);
         auto leftMargin = (graphSize.x - rowSize.x) / 2;
-        row.layoutLayers(horizontalSpacing, leftMargin, horizontalOffset, verticalOffset);
+        row.layoutLayers(horizontalSpacing, leftMargin, startPos.x, startPos.y + verticalOffset);
         verticalOffset += verticalSpacing + rowSize.y;
     }
 }
@@ -123,21 +123,19 @@ std::list<Row>::iterator Graph::makeNextRowAvailable(std::list<Row>::iterator it
     return listRow.insert(listRow.end(), Row());
 }
 
-void GraphLayout::layoutNodes(const std::shared_ptr<IRModel>& irModelGui) {
-    std::set<std::shared_ptr<Layer>, LayerIDLess> setLayerNotProc(irModelGui->getNetwork()->getLayers()->begin(), irModelGui->getNetwork()->getLayers()->end());
+void GraphLayout::layoutNodes(std::set<std::shared_ptr<Layer>, LayerIDLess> layers, ImVec2 startPos) {
     std::vector<Graph> vecGraph;
 
-    while (setLayerNotProc.size()) {
-        auto layer = *(setLayerNotProc.begin());
+    while (layers.size()) {
+        auto layer = *(layers.begin());
         Graph graph(layer);
         vecGraph.push_back(graph);
-        for (auto& layer : graph.getAllLayers()) setLayerNotProc.erase(layer);
+        for (auto& layer : graph.getAllLayers()) layers.erase(layer);
     }
 
-    float prevGraphOffSet = 0;
     for (auto& graph : vecGraph) {
-        graph.layoutLayers(horizontalSpacing, verticalSpacing, prevGraphOffSet);
-        prevGraphOffSet += (graph.getSize(horizontalSpacing, verticalSpacing)).x + horizontalSpacing;
+        graph.layoutLayers(horizontalSpacing, verticalSpacing, startPos);
+        startPos.x += (graph.getSize(horizontalSpacing, verticalSpacing)).x + horizontalSpacing;
     }
 }
 

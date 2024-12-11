@@ -12,13 +12,14 @@ void showProperties(std::shared_ptr<IRModel> irModel, CommandCenter& commandCent
     vecSelectedNodeId.resize(selectedObjectCount);
     int linkCount = ax::NodeEditor::GetSelectedLinks(vecSelectedLinkId.data(), static_cast<int>(vecSelectedLinkId.size()));
     int nodeCount = ax::NodeEditor::GetSelectedNodes(vecSelectedNodeId.data(), static_cast<int>(vecSelectedNodeId.size()));
+    vecSelectedLinkId.resize(linkCount);
+    vecSelectedNodeId.resize(nodeCount);
     ImGui::Begin("Properties");
     if (nodeCount) {
         fillLayerProperties(vecSelectedNodeId, irModel, commandCenter);
     }
     if (linkCount) {
         fillEdgeProperties(vecSelectedLinkId, irModel, commandCenter);
-        
     }
     ImGui::End();
     ax::NodeEditor::SetCurrentEditor(nullptr);

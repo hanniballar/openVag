@@ -4103,11 +4103,11 @@ ed::EditorAction::AcceptResult ed::SelectAction::Accept(const Control& control)
         if (clickedObject)
         {
             // Links and nodes cannot be selected together
-            if ((clickedObject->AsLink() && Editor->IsAnyNodeSelected()) ||
-                (clickedObject->AsNode() && Editor->IsAnyLinkSelected()))
-            {
-                Editor->ClearSelection();
-            }
+            //if ((clickedObject->AsLink() && Editor->IsAnyNodeSelected()) ||
+            //    (clickedObject->AsNode() && Editor->IsAnyLinkSelected()))
+            //{
+            //    Editor->ClearSelection();
+            //}
 
             if (io.KeyCtrl)
                 Editor->ToggleObjectSelection(clickedObject);

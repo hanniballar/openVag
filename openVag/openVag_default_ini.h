@@ -71,6 +71,11 @@ Pos=60,60
 Size=488,285
 Collapsed=0
 
+[Window][Validation messages]
+Pos=1630,748
+Size=290,269
+Collapsed=0
+DockId=0x00000005,1
 [Table][0xD09F7F78,4]
 RefScale=13
 Column 0  Sort=0v

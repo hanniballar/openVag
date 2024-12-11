@@ -23,7 +23,6 @@ void DeleteLayer::undoAct()
     parent->insertLayer(layer, position);
     commandCenter.undoAll();
     commandCenter.reset();
-    layer.reset();
     parent.reset();
     position = 0;
     this->doFlag = true;

@@ -1,14 +1,9 @@
 #pragma once
 #include "ICommand.h"
 
-#include <map>
-#include <utility>
-
+#include <vector>
 
 #include "../IRModel.h"
-#include "CommandCenter.h"
-
-
 
 class SetLayerAttributes :public ICommand {
 public:
@@ -18,6 +13,5 @@ private:
 	void undoAct() override;
 	std::shared_ptr<Layer> layer;
 	std::vector<std::pair<std::string, std::string>> vecAttribute;
-	CommandCenter commandCenter;
 };
 

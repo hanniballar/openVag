@@ -39,6 +39,8 @@ set(Sources
 	commands/ModifyEdge.h
 	commands/SetLayerAttributes.cpp
 	commands/SetLayerAttributes.h
+	commands/SetPortAttributes.cpp
+	commands/SetPortAttributes.h
 	Canvas/showCanvas.cpp
 	Canvas/showCanvas.h
 	Canvas/beginCreate.cpp
@@ -49,6 +51,10 @@ set(Sources
 	Canvas/drawEdges.h
 	Canvas/drawLayerNodes.cpp
 	Canvas/drawLayerNodes.h
+	Canvas/pasteClipboardText.cpp
+	Canvas/pasteClipboardText.h
+	Canvas/copySelectedItems.cpp
+	Canvas/copySelectedItems.h
 	Find/showFind.cpp
 	Find/showFind.h
 	Properties/showProperties.cpp
@@ -57,6 +63,8 @@ set(Sources
 	Properties/fillEdgeProperties.h
 	Properties/fillLayerProperties.cpp
 	Properties/fillLayerProperties.h
+	Validation/showValidation.cpp
+	Validation/showValidation.h
 	Resources/openVag.rc
 	utils/MapValueIterator.h
 	misc/debugger/openVag.natstepfilter

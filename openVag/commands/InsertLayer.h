@@ -1,17 +1,21 @@
 #pragma once
-#include "ICommand.h"
+#include "tinyxml2.h"
 
 #include "../IRModel.h"
 
+#include "ICommand.h"
+#include "CommandCenter.h"
 
-class insertLayer :public ICommand {
+class InsertLayer :public ICommand {
 public:
-	insertLayer(std::shared_ptr<IRModel> irModelGui) : irModelGui(irModelGui) {}
+	InsertLayer(std::shared_ptr<IRModel> irModelGui);
+	InsertLayer(std::shared_ptr<IRModel> irModelGui, tinyxml2::XMLElement* xmlElement);
 	std::shared_ptr<Layer> getLayer() const { return layer; }
 private:
 	void doAct() override;
 	void undoAct() override;
 	std::shared_ptr<IRModel> irModelGui;
 	std::shared_ptr<Layer> layer;
+	CommandCenter commandCenter;
 };
 

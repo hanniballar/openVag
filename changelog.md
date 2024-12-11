@@ -15,6 +15,23 @@
 
 ## [v1.0.1]
 
-### Changed
+### Changes
 
 * Updated icon
+
+## [v1.1.0]
+
+### Features
+
+* Properties panel is now displaying port properties
+* Added multiple selection option
+* Extended find panel options
+* Added validation panel
+* Added Copy/Paste commands
+
+### Changes
+
+* Fixed crash on big models
+* Fixed redo command
+* Removed edge arrows
+

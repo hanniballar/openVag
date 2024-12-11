@@ -7,7 +7,7 @@
 class GraphLayout {
 public:
 	GraphLayout(float horizontalSpacing, float verticalSpacing) : horizontalSpacing(horizontalSpacing), verticalSpacing(verticalSpacing) {};
-	void layoutNodes(const std::shared_ptr<IRModel>& irModelGui);
+	void layoutNodes(std::set<std::shared_ptr<Layer>, LayerIDLess> layers, ImVec2 startPos = {0, 0});
 private:
 	float horizontalSpacing;
 	float verticalSpacing;

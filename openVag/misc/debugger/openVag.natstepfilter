@@ -11,6 +11,10 @@
         <Action>NoStepInto</Action>
     </Function>
     <Function>
+        <Name>IRModel::getXMLDocument</Name>
+        <Action>NoStepInto</Action>
+    </Function>
+    <Function>
         <Name>Network::getParent</Name>
         <Action>NoStepInto</Action>
     </Function>

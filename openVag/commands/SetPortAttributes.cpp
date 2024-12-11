@@ -1,4 +1,7 @@
-#include "SetLayerAttributes.h"
+#include "SetPortAttributes.h"
+
+#include <algorithm>
+#include <utility>
 
 static void deleteAllAtributes(tinyxml2::XMLElement* xmlElement) {
     for (const auto* attr = xmlElement->FirstAttribute();
@@ -15,17 +18,17 @@ static std::vector<std::pair<std::string, std::string>> getAllAtributes(tinyxml2
     return vecAttributes;
 }
 
-void SetLayerAttributes::doAct() {
+void SetPortAttributes::doAct() {
     std::vector<std::pair<std::string, std::string>> vecOldAttribute;
     vecOldAttribute.reserve(vecAttribute.size());
-    auto xmlElementRaw = layer->getXmlElement()->el->ToElement();
+    auto xmlElementRaw = port->getXmlElement()->el->ToElement();
     vecOldAttribute = getAllAtributes(xmlElementRaw);
-    layer->setAttributes(vecAttribute);
+    port->setAttributes(vecAttribute);
     vecAttribute = vecOldAttribute;
     this->doFlag = false;
 }
 
-void SetLayerAttributes::undoAct() {
+void SetPortAttributes::undoAct() {
     doAct();
     this->doFlag = true;
 }

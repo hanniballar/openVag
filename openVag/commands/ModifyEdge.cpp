@@ -9,7 +9,7 @@ void ModifyEdge::doAct() {
         mapOldAttributes[attrName] = xmlElementRaw->Attribute(attrName.c_str());
     }
 
-    edge->modifyAttributes(mapAttribute);
+    edge->setAttributes(mapAttribute);
     mapAttribute = mapOldAttributes;
     this->doFlag = false;
 }

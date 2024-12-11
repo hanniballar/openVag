@@ -9,6 +9,5 @@ void InsertInputPort::doAct() {
 
 void InsertInputPort::undoAct() {
     layer->deletePort(port);
-    layer.reset();
     this->doFlag = true;
 }

@@ -164,7 +164,7 @@ void fillEdgeProperties(const std::vector<ax::NodeEditor::LinkId>& vecSelectedLi
                 if (*edgeComboSelectors != origSelectors) {
                     ImGui::Dummy(ImVec2(0, 2));
                     if (edgeComboSelectors->fromPort > -1 && edgeComboSelectors->toPort > -1) {
-                        if (ImGui::Button("Save")) {
+                        if (ImGui::Button("Apply")) {
                             std::map<std::string, std::string> mapAttribute =
                             { {"from-layer", vecPossibleFromLayers[edgeComboSelectors->fromLayer]},
                                 {"from-port", vecOutputPortId[edgeComboSelectors->fromPort]},
