@@ -1,5 +1,5 @@
 #include "../IRModel.h"
 
 namespace Canvas {
-    void drawLayerNodes(std::shared_ptr<Layers> layers);
+    void drawLayerNodes(const std::shared_ptr<Layers>& layers, bool forceDrawAllNodes = true);
 }

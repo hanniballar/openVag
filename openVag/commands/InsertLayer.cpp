@@ -16,7 +16,7 @@ void static prepareLayerForInsertion(std::shared_ptr<Layer>& layer, std::shared_
 }
 
 InsertLayer::InsertLayer(std::shared_ptr<IRModel> irModelGui) : irModelGui(irModelGui) {
-    layer = parseLayer(R"(<layer id="1" name="openVagLayer" type="Const"/>)", irModelGui->getXMLDocument().get());
+    layer = parseLayer(R"(<layer id="1" name="openVagLayer" type="Parameter"/>)", irModelGui->getXMLDocument().get());
     prepareLayerForInsertion(layer, irModelGui);
 }
 

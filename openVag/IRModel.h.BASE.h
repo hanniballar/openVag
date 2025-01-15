@@ -14,6 +14,7 @@
 #include "tinyxml2.h"
 #include "XMLNodeWrapper.h"
 
+
 class Edge;
 class Edges;
 class Layer;
@@ -69,8 +70,6 @@ public:
     size_t getXmlPosition() const;
 
     virtual std::set<std::shared_ptr<Edge>, EdgeIDLess> getSetEdge() const = 0;
-    std::vector<std::string> getVecDim();
-    void setVecDim(std::vector<std::string> vecDim, std::vector<size_t> vecDimPos);
     void setAttributes(std::vector<std::pair<std::string, std::string>> vecAttribute);
 private:
     virtual void modifyEdgeAttributesAfterIdChange(std::shared_ptr<Edge> edge) = 0;

@@ -42,7 +42,7 @@ namespace Canvas {
                 }
             }
 
-            drawLayerNodes(irModel->getNetwork()->getLayers());
+            drawLayerNodes(irModel->getNetwork()->getLayers(), reLayoutNodes != RelayoutType::None);
             drawModelEdges(irModel->getNetwork()->getEdges());
 
             switch (reLayoutNodes) {
@@ -67,9 +67,6 @@ namespace Canvas {
                 assert(false);
                 break;
             }
-            if (reLayoutNodes == RelayoutType::All) {
-                graphLayout.layoutNodes({ irModel->getLayers()->begin(), irModel->getLayers()->end() });
-            } else 
 
             if (ImGui::Shortcut(ImGuiKey_Delete, ImGuiInputFlags_RouteFocused)) {
                 std::vector<ax::NodeEditor::NodeId> vecSelectedNodeId;

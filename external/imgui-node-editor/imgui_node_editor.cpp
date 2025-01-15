@@ -4613,7 +4613,7 @@ ed::EditorAction::AcceptResult ed::CreateItemAction::Accept(const Control& contr
         m_DraggedPin = control.ActivePin;
         DragStart(m_DraggedPin);
 
-        Editor->ClearSelection();
+        //Editor->ClearSelection();
     }
     else if (control.HotPin)
     {

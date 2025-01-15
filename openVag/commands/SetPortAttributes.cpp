@@ -3,13 +3,6 @@
 #include <algorithm>
 #include <utility>
 
-static void deleteAllAtributes(tinyxml2::XMLElement* xmlElement) {
-    for (const auto* attr = xmlElement->FirstAttribute();
-        attr != nullptr;
-        xmlElement->DeleteAttribute(attr->Name()), attr = xmlElement->FirstAttribute()) {
-    }
-}
-
 static std::vector<std::pair<std::string, std::string>> getAllAtributes(tinyxml2::XMLElement* xmlElement) {
     std::vector<std::pair<std::string, std::string>> vecAttributes;
     for (auto xmlAttr = xmlElement->FirstAttribute(); xmlAttr != nullptr; xmlAttr = xmlAttr->Next()) {
@@ -32,7 +25,3 @@ void SetPortAttributes::undoAct() {
     doAct();
     this->doFlag = true;
 }
-
-
-
-

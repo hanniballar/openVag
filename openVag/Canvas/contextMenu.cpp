@@ -57,12 +57,13 @@ namespace Canvas {
                 }
                 ImGui::Separator();
                 auto selectedObjectCount = ax::NodeEditor::GetSelectedObjectCount();
-                if (selectedObjectCount > 1) {
+                std::vector<ax::NodeEditor::LinkId> vecSelectedLinkId;
+                vecSelectedLinkId.resize(selectedObjectCount);
+                int linkCount = ax::NodeEditor::GetSelectedLinks(vecSelectedLinkId.data(), static_cast<int>(vecSelectedLinkId.size()));
+                vecSelectedLinkId.resize(linkCount);
+                if (vecSelectedLinkId.size() == 0) vecSelectedLinkId.push_back(contextLinkId);
+                if (vecSelectedLinkId.size() > 1) {
                     if (ImGui::MenuItem("Delete Edges")) {
-                        std::vector<ax::NodeEditor::LinkId> vecSelectedLinkId;
-                        vecSelectedLinkId.resize(selectedObjectCount);
-                        int linkCount = ax::NodeEditor::GetSelectedLinks(vecSelectedLinkId.data(), static_cast<int>(vecSelectedLinkId.size()));
-                        vecSelectedLinkId.resize(linkCount);
                         CommandCenter commandCC;
                         for (const auto selectedLinkId : vecSelectedLinkId) {
                             auto edge = irModel->getNetwork()->getEdges()->getEdge(selectedLinkId);
@@ -74,7 +75,7 @@ namespace Canvas {
                 }
                 else {
                     if (ImGui::MenuItem("Delete edge")) {
-                        auto edge = irModel->getNetwork()->getEdges()->getEdge(contextLinkId);
+                        auto edge = irModel->getNetwork()->getEdges()->getEdge(*vecSelectedLinkId.begin());
                         assert(edge);
                         auto deleteEdgeC = std::make_shared<DeleteEdge>(edge);
                         commandCenter.execute(deleteEdgeC);

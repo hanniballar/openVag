@@ -424,7 +424,9 @@ bool OpenVag::Create()
     bool show_another_window = false;
     
 #ifndef NDEBUG
-    openFile = "D:\\work\\openVag\\test\\example.xml";
+    //openFile = "D:\\work\\openVag\\test\\example.xml";
+
+    openFile = "D:\\work\\openVag\\test\\LayoutTest.xml";
 #endif // !NDEBUG
     irModel = parseIRModel(openFile);
 
@@ -552,7 +554,7 @@ bool OpenVag::Run()
 
         if (showAbout && ImGui::Begin("About openVag", &showAbout, ImGuiWindowFlags_AlwaysAutoResize))
         {
-            std::string version = "1.1.0";
+            std::string version = "1.1.1";
             std::string aboutMsg = "openVag version: " + version + " build number: " + git_Describe();
 #ifndef NDEBUG
             aboutMsg += " Debug";
@@ -599,6 +601,7 @@ bool OpenVag::Run()
                     irModel = parseIRModel(newOpenFile);
                     for (const auto& handler : vecModifyIRHandler) { irModel->registerHandlerModifyIR(handler); }
                     irModel->sendEventModifyIR();
+
                     commandCenter.reset();
                     openFile = newOpenFile;
                 }
@@ -606,7 +609,10 @@ bool OpenVag::Run()
                     ImGui::OpenPopup("Error while parsing IR model");
                     parseIRModelMsg = ex.what();
                 }
-                relayoutType = Canvas::RelayoutType::All;;
+                relayoutType = Canvas::RelayoutType::All;
+                ax::NodeEditor::SetCurrentEditor(m_Context);
+                ax::NodeEditor::ClearSelection();
+                ax::NodeEditor::SetCurrentEditor(nullptr);
                 selectFirstLayer = true;
             }
             ImGuiFileDialog::Instance()->Close();

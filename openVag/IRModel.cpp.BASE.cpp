@@ -675,43 +675,6 @@ size_t Port::getXmlPosition() const {
     return getXmlSiblingPosition(getXmlElement()->el);
 }
 
-std::vector<std::string> Port::getVecDim()
-{
-    std::vector<std::string> vecDim;
-    auto xmlPort = getXmlElement()->el;
-    for (auto child = xmlPort->FirstChildElement(); child != nullptr; child = child->NextSiblingElement()) {
-        if (child->Value() != std::string("dim")) continue;
-        vecDim.push_back(child->GetText());
-    }
-    return vecDim;
-}
-
-void Port::setVecDim(std::vector<std::string> vecDim, std::vector<size_t> vecDimPos)
-{
-    auto xmlElement = getXmlElement()->el->ToElement();
-    for (auto* child = xmlElement->FirstChildElement();
-        child != nullptr;) {
-        if (child->Value() == std::string("dim")) {
-            auto nextNode = child->NextSiblingElement();
-            xmlElement->DeleteChild(child);
-            child = nextNode;
-        }
-        else {
-            child = child->NextSiblingElement();
-        }
-    }
-
-    size_t dimPos = 0;
-    for (size_t dimNr = 0; dimNr < vecDim.size(); ++dimNr) {
-        dimPos = dimNr < vecDimPos.size() ? vecDimPos[dimNr] : ++dimPos;
-        auto xmlDim = xmlElement->GetDocument()->NewElement("dim");
-        xmlDim->SetText(vecDim[dimNr].c_str());
-        insertNodeAtPosition(xmlDim, xmlElement, dimPos);
-    }
-
-    getIRModel()->sendEventModifyIR();
-}
-
 void Port::setAttributes(std::vector<std::pair<std::string, std::string>> vecAttribute) {
     const auto oldId = std::string(getXmlId());
     auto xmlElementRaw = getXmlElement()->el->ToElement();
@@ -888,22 +851,6 @@ static std::vector<std::string> validateEdges(tinyxml2::XMLElement* xmlEdges) {
     return vecWarningMsg;
 }
 
-static std::vector<std::string> validateEdgeDimensions(const std::shared_ptr<Edges>& edges) {
-    std::vector<std::string> vecWarningMsg;
-
-    for (const auto& edge : *edges) {
-        const auto& inputPort = edge->getInputPort(); //SeNe remvoe
-        const auto& outputPort = edge->getOutputPort(); //SeNe remvoe
-        const auto inputPortDims = edge->getInputPort()->getVecDim();
-        const auto outputPortDims = edge->getOutputPort()->getVecDim();
-        if (inputPortDims != outputPortDims) {
-            vecWarningMsg.push_back(std::string("Edge ") + outputPort->getParent()->getXmlId() + ":" + outputPort->getXmlId() + "->" + inputPort->getParent()->getXmlId() + ":" + inputPort->getXmlId() + " is connecting two ports of different dimensions. Line: " + std::to_string(edge->getXmlElement()->el->GetLineNum()));
-        }
-    }
-
-    return vecWarningMsg;
-}
-
 std::vector<std::string> IRModel::validate()
 {
     std::vector<std::string> vecWarningMsg;
@@ -911,7 +858,6 @@ std::vector<std::string> IRModel::validate()
     concat(vecWarningMsg, nonConnectedPorts(getNetwork()->getLayers(), getNetwork()->getEdges()));
     concat(vecWarningMsg, validateLayers(getNetwork()->getLayers()->getXmlElement()->el->ToElement()));
     concat(vecWarningMsg, validateEdges(getNetwork()->getEdges()->getXmlElement()->el->ToElement()));
-    concat(vecWarningMsg, validateEdgeDimensions(getNetwork()->getEdges()));
     return vecWarningMsg;
 }
 

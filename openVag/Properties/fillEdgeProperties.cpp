@@ -125,7 +125,7 @@ void fillEdgeProperties(const std::vector<ax::NodeEditor::LinkId>& vecSelectedLi
     auto vecPossibleToLayers = getVecPossibleToLayersId(irModel);
 
     for (const auto& linkid : vecSelectedLinkId) {
-        const auto& edge = irModel->getNetwork()->getEdges()->getEdge(linkid);
+        const auto& edge = irModel->getEdges()->getEdge(linkid);
         if (edge == nullptr) continue;
 
         ImGui::PushID(edge->getId().AsPointer()); {
@@ -145,6 +145,15 @@ void fillEdgeProperties(const std::vector<ax::NodeEditor::LinkId>& vecSelectedLi
                     edgeComboSelectors->fromPort = -1;
                     edgeComboSelectors->fromLayer = selectedFromLayer;
                 }
+                {
+                    auto layer = irModel->getLayers()->getLayer(vecPossibleFromLayers[edgeComboSelectors->fromLayer]);
+                    if (layer) {
+                        ImGui::SameLine();
+                        if (ImGui::Button((">##GoToFromLayer" + std::to_string(edge->getId().Get())).c_str())) {
+                            NavigateToNode(layer->getId());
+                        }
+                    }
+                }
 
                 auto vecOutputPortId = getVecOutputPortId(fromLayer);
             ImGui::Combo("from-port", &edgeComboSelectors->fromPort, vecOutputPortId.data(), static_cast<int>(vecOutputPortId.size()), -1);
@@ -155,6 +164,15 @@ void fillEdgeProperties(const std::vector<ax::NodeEditor::LinkId>& vecSelectedLi
                 if (selectedToLayer != edgeComboSelectors->toLayer) {
                     edgeComboSelectors->toPort = -1;
                     edgeComboSelectors->toLayer = selectedToLayer;
+                }
+                {
+                    auto layer = irModel->getLayers()->getLayer(vecPossibleToLayers[edgeComboSelectors->toLayer]);
+                    if (layer) {
+                        ImGui::SameLine();
+                        if (ImGui::Button((">##GoToToLayer" + std::to_string(edge->getId().Get())).c_str())) {
+                            NavigateToNode(layer->getId());
+                        }
+                    }
                 }
 
                 auto vecInputPortId = getVecInputPortId(toLayer);

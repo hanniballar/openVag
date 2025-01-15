@@ -41,6 +41,8 @@ set(Sources
 	commands/SetLayerAttributes.h
 	commands/SetPortAttributes.cpp
 	commands/SetPortAttributes.h
+	commands/SetPortDimensions.cpp
+	commands/SetPortDimensions.h
 	Canvas/showCanvas.cpp
 	Canvas/showCanvas.h
 	Canvas/beginCreate.cpp
