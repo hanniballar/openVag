@@ -8,8 +8,6 @@ set(Sources
 	IRModel.cpp
 	parseIRModel.cpp
 	parseIRModel.h
-	XMLNodeWrapper.cpp
-	XMLNodeWrapper.h
 	GraphLayout.cpp
 	GraphLayout.h
 	openVag_default_ini.h

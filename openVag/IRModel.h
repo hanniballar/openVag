@@ -12,7 +12,6 @@
 #include "utils/MapValueIterator.h"
 
 #include "tinyxml2.h"
-#include "XMLNodeWrapper.h"
 
 class Edge;
 class Edges;
@@ -55,7 +54,7 @@ public:
     Port(tinyxml2::XMLDocument* xmlDocument, std::string xmlId);
     Port(tinyxml2::XMLElement* xmlElement, std::shared_ptr<Layer> parent);
 
-    const char* getXmlId() const { const auto id = xmlElement->el->ToElement()->Attribute("id"); return id ? id : ""; }
+    const char* getXmlId() const { const auto id = xmlElement->Attribute("id"); return id ? id : ""; }
     const ax::NodeEditor::PinId& getId() const { return id; }
 
     const std::shared_ptr<Layer>& getParent() const { return parent; }
@@ -65,7 +64,7 @@ public:
     const std::shared_ptr<Edges>& getEdges() const;
     const std::shared_ptr<IRModel>& getIRModel() const;
     void resetParent() { parent.reset(); }
-    const std::shared_ptr<XMLNodeWrapper>& getXmlElement() const { return xmlElement; }
+    const tinyxml2::XMLElement* getXmlElement() const { return xmlElement; }
     size_t getXmlPosition() const;
 
     virtual std::set<std::shared_ptr<Edge>, EdgeIDLess> getSetEdge() const = 0;
@@ -76,7 +75,7 @@ private:
     virtual void modifyEdgeAttributesAfterIdChange(std::shared_ptr<Edge> edge) = 0;
     ax::NodeEditor::PinId id;
     std::shared_ptr<Layer> parent;
-    std::shared_ptr<XMLNodeWrapper> xmlElement;
+    tinyxml2::XMLElement* xmlElement;
 };
 
 struct PortIDLess
@@ -117,7 +116,7 @@ public:
     const std::shared_ptr<IRModel>& getIRModel() const;
     void setParent(const std::shared_ptr<Edges>& _parent) { this->parent = _parent; }
     void resetParent() { parent.reset(); }
-    const std::shared_ptr<XMLNodeWrapper>& getXmlElement() const { return xmlElement; }
+    const tinyxml2::XMLElement* getXmlElement() const { return xmlElement; }
     size_t getXmlPosition() const;
 
     const std::shared_ptr<OutputPort>& getOutputPort() const { return outputPort; }
@@ -132,7 +131,7 @@ private:
     std::shared_ptr<Edges> parent;
     std::shared_ptr<OutputPort> outputPort;
     std::shared_ptr<InputPort> inputPort;
-    std::shared_ptr<XMLNodeWrapper> xmlElement;
+    tinyxml2::XMLElement* xmlElement;
 };
 
 class Edges : public std::enable_shared_from_this<Edges> {
@@ -160,13 +159,13 @@ public:
     const std::shared_ptr<Network>& getNetwork() const { return parent; }
     const std::shared_ptr<IRModel>& getIRModel() const;
 
-    const std::shared_ptr<XMLNodeWrapper>& getXmlElement() const { return xmlElement; }
+    const tinyxml2::XMLElement* getXmlElement() const { return xmlElement; }
 
     MapValueIterator<std::map<ax::NodeEditor::LinkId, std::shared_ptr<Edge>, LinkIdLess>> begin() { return mapLinkIdToEdge.begin(); }
     MapValueIterator<std::map<ax::NodeEditor::LinkId, std::shared_ptr<Edge>, LinkIdLess>> end() { return mapLinkIdToEdge.end(); }
 private:
     std::shared_ptr<Network> parent;
-    std::shared_ptr<XMLNodeWrapper> xmlElement;
+    tinyxml2::XMLElement* xmlElement;
 
     std::map<ax::NodeEditor::LinkId, std::shared_ptr<Edge>, LinkIdLess> mapLinkIdToEdge;
     std::map<ax::NodeEditor::NodeId, std::set<std::shared_ptr<Edge>, EdgeIDLess>, NodeIdLess> mapFromLayerIdToSetEdge;
@@ -189,14 +188,14 @@ public:
     const std::shared_ptr<Network>& getNetwork() const;
     const std::shared_ptr<IRModel>& getIRModel() const;
 
-    const std::shared_ptr<XMLNodeWrapper>& getXmlElement() const { return xmlElement; }
-    std::shared_ptr<XMLNodeWrapper> getXmlInputElement() const;
-    std::shared_ptr<XMLNodeWrapper> getXmlOutputElement() const;
+    const tinyxml2::XMLElement* getXmlElement() const { return xmlElement; }
+    tinyxml2::XMLElement* getXmlInputElement() const;
+    tinyxml2::XMLElement* getXmlOutputElement() const;
     size_t getXmlPosition() const;
 
-    const char* getXmlId() const { const auto id = xmlElement->el->ToElement()->Attribute("id"); return id ? id : ""; }
-    const char* getName() const { const auto name = xmlElement->el->ToElement()->Attribute("name"); return name ? name : ""; }
-    const char* getType() const { const auto type = xmlElement->el->ToElement()->Attribute("type"); return type ? type : ""; }
+    const char* getXmlId() const { const auto id = getXmlElement()->Attribute("id"); return id ? id : ""; }
+    const char* getName() const { const auto name = getXmlElement()->Attribute("name"); return name ? name : ""; }
+    const char* getType() const { const auto type = getXmlElement()->Attribute("type"); return type ? type : ""; }
 
     std::set<std::shared_ptr<OutputPort>, PortIDLess> getSetOutputPort() const { return setOutputPort; }
     std::set<std::shared_ptr<InputPort>, PortIDLess > getSetInputPort() const { return setInputPort; }
@@ -225,7 +224,7 @@ public:
 private:
     ax::NodeEditor::NodeId id;
     std::shared_ptr<Layers> parent;
-    std::shared_ptr<XMLNodeWrapper> xmlElement;
+    tinyxml2::XMLElement* xmlElement;
 
     std::set<std::shared_ptr<InputPort>, PortIDLess> setInputPort;
     std::set<std::shared_ptr<OutputPort>, PortIDLess> setOutputPort;
@@ -266,14 +265,14 @@ public:
     MapValueIterator<std::map<ax::NodeEditor::NodeId, std::shared_ptr<Layer>, NodeIdLess>> end() { return mapNodeIdToLayer.end(); }
     size_t size() const { return mapNodeIdToLayer.size(); }
 
-    const std::shared_ptr<XMLNodeWrapper>& getXmlElement() const { return xmlElement; }
+    const tinyxml2::XMLElement* getXmlElement() const { return xmlElement; }
     void changeLayerXmlId(std::shared_ptr<Layer> layer, std::string oldXmlId, std::string newXmlId);
     int64_t getMaxLayerXmlId() const;
 
 private:
     const std::set<std::shared_ptr<Layer>, LayerIDLess>& getSetLayer(std::string id) const;
     std::shared_ptr<Network> parent;
-    std::shared_ptr<XMLNodeWrapper> xmlElement;
+    tinyxml2::XMLElement* xmlElement;
 
     std::map<ax::NodeEditor::NodeId, std::shared_ptr<Layer>, NodeIdLess> mapNodeIdToLayer;
     std::map<std::string, std::set<std::shared_ptr<Layer>, LayerIDLess>> mapXMLIdToSetLayer;
@@ -293,10 +292,10 @@ public:
     void setEdges(std::shared_ptr<Edges> edges) { this->edges = edges; }
     const std::shared_ptr<Edges>& getEdges() const { return edges; }
 
-    const std::shared_ptr<XMLNodeWrapper>& getXmlElement() const { return xmlElement; }
+    const tinyxml2::XMLElement* getXmlElement() const { return xmlElement; }
 private:
     std::shared_ptr<IRModel> parent;
-    std::shared_ptr<XMLNodeWrapper> xmlElement;
+    tinyxml2::XMLElement* xmlElement;
 
     std::shared_ptr<Layers> layers;
     std::shared_ptr<Edges> edges;

@@ -98,8 +98,8 @@ void Layers::insertLayer(std::shared_ptr<Layer> layer)
 {
     assert(mapNodeIdToLayer.find(layer->getId()) == mapNodeIdToLayer.end());
     {
-        const auto xmlLayers = getXmlElement()->el->ToElement();
-        const auto xmlLayer = layer->getXmlElement()->el->ToElement();
+        const auto xmlLayers = getXmlElement();
+        const auto xmlLayer = layer->getXmlElement();
         if (xmlLayer->Parent() != xmlLayers) {
             xmlLayers->InsertEndChild(xmlLayer);
         }
@@ -425,7 +425,7 @@ void Layer::changeXmlId(std::string newId) {
     const auto oldId = std::string(getXmlId());
 
     if (oldId != newId) {
-        getXmlElement()->el->ToElement()->SetAttribute("id", newId.c_str());
+        getXmlElement()->SetAttribute("id", newId.c_str());
         auto layers = getParent();
         if (layers != nullptr) {
             layers->changeLayerXmlId(shared_from_this(), oldId, newId);
@@ -453,10 +453,10 @@ void Layer::setAttributes(std::vector<std::pair<std::string, std::string>> vecAt
         return val.first == "id";
         }), vecAttribute.end());
 
-    auto xmlElementRaw = getXmlElement()->el->ToElement();
+    auto xmlElementRaw = getXmlElement();
     const std::string xmlId = getXmlId();
     deleteAllAttributes(xmlElementRaw);
-    getXmlElement()->el->ToElement()->SetAttribute("id", xmlId.c_str());
+    getXmlElement()->SetAttribute("id", xmlId.c_str());
     for (const auto& [attrName, attrValue] : vecAttribute) {
         xmlElementRaw->SetAttribute(attrName.c_str(), attrValue.c_str());
     }
@@ -466,7 +466,7 @@ void Layer::setAttributes(std::vector<std::pair<std::string, std::string>> vecAt
 
 const char* Layer::getAttributteValue(std::string attribute) const
 {
-    return getXmlElement()->el->ToElement()->Attribute(attribute.c_str());
+    return getXmlElement()->Attribute(attribute.c_str());
 }
 
 std::shared_ptr<Edge> Edges::insertNewEdge(const std::string& from_layer, const std::string& from_port, const std::string& to_layer, const std::string& to_port, size_t xmlPos)
@@ -621,7 +621,7 @@ void Edge::setAttributes(std::map<std::string, std::string> mapAttribute) {
 
     std::set<std::string> setAllowedAttribute = { "from-layer", "from-port", "to-layer", "to-port" };
 
-    auto xmlElementRaw = getXmlElement()->el->ToElement();
+    auto xmlElementRaw = getXmlElement();
     for (const auto& [attrName, attrValue] : mapAttribute) {
         assert(setAllowedAttribute.find(attrName) != setAllowedAttribute.end());
         xmlElementRaw->SetAttribute(attrName.c_str(), attrValue.c_str());
@@ -688,9 +688,10 @@ std::vector<std::string> Port::getVecDim()
 
 void Port::setVecDim(std::vector<std::string> vecDim, std::vector<size_t> vecDimPos)
 {
-    auto xmlElement = getXmlElement()->el->ToElement();
+    auto xmlElement = getXmlElement();
     for (auto* child = xmlElement->FirstChildElement();
-        child != nullptr;) {
+        child != nullptr;
+        ) {
         if (child->Value() == std::string("dim")) {
             auto nextNode = child->NextSiblingElement();
             xmlElement->DeleteChild(child);
@@ -714,7 +715,7 @@ void Port::setVecDim(std::vector<std::string> vecDim, std::vector<size_t> vecDim
 
 void Port::setAttributes(std::vector<std::pair<std::string, std::string>> vecAttribute) {
     const auto oldId = std::string(getXmlId());
-    auto xmlElementRaw = getXmlElement()->el->ToElement();
+    auto xmlElementRaw = getXmlElement();
     deleteAllAttributes(xmlElementRaw);
     for (const auto& [attrName, attrValue] : vecAttribute) {
         xmlElementRaw->SetAttribute(attrName.c_str(), attrValue.c_str());
@@ -909,8 +910,8 @@ std::vector<std::string> IRModel::validate()
     std::vector<std::string> vecWarningMsg;
     auto concat = [](std::vector<std::string>& dest, const std::vector<std::string>& src) { dest.insert(dest.end(), src.begin(), src.end()); };
     concat(vecWarningMsg, nonConnectedPorts(getNetwork()->getLayers(), getNetwork()->getEdges()));
-    concat(vecWarningMsg, validateLayers(getNetwork()->getLayers()->getXmlElement()->el->ToElement()));
-    concat(vecWarningMsg, validateEdges(getNetwork()->getEdges()->getXmlElement()->el->ToElement()));
+    concat(vecWarningMsg, validateLayers(getNetwork()->getLayers()->getXmlElement()));
+    concat(vecWarningMsg, validateEdges(getNetwork()->getEdges()->getXmlElement()));
     concat(vecWarningMsg, validateEdgeDimensions(getNetwork()->getEdges()));
     return vecWarningMsg;
 }

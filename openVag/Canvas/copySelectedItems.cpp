@@ -20,10 +20,10 @@ void copySelectedItems(const std::shared_ptr<IRModel>& irModel, ax::NodeEditor::
 
     tinyxml2::XMLPrinter printer;
     for (const auto& selectedNodeId : vecSelectedNodeId) {
-        irModel->getLayers()->getLayer(selectedNodeId)->getXmlElement()->el->ToElement()->Accept(&printer);
+        irModel->getLayers()->getLayer(selectedNodeId)->getXmlElement()->Accept(&printer);
     }
     for (const auto& selectedLinkId : vecSelectedLinkId) {
-        irModel->getEdges()->getEdge(selectedLinkId)->getXmlElement()->el->ToElement()->Accept(&printer);
+        irModel->getEdges()->getEdge(selectedLinkId)->getXmlElement()->Accept(&printer);
     }
     ImGui::SetClipboardText(printer.CStr());
 }

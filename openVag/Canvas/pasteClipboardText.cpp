@@ -44,7 +44,7 @@ bool pasteCliboardText(std::shared_ptr<IRModel> irModel, CommandCenter& commandC
         CommandCenter commandCenterCommand;
         std::vector<std::shared_ptr<InsertLayer>> vecInsertLayer;
         for (const auto& layer : *newIrModel->getLayers()) {
-            auto xmlLayer = layer->getXmlElement()->el->ToElement()->DeepClone(irModel->getXMLDocument().get());
+            auto xmlLayer = layer->getXmlElement()->DeepClone(irModel->getXMLDocument().get());
             auto insertLayer = std::make_shared<InsertLayer>(irModel, xmlLayer->ToElement());
             commandCenterCommand.add(insertLayer);
             vecInsertLayer.push_back(insertLayer);

@@ -14,7 +14,7 @@ static std::vector<std::pair<std::string, std::string>> getAllAtributes(tinyxml2
 void SetPortAttributes::doAct() {
     std::vector<std::pair<std::string, std::string>> vecOldAttribute;
     vecOldAttribute.reserve(vecAttribute.size());
-    auto xmlElementRaw = port->getXmlElement()->el->ToElement();
+    auto xmlElementRaw = port->getXmlElement();
     vecOldAttribute = getAllAtributes(xmlElementRaw);
     port->setAttributes(vecAttribute);
     vecAttribute = vecOldAttribute;

@@ -52,7 +52,7 @@ static std::string edgeToString(const std::shared_ptr<Edge>& edge) {
 static std::set<std::string> getAllLayerAttributesNames(const std::shared_ptr<IRModel>& irModel) {
     std::set<std::string> setAttributes;
     for (const auto& layer : *irModel->getNetwork()->getLayers()) {
-        tinyxml2::XMLElement* xmlElement = layer->getXmlElement()->el->ToElement();
+        tinyxml2::XMLElement* xmlElement = layer->getXmlElement();
         for (auto xmlAttr = xmlElement->FirstAttribute(); xmlAttr != nullptr; xmlAttr = xmlAttr->Next()) {
             setAttributes.insert(xmlAttr->Name());
         }
