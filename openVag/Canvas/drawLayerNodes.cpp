@@ -45,61 +45,8 @@ namespace Canvas {
         ax::NodeEditor::PopStyleVar(2);
     }
 
-    static bool skipLayer(const std::shared_ptr<Layer>& layer, const std::unordered_set<std::shared_ptr<Layer>>& setSelectedLayers, std::unordered_set<std::shared_ptr<Layer>> setLayersConnectedBySelectedEdges) {
-        if (std::string(layer->getType()) != "Const") return false;
-        if (setLayersConnectedBySelectedEdges.find(layer) != setLayersConnectedBySelectedEdges.end()) return false;
-        if (setSelectedLayers.find(layer) != setSelectedLayers.end()) return false;
-        const auto inputLayers = layer->getInputLayers();
-        for (const auto& layer : inputLayers) {
-            if (setSelectedLayers.find(layer) != setSelectedLayers.end()) return false;
-        }
-        const auto outputLayers = layer->getOutputLayers();
-        for (const auto& layer : outputLayers) {
-            if (setSelectedLayers.find(layer) != setSelectedLayers.end()) return false;
-        }
-        if (inputLayers.empty() && outputLayers.empty()) return false;        
-        return true;
-    }
-
-    std::unordered_set<std::shared_ptr<Layer>> getSetSelectedLayers(const std::shared_ptr<Layers>& layers) {
-        auto selectedObjectCount = ax::NodeEditor::GetSelectedObjectCount();
-        std::vector<ax::NodeEditor::NodeId> vecSelectedNodeId;
-        vecSelectedNodeId.resize(selectedObjectCount);
-        int nodeCount = ax::NodeEditor::GetSelectedNodes(vecSelectedNodeId.data(), static_cast<int>(vecSelectedNodeId.size()));
-        vecSelectedNodeId.resize(nodeCount);
-        std::unordered_set<std::shared_ptr<Layer>> setSelectedLayers;
-        for (const auto& nodeId : vecSelectedNodeId) {
-            const auto layer = layers->getLayer(nodeId);
-            if (layer == nullptr) continue;
-            setSelectedLayers.insert(layer);
-        }
-
-        return setSelectedLayers;
-    }
-
-    std::unordered_set<std::shared_ptr<Layer>> getSetLayersConnectedBySelectedEdges(const std::shared_ptr<Edges>& edges) {
-        auto selectedObjectCount = ax::NodeEditor::GetSelectedObjectCount();
-        std::vector<ax::NodeEditor::LinkId> vecSelectedLinkId;
-        vecSelectedLinkId.resize(selectedObjectCount);
-        int linkCount = ax::NodeEditor::GetSelectedLinks(vecSelectedLinkId.data(), static_cast<int>(vecSelectedLinkId.size()));
-        vecSelectedLinkId.resize(linkCount);
-        std::unordered_set<std::shared_ptr<Layer>> setLayersConnectedBySelectedEdges;
-        for (const auto& linkid : vecSelectedLinkId) {
-            auto edge = edges->getEdge(linkid);
-            if (edge == nullptr) continue;
-            setLayersConnectedBySelectedEdges.insert(edge->getFromLayer());
-            setLayersConnectedBySelectedEdges.insert(edge->getToLayer());
-        }
-
-        return setLayersConnectedBySelectedEdges;
-    }
-
-    void drawLayerNodes(const std::shared_ptr<Layers>& layers, bool forceDrawAllNodes) {
-
-        auto setSelectedLayers = getSetSelectedLayers(layers);
-        auto setLayersConnectedBySelectedEdges = getSetLayersConnectedBySelectedEdges(layers->getNetwork()->getEdges());
-        for (auto& layer : (*layers)) {
-            if (forceDrawAllNodes == false && skipLayer(layer, setSelectedLayers, setLayersConnectedBySelectedEdges) == true) continue;
+    void drawLayerNodes(const std::unordered_set<std::shared_ptr<Layer>>& setLayer) {
+        for (auto& layer : setLayer) {
             drawLayerNode(layer);
         }
     }

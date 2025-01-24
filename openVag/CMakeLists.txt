@@ -8,8 +8,6 @@ set(Sources
 	IRModel.cpp
 	parseIRModel.cpp
 	parseIRModel.h
-	XMLNodeWrapper.cpp
-	XMLNodeWrapper.h
 	GraphLayout.cpp
 	GraphLayout.h
 	openVag_default_ini.h
@@ -47,6 +45,8 @@ set(Sources
 	Canvas/showCanvas.h
 	Canvas/beginCreate.cpp
 	Canvas/beginCreate.h
+	Canvas/calcLayersToDraw.h
+	Canvas/calcLayersToDraw.cpp
 	Canvas/contextMenu.cpp
 	Canvas/contextMenu.h
 	Canvas/drawEdges.cpp

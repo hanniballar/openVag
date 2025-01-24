@@ -18,7 +18,7 @@ static std::vector<std::pair<std::string, std::string>> getAllAtributes(tinyxml2
 void SetLayerAttributes::doAct() {
     std::vector<std::pair<std::string, std::string>> vecOldAttribute;
     vecOldAttribute.reserve(vecAttribute.size());
-    auto xmlElementRaw = layer->getXmlElement()->el->ToElement();
+    auto xmlElementRaw = layer->getXmlElement();
     vecOldAttribute = getAllAtributes(xmlElementRaw);
     layer->setAttributes(vecAttribute);
     vecAttribute = vecOldAttribute;

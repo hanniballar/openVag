@@ -1,125 +1,134 @@
 #include "GraphLayout.h"
 
 #include <list>
-#include <map>
-#include <unordered_map>
 #include <utility>
 #include <tuple>
 #include <cassert>
 #include <set>
+#include <unordered_set>
 #include <deque>
 #include <algorithm>
 
 #include "imgui.h"
 
-class BiMapConstLayerToOwnerLayer
+class ConstOwnerLayer;
+
+class ConstOwnerLayer
 {
 public:
-    void insertConstToOwner(std::shared_ptr<Layer> constLayer, std::shared_ptr<Layer> ownerLayer) {
-        mapConstLayerToOwnerLayer[constLayer] = ownerLayer;
-        mapOwnerLayerToVecConstLayer[ownerLayer].push_back(constLayer);
+    ConstOwnerLayer(std::shared_ptr<Layer> layer) : layer(layer) {}
+
+    ConstOwnerLayer* addConstLayer(const std::shared_ptr<Layer>& constLayer) {
+        listConstLayer.emplace_back(constLayer);
+        return &listConstLayer.back();
     }
-    std::vector<std::shared_ptr<Layer>> getVecConstLayerForOwner(std::shared_ptr<Layer> ownerLayer) const {
-        auto it = mapOwnerLayerToVecConstLayer.find(ownerLayer);
-        if (it == mapOwnerLayerToVecConstLayer.end()) return {};
-        return it->second;
-    }
-    std::shared_ptr<Layer> getOwnerLayerForConstLayer(std::shared_ptr<Layer> constLayer) const {
-        auto it = mapConstLayerToOwnerLayer.find(constLayer);
-        if (it == mapConstLayerToOwnerLayer.end()) return nullptr;
-        return it->second;
-    }
-    std::vector<std::shared_ptr<Layer>> getAllConstLayers() {
-        std::vector<std::shared_ptr<Layer>> res;
-        for (const auto& mapVal : mapConstLayerToOwnerLayer) {
-            res.push_back(mapVal.first);
+
+    std::unordered_set<std::shared_ptr<Layer>> getAllLayers() const {
+        std::unordered_set<std::shared_ptr<Layer>> setAllLayers;
+        setAllLayers.insert(layer);
+        for (const auto& constLayer : listConstLayer) {
+            auto setLayers = constLayer.getAllLayers();
+            setAllLayers.insert(setLayers.begin(), setLayers.end());
         }
-        return res;
+
+        return setAllLayers;
+    }
+
+    ImVec2 getSize(ImVec2 spacing) const {
+        if (sizeLayer.x == 0 && sizeLayer.y == 0) {
+            //Calculate actual size
+            sizeLayer = ax::NodeEditor::GetNodeSize(layer->getId());
+            for (const auto constLayer : listConstLayer) {
+                auto sizeConstLayer = constLayer.getSize(spacing);
+                sizeListConstLayer.x += sizeConstLayer.x;
+                sizeListConstLayer.y = std::max(sizeListConstLayer.y, sizeConstLayer.y);
+            }
+        }
+        return { std::max(sizeLayer.x, getSizeListConstLayer(spacing).x),
+            sizeLayer.y + (sizeListConstLayer.y == 0 ? 0 : sizeListConstLayer.y + spacing.y) };
+    }
+
+    void setPosition(ImVec2 pos, ImVec2 spacing) const {
+        ImVec2 size = getSize(spacing);
+        ImVec2 posLayer;
+        posLayer.x = (size.x - sizeLayer.x) / 2 + pos.x;
+        posLayer.y = (size.y - sizeLayer.y) + pos.y;
+        ax::NodeEditor::SetNodePosition(layer->getId(), posLayer);
+
+        for (auto& constLayer : listConstLayer) {
+            ImVec2 posConstLayer = { (size.x - getSizeListConstLayer(spacing).x) / 2 + pos.x, pos.y};
+            constLayer.setPosition(posConstLayer, spacing);
+            pos.x += constLayer.getSize(spacing).x + spacing.x;
+        }
     }
 
 private:
-    std::map<std::shared_ptr<Layer>, std::shared_ptr<Layer>> mapConstLayerToOwnerLayer;
-    std::map<std::shared_ptr<Layer>, std::vector<std::shared_ptr<Layer>>> mapOwnerLayerToVecConstLayer;
+    ImVec2 getSizeListConstLayer(ImVec2 spacing) const {
+        return { sizeListConstLayer.x + (listConstLayer.size() > 1 ? listConstLayer.size() - 1 : 0) * spacing.x, 
+            sizeListConstLayer.y };
+    }
+    std::shared_ptr<Layer> layer;
+    mutable ImVec2 sizeLayer;
+    mutable ImVec2 sizeListConstLayer;
+    std::list<ConstOwnerLayer> listConstLayer;
 };
 
 class Row {
 public:
-    std::list<std::shared_ptr<Layer>> vecLayer;
-    ImVec2 getSize(float horizontalSpacing, float verticalSpacing, const BiMapConstLayerToOwnerLayer& biMapConstLayerToOwnerLayer) const;
-    void layoutLayers(float horizontalSpacing, float verticalSpacing, float leftmargin, float horizontalOffset, float verticalOffset, const BiMapConstLayerToOwnerLayer& biMapConstLayerToOwnerLayer) const;
+    std::list<ConstOwnerLayer> listConstOwnerLayer;
+    ImVec2 getSize(ImVec2 spacing) const;
+    void setPosition(ImVec2 pos, ImVec2 spacing) const;
 };
 
 class Graph {
 public:
-    Graph(const std::shared_ptr<Layer>& startLayer);
-    std::set<std::shared_ptr<Layer>> getAllLayers();
-    void layoutLayers(float horizontalSpacing, float verticalSpacing, ImVec2 startPos);
-    ImVec2 getSize(float horizontalSpacing, float verticalSpacing, const BiMapConstLayerToOwnerLayer& biMapConstLayerToOwnerLayer) const;
-    BiMapConstLayerToOwnerLayer biMapConstLayerToOwnerLayer;
+    Graph(std::shared_ptr<Layer> startLayer);
+    std::unordered_set <std::shared_ptr<Layer>> getAllLayers();
+    void setPosition(ImVec2 pos, ImVec2 spacing);
+    ImVec2 getSize(ImVec2 spacing) const;
 private:
     std::list<Row> listRow;
-    std::list<Row>::iterator getItRow(std::shared_ptr<Layer>);
-    std::list<Row>::iterator makePrevRowAvailable(std::list<Row>::iterator it);
-    std::list<Row>::iterator makeNextRowAvailable(std::list<Row>::iterator it);
+    std::list<Row>::iterator makePrevRowAvailable(std::shared_ptr<Layer> layer, std::list<Row>::iterator it);
+    std::list<Row>::iterator makeNextRowAvailable(std::shared_ptr<Layer> layer, std::list<Row>::iterator it);
     std::list<Row>::iterator makeParameterLayerRowAvailable();
     std::list<Row>::iterator makeResultLayerRowAvailable();
     std::list<Row>::iterator getDedicatedRow(std::shared_ptr<Layer> layer);
     std::list<Row>::iterator itInputLayerRow = listRow.end();
     std::list<Row>::iterator itResultLayerRow = listRow.end();
-
 };
 
-Graph::Graph(const std::shared_ptr<Layer>& startLayer) {
-
-    std::deque<std::shared_ptr<Layer>> dequeProcLayer = { startLayer };
-    std::set<std::shared_ptr<Layer>> setSeenLayers;
-    {
-        auto startLayerTemp = startLayer;
-        if (std::string(startLayerTemp->getType()) == "Const") {
-            auto setOutputLayer = startLayerTemp->getOutputLayers();
-            if (setOutputLayer.size()) {
-                dequeProcLayer.clear();
-                dequeProcLayer.push_back(*setOutputLayer.begin());
-                startLayerTemp = *setOutputLayer.begin();
-            }
+Graph::Graph(std::shared_ptr<Layer> startLayer) {
+    startLayer = [&]() {
+        if (std::string(startLayer->getType()) == "Const") {
+            auto setOutputLayer = startLayer->getOutputLayers();
+            if (setOutputLayer.size()) { startLayer = *setOutputLayer.begin(); }
         }
-        auto itDedicatedRow = getDedicatedRow(startLayerTemp);
-        auto itInsertRow = itDedicatedRow != listRow.end() ? itDedicatedRow : listRow.insert(listRow.begin(), Row());
-        itInsertRow->vecLayer.push_back(startLayerTemp);
-    }
+        return startLayer;
+        }();
+    auto itInsertRow = makeNextRowAvailable(startLayer, listRow.begin()); 
+    itInsertRow->listConstOwnerLayer.emplace_back(startLayer);
+    std::unordered_map<std::shared_ptr<Layer>, std::list<Row>::iterator> mapLayerToItRow = { {startLayer, itInsertRow } };
+    std::unordered_map<std::shared_ptr<Layer>, ConstOwnerLayer*> mapLayerToConstOwnerLayer = { {startLayer, &itInsertRow->listConstOwnerLayer.back()} };
+    std::deque<std::shared_ptr<Layer>> dequeProcLayer = { startLayer };
+
     while (dequeProcLayer.size()) {
         auto procLayer = dequeProcLayer.front(); dequeProcLayer.pop_front();
-        if (setSeenLayers.find(procLayer) != setSeenLayers.end()) continue;
 
-        setSeenLayers.insert(procLayer);
         auto skipLayer = [&](const std::shared_ptr<Layer>& layer) {
-                if (setSeenLayers.find(layer) != setSeenLayers.end()) return true;
-                if (std::find(dequeProcLayer.begin(), dequeProcLayer.end(), layer) != dequeProcLayer.end()) return true;
-                return false;
+                return mapLayerToItRow.find(layer) != mapLayerToItRow.end();
             };
 
-        auto itRow = [&]() {
-            auto activeLayer = procLayer;
-            if (std::string(activeLayer->getType()) == "Const") {
-                activeLayer = biMapConstLayerToOwnerLayer.getOwnerLayerForConstLayer(activeLayer);
-                assert(activeLayer != nullptr);
-            }
-            return getItRow(activeLayer);
-            }();
-        assert(itRow != listRow.end());
+        assert(mapLayerToItRow.find(procLayer) != mapLayerToItRow.end());
+        auto itRow = mapLayerToItRow[procLayer];
         {
             auto setOutputLayer = procLayer->getOutputLayers();
             for (const auto& layer : setOutputLayer) {
                 if (skipLayer(layer)) continue;
                 dequeProcLayer.push_back(layer);
-                if (std::string(layer->getType()) == "Const") {
-                    biMapConstLayerToOwnerLayer.insertConstToOwner(layer, procLayer);
-                    continue;
-                }
-                auto itDedicatedRow = getDedicatedRow(layer);
-                auto itInsertRow = itDedicatedRow != listRow.end() ? itDedicatedRow : makeNextRowAvailable(itRow);
-                itInsertRow->vecLayer.push_back(layer);
-                
+                auto itInsertRow =  makeNextRowAvailable(layer, itRow);
+                itInsertRow->listConstOwnerLayer.emplace_back(layer);
+                mapLayerToConstOwnerLayer[layer] = &itInsertRow->listConstOwnerLayer.back();
+                mapLayerToItRow[layer] = itInsertRow;
             }
         }
         {
@@ -128,65 +137,71 @@ Graph::Graph(const std::shared_ptr<Layer>& startLayer) {
                 if (skipLayer(layer)) continue;
                 dequeProcLayer.push_back(layer);
                 if (std::string(layer->getType()) == "Const") {
-                    if (biMapConstLayerToOwnerLayer.getOwnerLayerForConstLayer(layer) == nullptr) {
-                        biMapConstLayerToOwnerLayer.insertConstToOwner(layer, procLayer);
-                    }
+                    assert(mapLayerToConstOwnerLayer.find(procLayer) != mapLayerToConstOwnerLayer.end());
+                    auto procConstOwnerLayer = mapLayerToConstOwnerLayer[procLayer];
+                    auto constOwnerLayer = procConstOwnerLayer->addConstLayer(layer);
+                    mapLayerToConstOwnerLayer[layer] = constOwnerLayer;
+                    mapLayerToItRow[layer] = itRow;
                     continue;
                 }
-                auto itDedicatedRow = getDedicatedRow(layer);
-                auto itInsertRow = itDedicatedRow != listRow.end() ? itDedicatedRow : makePrevRowAvailable(itRow);
-                itInsertRow->vecLayer.push_back(layer);
+                auto itInsertRow = makePrevRowAvailable(layer, itRow);
+                itInsertRow->listConstOwnerLayer.push_back(layer);
+                mapLayerToConstOwnerLayer[layer] = &itInsertRow->listConstOwnerLayer.back();
+                mapLayerToItRow[layer] = itInsertRow;
             }
         }
     }
 }
 
-std::set<std::shared_ptr<Layer>> Graph::getAllLayers()
+std::unordered_set <std::shared_ptr<Layer>> Graph::getAllLayers()
 {
-    std::set<std::shared_ptr<Layer>> setLayers;
-    for (const auto& row : listRow) { setLayers.insert(row.vecLayer.begin(), row.vecLayer.end()); }
-    auto vecConstLayers = biMapConstLayerToOwnerLayer.getAllConstLayers();
-    setLayers.insert(vecConstLayers.begin(), vecConstLayers.end());
+    std::unordered_set <std::shared_ptr<Layer>> setLayers;
+    for (const auto& row : listRow) {
+        for (const auto& constOwnerLayer : row.listConstOwnerLayer) {
+            const auto layers = constOwnerLayer.getAllLayers();
+            setLayers.insert(layers.begin(), layers.end());
+        }
+    }
     return setLayers;
 }
 
-void Graph::layoutLayers(float horizontalSpacing, float verticalSpacing, ImVec2 startPos)
+void Graph::setPosition(ImVec2 pos, ImVec2 spacing)
 {
-    auto graphSize = getSize(horizontalSpacing, verticalSpacing, biMapConstLayerToOwnerLayer);
-    float verticalOffset = 0;
+    auto graphSize = getSize(spacing);
     for (const auto& row : listRow) {
-        auto rowSize = row.getSize(horizontalSpacing, verticalSpacing, biMapConstLayerToOwnerLayer);
-        auto leftMargin = (graphSize.x - rowSize.x) / 2;
-        row.layoutLayers(horizontalSpacing, verticalSpacing, leftMargin, startPos.x, startPos.y + verticalOffset, biMapConstLayerToOwnerLayer);
-        verticalOffset += verticalSpacing + rowSize.y;
+        auto rowSize = row.getSize(spacing);
+        ImVec2 rowPos = { (graphSize.x - rowSize.x) / 2 + pos.x, pos.y};
+        row.setPosition(rowPos, spacing);
+        pos.y += rowSize.y + spacing.y;
     }
 }
 
-ImVec2 Graph::getSize(float horizontalSpacing, float verticalSpacing, const BiMapConstLayerToOwnerLayer& biMapConstLayerToOwnerLayer) const
+ImVec2 Graph::getSize(ImVec2 spacing) const
 {
     ImVec2 graphSize;
     for (auto& row : listRow) {
-        auto rowSize = row.getSize(horizontalSpacing, verticalSpacing, biMapConstLayerToOwnerLayer);
+        auto rowSize = row.getSize(spacing);
         graphSize.x = std::max(graphSize.x, rowSize.x);
-        graphSize.y += rowSize.y + verticalSpacing;
+        graphSize.y += rowSize.y + spacing.y;
     }
-    graphSize.y -= verticalSpacing; //Last row does not needd verticalSpacing
+    graphSize.y -= spacing.y; //Last row does not needd verticalSpacing
     return graphSize;
 }
 
-std::list<Row>::iterator Graph::getItRow(std::shared_ptr<Layer> searchLayer)
+std::list<Row>::iterator Graph::getDedicatedRow(std::shared_ptr<Layer> layer)
 {
-    for (auto itRow = listRow.begin(); itRow != listRow.end(); ++itRow) {
-        if (std::find(itRow->vecLayer.begin(), itRow->vecLayer.end(), searchLayer) != itRow->vecLayer.end()) {
-            return itRow;
-        }
-    }
-
+    const auto layerType = std::string(layer->getType());
+    if (layerType == "Parameter")
+        return makeParameterLayerRowAvailable();
+    if (layerType == "Result")
+        return makeResultLayerRowAvailable();
     return listRow.end();
 }
 
-std::list<Row>::iterator Graph::makePrevRowAvailable(std::list<Row>::iterator it)
+std::list<Row>::iterator Graph::makePrevRowAvailable(std::shared_ptr<Layer> layer, std::list<Row>::iterator it)
 {
+    auto itDedicated = getDedicatedRow(layer);
+    if (itDedicated != listRow.end()) return itDedicated;
     if (it == itInputLayerRow) {
         return listRow.insert(std::next(itInputLayerRow), Row());
     }
@@ -199,11 +214,15 @@ std::list<Row>::iterator Graph::makePrevRowAvailable(std::list<Row>::iterator it
     return std::prev(it);
 }
 
-std::list<Row>::iterator Graph::makeNextRowAvailable(std::list<Row>::iterator it)
+std::list<Row>::iterator Graph::makeNextRowAvailable(std::shared_ptr<Layer> layer, std::list<Row>::iterator it)
 {
-    auto nextIt = ++it;
+    auto itDedicated = getDedicatedRow(layer);
+    if (itDedicated != listRow.end()) return itDedicated;
 
-    if (nextIt != itResultLayerRow) { return nextIt; }
+    if (it != listRow.end()) {
+        auto nextIt = ++it;
+        if (nextIt != itResultLayerRow) { return nextIt; }
+    }
     return listRow.insert(itResultLayerRow, Row());
 }
 
@@ -221,17 +240,7 @@ std::list<Row>::iterator Graph::makeResultLayerRowAvailable()
     return itResultLayerRow;
 }
 
-std::list<Row>::iterator Graph::getDedicatedRow(std::shared_ptr<Layer> layer)
-{
-    const auto layerType = std::string(layer->getType());
-    if (layerType == "Parameter")
-        return makeParameterLayerRowAvailable();
-    if (layerType == "Result")
-        return makeResultLayerRowAvailable();
-    return listRow.end();
-}
-
-void GraphLayout::layoutNodes(std::set<std::shared_ptr<Layer>, LayerIDLess> layers, ImVec2 startPos) {
+void GraphLayout::layoutNodes(std::set<std::shared_ptr<Layer>, LayerIDLess> layers, ImVec2 pos) {
     std::vector<Graph> vecGraph;
 
     while (layers.size()) {
@@ -242,57 +251,29 @@ void GraphLayout::layoutNodes(std::set<std::shared_ptr<Layer>, LayerIDLess> laye
     }
 
     for (auto& graph : vecGraph) {
-        graph.layoutLayers(horizontalSpacing, verticalSpacing, startPos);
-        startPos.x += (graph.getSize(horizontalSpacing, verticalSpacing, graph.biMapConstLayerToOwnerLayer)).x + horizontalSpacing;
+        graph.setPosition(pos, this->spacing);
+        pos.x += graph.getSize(this->spacing).x + this->spacing.x;
     }
 }
 
-static ImVec2 getNodeSize(const std::shared_ptr<Layer>& layer, float horizontalSpacing, float verticalSpacing, const BiMapConstLayerToOwnerLayer& biMapConstLayerToOwnerLayer) {
-    auto ownerNodeSize = ax::NodeEditor::GetNodeSize(layer->getId());
-    auto vecConst = biMapConstLayerToOwnerLayer.getVecConstLayerForOwner(layer);
-    ImVec2 vecConstSize(0.0, 0.0);
-    for (const auto& constLayer : vecConst) {
-        auto constLayerSize = getNodeSize(constLayer, horizontalSpacing, verticalSpacing, biMapConstLayerToOwnerLayer);
-        vecConstSize.x += constLayerSize.x;
-        vecConstSize.y = std::max(vecConstSize.y, constLayerSize.y);
-    }
-    if (vecConst.size()) { vecConstSize.x += (vecConst.size() - 1) * horizontalSpacing; }
-    return ImVec2(std::max(vecConstSize.x, ownerNodeSize.x), vecConst.size() ? vecConstSize.y + verticalSpacing + ownerNodeSize.y : ownerNodeSize.y);
-}
-
-ImVec2 Row::getSize(float horizontalSpacing, float verticalSpacing, const BiMapConstLayerToOwnerLayer& biMapConstLayerToOwnerLayer) const {
+ImVec2 Row::getSize(ImVec2 spacing) const {
     ImVec2 rowSize;
-    for (const auto& layer : vecLayer) {
-        auto nodeSize = getNodeSize(layer, horizontalSpacing, verticalSpacing, biMapConstLayerToOwnerLayer);
+    for (const auto& constOwnerLayer : listConstOwnerLayer) {
+        auto nodeSize = constOwnerLayer.getSize(spacing);
         rowSize.x += nodeSize.x;
         rowSize.y = std::max(rowSize.y, nodeSize.y);
     }
-    if (vecLayer.size()) rowSize.x += (vecLayer.size() - 1) * horizontalSpacing;
+    if (listConstOwnerLayer.size()) rowSize.x += (listConstOwnerLayer.size() - 1) * spacing.x;
     return rowSize;
 }
 
-static void SetLayerPosition(std::shared_ptr<Layer> layer, ImVec2 pos, float horizontalSpacing, float verticalSpacing, const BiMapConstLayerToOwnerLayer& biMapConstLayerToOwnerLayer)
+void Row::setPosition(ImVec2 pos, ImVec2 spacing) const
 {
-    auto wholeNodeSize = getNodeSize(layer, horizontalSpacing, verticalSpacing, biMapConstLayerToOwnerLayer);
-    auto ownerNodeSize = ax::NodeEditor::GetNodeSize(layer->getId());
-    ImVec2 actualOwnerNodePos = pos;
-    actualOwnerNodePos.x = pos.x + (wholeNodeSize.x - ownerNodeSize.x) / 2;
-    actualOwnerNodePos.y = pos.y + (wholeNodeSize.y - ownerNodeSize.y);
-    ax::NodeEditor::SetNodePosition(layer->getId(), actualOwnerNodePos);
-    auto vecConstLayer = biMapConstLayerToOwnerLayer.getVecConstLayerForOwner(layer);
-    ImVec2 constLayerPos(pos.x, pos.y);
-    for (const auto& constLayer : vecConstLayer) {
-        SetLayerPosition(constLayer, constLayerPos, horizontalSpacing, verticalSpacing, biMapConstLayerToOwnerLayer);
-        constLayerPos.x += horizontalSpacing + getNodeSize(constLayer, horizontalSpacing, verticalSpacing, biMapConstLayerToOwnerLayer).x;
-    }
-}
-
-void Row::layoutLayers(float horizontalSpacing, float verticalSpacing, float leftmargin, float horizontalOffset, float verticalOffset, const BiMapConstLayerToOwnerLayer& biMapConstLayerToOwnerLayer) const
-{
-    auto xOffset = leftmargin + horizontalOffset;
-    for (const auto& layer : vecLayer) {
-        ImVec2 pos(xOffset, verticalOffset);
-        SetLayerPosition(layer, pos, horizontalSpacing, verticalSpacing, biMapConstLayerToOwnerLayer);
-        xOffset += getNodeSize(layer, horizontalSpacing, verticalSpacing, biMapConstLayerToOwnerLayer).x + horizontalSpacing;
+    auto rowSize = this->getSize(spacing);
+    for (const auto& node : listConstOwnerLayer) {
+        auto nodeSize = node.getSize(spacing);
+        ImVec2 nodePos = { pos.x, rowSize.y - nodeSize.y + pos.y };
+        node.setPosition(nodePos, spacing);
+        pos.x += nodeSize.x + spacing.x;
     }
 }

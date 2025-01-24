@@ -4,7 +4,6 @@
 #include "../IRModel.h"
 #include "CommandCenter.h"
 
-
 class DeleteLayer :public ICommand {
 public:
 	DeleteLayer(std::shared_ptr<Layer> layer) : layer(layer) {}
@@ -16,4 +15,3 @@ private:
 	size_t position = 0;
 	CommandCenter commandCenter;
 };
-

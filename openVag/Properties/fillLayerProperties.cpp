@@ -11,7 +11,7 @@
 #include "../commands/SetPortDimensions.h"
 
 std::vector<std::pair<std::string, std::string>> composeLayerAttributes(std::shared_ptr<Layer> layer) {
-    auto xmlElementRaw = layer->getXmlElement()->el->ToElement();
+    auto xmlElementRaw = layer->getXmlElement();
     std::vector<std::pair<std::string, std::string>> vecLayerAttribute;
     for (const auto* attr = xmlElementRaw->FirstAttribute();
         attr != nullptr;
@@ -22,7 +22,7 @@ std::vector<std::pair<std::string, std::string>> composeLayerAttributes(std::sha
 }
 
 std::vector<std::pair<std::string, std::string>> composePortAttributes(std::shared_ptr<Port> port) {
-    auto xmlElementRaw = port->getXmlElement()->el->ToElement();
+    auto xmlElementRaw = port->getXmlElement();
     std::vector<std::pair<std::string, std::string>> vecPortAttribute;
     for (const auto* attr = xmlElementRaw->FirstAttribute();
         attr != nullptr;

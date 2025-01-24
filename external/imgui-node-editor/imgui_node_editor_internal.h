@@ -270,9 +270,8 @@ struct Object
 
     virtual bool TestHit(const ImRect& rect, bool allowIntersect = true) const
     {
-        if (!m_IsLive)
-            return false;
-
+        //if (!m_IsLive)
+        //    return false;
         const auto bounds = GetBounds();
 
         return !ImRect_IsEmpty(bounds) && (allowIntersect ? bounds.Overlaps(rect) : rect.Contains(bounds));
@@ -1399,8 +1398,7 @@ struct EditorContext
         ImRect bounds(FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX);
 
         for (auto object : objects)
-            if (object->m_IsLive)
-                bounds.Add(object->GetBounds());
+            bounds.Add(object->GetBounds());
 
         if (ImRect_IsEmpty(bounds))
             bounds = ImRect();

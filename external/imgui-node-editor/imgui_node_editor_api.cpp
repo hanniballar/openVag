@@ -566,6 +566,17 @@ int ax::NodeEditor::BreakLinks(PinId pinId)
     return s_Editor->BreakLinks(pinId);
 }
 
+std::vector<ax::NodeEditor::NodeId> ax::NodeEditor::FindNodesInRect(const ImRect& r, bool includeIntersecting)
+{
+    std::vector<Detail::Node*> nodesInRect;
+    s_Editor->FindNodesInRect(r, nodesInRect, false, includeIntersecting);
+    std::vector<ax::NodeEditor::NodeId> nodesIdInRect;
+    for (const auto& node : nodesInRect) {
+        nodesIdInRect.push_back(node->m_ID);
+    }
+    return nodesIdInRect;
+}
+
 void ax::NodeEditor::NavigateToContent(float duration)
 {
     s_Editor->NavigateTo(s_Editor->GetContentBounds(), true, duration);
@@ -746,6 +757,10 @@ bool ax::NodeEditor::PinHadAnyLinks(PinId pinId)
 ImVec2 ax::NodeEditor::GetScreenSize()
 {
     return s_Editor->GetRect().GetSize();
+}
+
+const ImRect& ax::NodeEditor::GetCanvasView() {
+    return s_Editor->GetViewRect();
 }
 
 ImVec2 ax::NodeEditor::ScreenToCanvas(const ImVec2& pos)

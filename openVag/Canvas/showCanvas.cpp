@@ -7,6 +7,7 @@
 #include "imgui_node_editor.h"
 #include "drawEdges.h"
 #include "drawLayerNodes.h"
+#include "calcLayersToDraw.h"
 #include "beginCreate.h"
 #include "contextMenu.h"
 #include "copySelectedItems.h"
@@ -17,7 +18,7 @@
 #include "../commands/ComposedCommand.h"
 
 namespace Canvas {
-    static GraphLayout graphLayout(30, 20);
+    static GraphLayout graphLayout({ 30, 20 });
 
     void ShowCanvas(std::shared_ptr<IRModel> irModel, CommandCenter& commandCenter, RelayoutType reLayoutNodes, ax::NodeEditor::EditorContext* m_Context, bool* p_open)
     {
@@ -41,9 +42,9 @@ namespace Canvas {
                         reLayoutNodes = RelayoutType::Selection; }
                 }
             }
-
-            drawLayerNodes(irModel->getNetwork()->getLayers(), reLayoutNodes != RelayoutType::None);
-            drawModelEdges(irModel->getNetwork()->getEdges());
+            const auto layersToDraw = calcLayersToDraw(irModel->getNetwork()->getLayers(), reLayoutNodes != RelayoutType::None);
+            drawLayerNodes(layersToDraw);
+            drawModelEdges(calcEdgesToDraw(layersToDraw));
 
             switch (reLayoutNodes) {
             case RelayoutType::All:

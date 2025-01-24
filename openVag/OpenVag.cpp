@@ -365,8 +365,8 @@ bool OpenVag::Create()
         LoadIcon(GetModuleHandle(nullptr), IDI_APPLICATION), 
         nullptr, 
         nullptr, 
-        nullptr, 
-        L"ImGui Example",
+        nullptr,
+        L"openVag",
         LoadIcon(GetModuleHandle(nullptr), IDI_APPLICATION) };
     ::RegisterClassExW(&wc);
     HWND hwnd = ::CreateWindowW(wc.lpszClassName, L"openVag", WS_OVERLAPPEDWINDOW, 100, 100, 1280, 800, nullptr, nullptr, wc.hInstance, nullptr);
@@ -424,9 +424,7 @@ bool OpenVag::Create()
     bool show_another_window = false;
     
 #ifndef NDEBUG
-    //openFile = "D:\\work\\openVag\\test\\example.xml";
-
-    openFile = "D:\\work\\openVag\\test\\LayoutTest.xml";
+    openFile = "D:\\work\\openVag\\test\\example.xml";
 #endif // !NDEBUG
     irModel = parseIRModel(openFile);
 
@@ -554,7 +552,7 @@ bool OpenVag::Run()
 
         if (showAbout && ImGui::Begin("About openVag", &showAbout, ImGuiWindowFlags_AlwaysAutoResize))
         {
-            std::string version = "1.1.1";
+            std::string version = "1.1.2";
             std::string aboutMsg = "openVag version: " + version + " build number: " + git_Describe();
 #ifndef NDEBUG
             aboutMsg += " Debug";

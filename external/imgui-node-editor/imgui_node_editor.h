@@ -16,8 +16,10 @@
 
 //------------------------------------------------------------------------------
 # include <imgui.h>
+# include <imgui_internal.h> // ImRect, ImFloor
 # include <cstdint> // std::uintXX_t
 # include <utility> // std::move
+# include <vector>
 
 
 //------------------------------------------------------------------------------
@@ -385,6 +387,8 @@ IMGUI_NODE_EDITOR_API bool HasAnyLinks(PinId pinId); // Return true if pin has a
 IMGUI_NODE_EDITOR_API int BreakLinks(NodeId nodeId); // Break all links connected to this node
 IMGUI_NODE_EDITOR_API int BreakLinks(PinId pinId); // Break all links connected to this pin
 
+IMGUI_NODE_EDITOR_API std::vector<NodeId> FindNodesInRect(const ImRect& r, bool includeIntersecting);
+
 IMGUI_NODE_EDITOR_API void NavigateToContent(float duration = -1);
 IMGUI_NODE_EDITOR_API void NavigateToSelection(bool zoomIn = false, float duration = -1);
 IMGUI_NODE_EDITOR_API void NavigateToNode(NodeId nodeId, bool zoomIn = false, float duration = -1);
@@ -426,6 +430,7 @@ IMGUI_NODE_EDITOR_API bool GetLinkPins(LinkId linkId, PinId* startPinId, PinId* 
 IMGUI_NODE_EDITOR_API bool PinHadAnyLinks(PinId pinId);
 
 IMGUI_NODE_EDITOR_API ImVec2 GetScreenSize();
+IMGUI_NODE_EDITOR_API const ImRect& GetCanvasView();
 IMGUI_NODE_EDITOR_API ImVec2 ScreenToCanvas(const ImVec2& pos);
 IMGUI_NODE_EDITOR_API ImVec2 CanvasToScreen(const ImVec2& pos);
 

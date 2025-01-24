@@ -82,8 +82,8 @@ std::shared_ptr<Layer> parseLayer(XMLElement* xmlLayer) {
 
 std::shared_ptr<Layers> parseLayers(XMLElement* xmlLayers, std::shared_ptr<Network> parent) {
     if (xmlLayers == nullptr) {
-        xmlLayers = parent->getXmlElement()->el->GetDocument()->NewElement("layers");
-        parent->getXmlElement()->el->InsertFirstChild(xmlLayers);
+        xmlLayers = parent->getXmlElement()->GetDocument()->NewElement("layers");
+        parent->getXmlElement()->InsertFirstChild(xmlLayers);
     }
     std::shared_ptr<Layers> layers = std::make_shared<Layers>(xmlLayers, parent);
     XMLElement* xmlLayer = xmlLayers->FirstChildElement("layer");
@@ -135,8 +135,8 @@ std::shared_ptr<Edge> parseEdge(XMLElement* edge, std::shared_ptr<Edges> parent)
 
 std::shared_ptr<Edges> parseEdges(XMLElement* xmlEdges, std::shared_ptr<Network> parent) {
     if (xmlEdges == nullptr) {
-        xmlEdges = parent->getXmlElement()->el->GetDocument()->NewElement("edges");
-        parent->getXmlElement()->el->InsertFirstChild(xmlEdges);
+        xmlEdges = parent->getXmlElement()->GetDocument()->NewElement("edges");
+        parent->getXmlElement()->InsertFirstChild(xmlEdges);
     }
     std::shared_ptr<Edges> edges = std::make_shared<Edges>(xmlEdges, parent);
     XMLElement* edge = xmlEdges->FirstChildElement("edge");

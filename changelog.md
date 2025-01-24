@@ -52,3 +52,12 @@
 * When creating graph layout the first row is dedicated to layers of type: "Parameter" and the last row is dedicated to layers of type "Result"
 * Layers of type "Const" are treated as part of the layer they are connected to.
 
+## [v1.1.2]
+
+### Changes
+
+* Fixed crash on exiting application
+* Improved layout. All models in a row are now aligned at the bottom. Previously they were aligned at the top. Previously it looked weird when a row contained layers with attached const layers and layers without attached const layers.
+* Improved layout speed. Which means models will open faster.
+* Improved frame rate. Edges that connect layers that are not visible are no longer being drawn. 
+
