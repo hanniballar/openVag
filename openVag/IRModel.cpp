@@ -508,7 +508,7 @@ std::shared_ptr<Edge> Edges::insertNewEdge(const std::string& from_layer, const 
     assert(outputPort != nullptr);
 
     auto edge = std::make_shared<Edge>(getXmlElement()->GetDocument(), outputPort, inputPort);
-    xmlElement->el->InsertEndChild(edge->getXmlElement());
+    getXmlElement()->InsertEndChild(edge->getXmlElement());
 
     insertEdge(edge);
     return edge;

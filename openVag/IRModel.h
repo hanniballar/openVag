@@ -239,7 +239,7 @@ struct LayerIDLess
 
 class Layers : public std::enable_shared_from_this<Layers> {
 public:
-    Layers(tinyxml2::XMLElement* xmlElement, std::shared_ptr<Network> parent) : parent(parent) { this->xmlElement = XMLNodeWrapper::make_shared(xmlElement); }
+    Layers(tinyxml2::XMLElement* xmlElement, std::shared_ptr<Network> parent) : xmlElement(xmlElement), parent(parent) {}
     const std::shared_ptr<Network>& getParent() const { return parent; }
     void resetParent() { parent.reset(); }
     const std::shared_ptr<Network>& getNetwork() const { return parent; }
