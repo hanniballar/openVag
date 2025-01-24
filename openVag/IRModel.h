@@ -136,9 +136,7 @@ private:
 
 class Edges : public std::enable_shared_from_this<Edges> {
 public:
-    Edges(tinyxml2::XMLElement* xmlElement, std::shared_ptr<Network> parent) : parent(parent) {
-        this->xmlElement = XMLNodeWrapper::make_shared(xmlElement);
-    }
+    Edges(tinyxml2::XMLElement* xmlElement, std::shared_ptr<Network> parent) : xmlElement(xmlElement), parent(parent) {}
     int myInt() { return 1; }
 
     std::shared_ptr<Edge> insertNewEdge(const std::string& from_layer, const std::string& from_port, const std::string& to_layer, const std::string& to_port, size_t xmlPos);
@@ -282,7 +280,7 @@ private:
 
 class Network : public std::enable_shared_from_this<Network> {
 public:
-    Network(tinyxml2::XMLElement* xmlElement, std::shared_ptr<IRModel> parent) : parent(parent) { this->xmlElement = XMLNodeWrapper::make_shared(xmlElement); }
+    Network(tinyxml2::XMLElement* xmlElement, std::shared_ptr<IRModel> parent) : xmlElement(xmlElement), parent(parent) {}
     const std::shared_ptr<IRModel>& getParent() const { return parent; }
     void resetParent() { parent.reset(); }
 
