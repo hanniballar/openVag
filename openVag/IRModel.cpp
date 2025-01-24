@@ -72,7 +72,7 @@ const std::shared_ptr<IRModel>& Layers::getIRModel() const
 void Layers::deleteLayer(const std::shared_ptr<Layer>& layer)
 {
     removeLayer(layer);
-    getXmlElement()->el->DeleteChild(layer->getXmlElement()->el);
+    getXmlElement()->DeleteChild(layer->getXmlElement());
 }
 
 void Layers::removeLayer(const std::shared_ptr<Layer>& layer)
@@ -119,7 +119,7 @@ void Layers::insertLayer(std::shared_ptr<Layer> layer)
 }
 
 void Layers::insertLayer(std::shared_ptr<Layer> layer, size_t position) {
-    insertNodeAtPosition(layer->getXmlElement()->el, getXmlElement()->el, position);
+    insertNodeAtPosition(layer->getXmlElement(), getXmlElement(), position);
     insertLayer(layer);
 }
 
@@ -218,7 +218,7 @@ Layer::Layer(tinyxml2::XMLElement* xmlLayer) : id(GetNextId()) {
 
 std::shared_ptr<XMLNodeWrapper> Layer::getXmlInputElement() const
 {
-    auto xmlElRaw = getXmlElement()->el;
+    auto xmlElRaw = getXmlElement();
     auto xmlInputElementRaw = xmlElRaw->FirstChildElement("input");
     if (xmlInputElementRaw == nullptr) {
         xmlInputElementRaw = xmlElRaw->GetDocument()->NewElement("input");
@@ -241,7 +241,7 @@ std::shared_ptr<XMLNodeWrapper> Layer::getXmlInputElement() const
 
 std::shared_ptr<XMLNodeWrapper> Layer::getXmlOutputElement() const
 {
-    auto xmlElRaw = getXmlElement()->el;
+    auto xmlElRaw = getXmlElement();
     auto xmlOutputElementRaw = xmlElRaw->FirstChildElement("output");
     if (xmlOutputElementRaw == nullptr) {
         xmlOutputElementRaw = xmlElRaw->GetDocument()->NewElement("output");
@@ -255,7 +255,7 @@ std::shared_ptr<XMLNodeWrapper> Layer::getXmlOutputElement() const
 }
 
 size_t Layer::getXmlPosition() const {
-    return getXmlSiblingPosition(getXmlElement()->el);
+    return getXmlSiblingPosition(getXmlElement());
 }
 
 std::set<std::shared_ptr<Edge>, EdgeIDLess> Layer::getSetEdge() const
@@ -269,16 +269,16 @@ std::set<std::shared_ptr<Edge>, EdgeIDLess> Layer::getSetEdge() const
 
 std::shared_ptr<InputPort> Layer::insertNewInputPort() {
     auto xmlId = std::to_string(getMaxPortXmlId() + 1);
-    auto inputPort = std::make_shared<InputPort>(getXmlElement()->el->GetDocument(), xmlId);
-    getXmlInputElement()->el->InsertEndChild(inputPort->getXmlElement()->el);
+    auto inputPort = std::make_shared<InputPort>(getXmlElement()->GetDocument(), xmlId);
+    getXmlInputElement()->el->InsertEndChild(inputPort->getXmlElement());
     insertPort(inputPort);
     return inputPort;
 }
 
 std::shared_ptr<OutputPort> Layer::insertNewOutputPort() {
     auto xmlId = std::to_string(getMaxPortXmlId() + 1);
-    auto outputPort = std::make_shared<OutputPort>(getXmlElement()->el->GetDocument(), xmlId);
-    getXmlOutputElement()->el->InsertEndChild(outputPort->getXmlElement()->el);
+    auto outputPort = std::make_shared<OutputPort>(getXmlElement()->GetDocument(), xmlId);
+    getXmlOutputElement()->el->InsertEndChild(outputPort->getXmlElement());
     insertPort(outputPort);
     return outputPort;
 }
@@ -303,14 +303,14 @@ void Layer::insertPort(std::shared_ptr<OutputPort> port)
 
 void Layer::insertPort(std::shared_ptr<InputPort> port, size_t position)
 {
-    insertNodeAtPosition(port->getXmlElement()->el, getXmlInputElement()->el, position);
+    insertNodeAtPosition(port->getXmlElement(), getXmlInputElement()->el, position);
     port->setParent(shared_from_this());
     insertPort(port);
 }
 
 void Layer::insertPort(std::shared_ptr<OutputPort> port, size_t position)
 {
-    insertNodeAtPosition(port->getXmlElement()->el, getXmlOutputElement()->el, position);
+    insertNodeAtPosition(port->getXmlElement(), getXmlOutputElement()->el, position);
     port->setParent(shared_from_this());
     insertPort(port);
 }
@@ -328,7 +328,7 @@ void Layer::deletePort(const std::shared_ptr<InputPort>& port)
 {
     removePort(port);
     auto xmlInputElementRaw = getXmlInputElement()->el;
-    xmlInputElementRaw->DeleteChild(port->getXmlElement()->el);
+    xmlInputElementRaw->DeleteChild(port->getXmlElement());
     if (xmlInputElementRaw->NoChildren()) {
         xmlInputElementRaw->Parent()->DeleteChild(xmlInputElementRaw);
     }
@@ -347,7 +347,7 @@ void Layer::deletePort(const std::shared_ptr<OutputPort>& port)
 {
     removePort(port);
     auto xmlOutputElementRaw = getXmlOutputElement()->el;
-    xmlOutputElementRaw->DeleteChild(port->getXmlElement()->el);
+    xmlOutputElementRaw->DeleteChild(port->getXmlElement());
     if (xmlOutputElementRaw->NoChildren()) {
         xmlOutputElementRaw->Parent()->DeleteChild(xmlOutputElementRaw);
     }
@@ -481,8 +481,8 @@ std::shared_ptr<Edge> Edges::insertNewEdge(const std::string& from_layer, const 
     assert(outputPort != nullptr);
 
 
-    auto edge = std::make_shared<Edge>(getXmlElement()->el->GetDocument(), outputPort, inputPort);
-    insertNodeAtPosition(edge->getXmlElement()->el, xmlElement->el, xmlPos);
+    auto edge = std::make_shared<Edge>(getXmlElement()->GetDocument(), outputPort, inputPort);
+    insertNodeAtPosition(edge->getXmlElement(), getXmlElement(), xmlPos);
     insertEdge(edge);
 
     return edge;
@@ -507,8 +507,8 @@ std::shared_ptr<Edge> Edges::insertNewEdge(const std::string& from_layer, const 
     auto outputPort = outputLayer->getOutputPort(from_port);
     assert(outputPort != nullptr);
 
-    auto edge = std::make_shared<Edge>(getXmlElement()->el->GetDocument(), outputPort, inputPort);
-    xmlElement->el->InsertEndChild(edge->getXmlElement()->el);
+    auto edge = std::make_shared<Edge>(getXmlElement()->GetDocument(), outputPort, inputPort);
+    xmlElement->el->InsertEndChild(edge->getXmlElement());
 
     insertEdge(edge);
     return edge;
@@ -532,13 +532,13 @@ void Edges::insertEdge(std::shared_ptr<Edge> edge) {
 }
 
 void Edges::insertEdge(std::shared_ptr<Edge> edge, size_t position) {
-    insertNodeAtPosition(edge->getXmlElement()->el, getXmlElement()->el, position);
+    insertNodeAtPosition(edge->getXmlElement(), getXmlElement(), position);
     insertEdge(edge);
 }
 
 void Edges::deleteEdge(const std::shared_ptr<Edge>& edge) {
     removeEdge(edge);
-    getXmlElement()->el->DeleteChild(edge->getXmlElement()->el);
+    getXmlElement()->DeleteChild(edge->getXmlElement());
 }
 
 void Edges::removeEdge(const std::shared_ptr<Edge>& edge) {
@@ -612,7 +612,7 @@ const std::shared_ptr<IRModel>& Edge::getIRModel() const {
 }
 
 size_t Edge::getXmlPosition() const {
-    return getXmlSiblingPosition(getXmlElement()->el);
+    return getXmlSiblingPosition(getXmlElement());
 }
 
 void Edge::setAttributes(std::map<std::string, std::string> mapAttribute) {
@@ -672,13 +672,13 @@ const std::shared_ptr<IRModel>& Port::getIRModel() const {
 }
 
 size_t Port::getXmlPosition() const {
-    return getXmlSiblingPosition(getXmlElement()->el);
+    return getXmlSiblingPosition(getXmlElement());
 }
 
 std::vector<std::string> Port::getVecDim()
 {
     std::vector<std::string> vecDim;
-    auto xmlPort = getXmlElement()->el;
+    auto xmlPort = getXmlElement();
     for (auto child = xmlPort->FirstChildElement(); child != nullptr; child = child->NextSiblingElement()) {
         if (child->Value() != std::string("dim")) continue;
         vecDim.push_back(child->GetText());
@@ -778,7 +778,7 @@ static std::vector<std::string> nonConnectedPorts(std::shared_ptr<Layers> layers
             const auto setEdgesToLayer = edges->getSetEdgesToLayer(layer->getId());
             for (const auto& port : setInputPort) {
                 if (std::find_if(setEdgesToLayer.begin(), setEdgesToLayer.end(), [&](const auto& edge) { return edge->getInputPort() == port; }) == setEdgesToLayer.end()) {
-                    vecWarningMsg.push_back(std::string("Input Port (Layer id: ") + layer->getXmlId() + " port id: " + port->getXmlId() + ") is not connected to a edge. Line: " + std::to_string(port->getXmlElement()->el->GetLineNum()));
+                    vecWarningMsg.push_back(std::string("Input Port (Layer id: ") + layer->getXmlId() + " port id: " + port->getXmlId() + ") is not connected to a edge. Line: " + std::to_string(port->getXmlElement()->GetLineNum()));
                 }
             }
         }
@@ -787,7 +787,7 @@ static std::vector<std::string> nonConnectedPorts(std::shared_ptr<Layers> layers
             const auto setEdgesFromLayer = edges->getSetEdgesFromLayer(layer->getId());
             for (const auto& port : setOutputPort) {
                 if (std::find_if(setEdgesFromLayer.begin(), setEdgesFromLayer.end(), [&](const auto& edge) { return edge->getOutputPort() == port; }) == setEdgesFromLayer.end()) {
-                    vecWarningMsg.push_back(std::string("Output Port (Layer id: ") + layer->getXmlId() + " port id: " + port->getXmlId() + ") is not connected to a edge. Line: " + std::to_string(port->getXmlElement()->el->GetLineNum()));
+                    vecWarningMsg.push_back(std::string("Output Port (Layer id: ") + layer->getXmlId() + " port id: " + port->getXmlId() + ") is not connected to a edge. Line: " + std::to_string(port->getXmlElement()->GetLineNum()));
                 }
             }
         }
@@ -898,7 +898,7 @@ static std::vector<std::string> validateEdgeDimensions(const std::shared_ptr<Edg
         const auto inputPortDims = edge->getInputPort()->getVecDim();
         const auto outputPortDims = edge->getOutputPort()->getVecDim();
         if (inputPortDims != outputPortDims) {
-            vecWarningMsg.push_back(std::string("Edge ") + outputPort->getParent()->getXmlId() + ":" + outputPort->getXmlId() + "->" + inputPort->getParent()->getXmlId() + ":" + inputPort->getXmlId() + " is connecting two ports of different dimensions. Line: " + std::to_string(edge->getXmlElement()->el->GetLineNum()));
+            vecWarningMsg.push_back(std::string("Edge ") + outputPort->getParent()->getXmlId() + ":" + outputPort->getXmlId() + "->" + inputPort->getParent()->getXmlId() + ":" + inputPort->getXmlId() + " is connecting two ports of different dimensions. Line: " + std::to_string(edge->getXmlElement()->GetLineNum()));
         }
     }
 
