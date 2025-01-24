@@ -52,3 +52,8 @@
 * When creating graph layout the first row is dedicated to layers of type: "Parameter" and the last row is dedicated to layers of type "Result"
 * Layers of type "Const" are treated as part of the layer they are connected to.
 
+## [v1.1.2]
+
+### Changes
+
+* Fixed crash on exiting application

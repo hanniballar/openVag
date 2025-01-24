@@ -8,9 +8,9 @@ void DeleteEdge::doAct()
 {
     position = edge->getXmlPosition();
     parent = edge->getParent();
-    auto xmlElClone = edge->getXmlElement()->el->DeepClone(edge->getXmlElement()->el->GetDocument());
+    auto xmlElClone = edge->getXmlElement()->DeepClone(edge->getXmlElement()->GetDocument());
     parent->deleteEdge(edge);
-    edge->getXmlElement()->set(xmlElClone);
+    edge->setXmlElement(xmlElClone->ToElement());
     this->doFlag = false;
 }
 

@@ -5,7 +5,7 @@
 
 SetPortDimensions::SetPortDimensions(std::shared_ptr<Port> port, const std::vector<std::string>& vecDim) : port(port), vecDim(vecDim)
 {
-    auto xmlPort = port->getXmlElement()->el;
+    auto xmlPort = port->getXmlElement();
     size_t pos = 0;
     for (auto child = xmlPort->FirstChild(); child != nullptr; child = child->NextSibling()) {
         if (child->Value() == std::string("dim")) vecInitialDimPos.push_back(pos);
@@ -16,7 +16,7 @@ SetPortDimensions::SetPortDimensions(std::shared_ptr<Port> port, const std::vect
 void SetPortDimensions::doAct() {
     std::vector<std::string> vecOldDim;
     vecOldDim.reserve(vecOldDim.size());
-    auto xmlElementRaw = port->getXmlElement()->el->ToElement();
+    auto xmlElementRaw = port->getXmlElement();
     vecOldDim = port->getVecDim();
     port->setVecDim(vecDim, vecInitialDimPos);
     vecDim = vecOldDim;

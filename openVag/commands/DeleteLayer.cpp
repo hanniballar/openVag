@@ -12,9 +12,9 @@ void DeleteLayer::doAct()
     parent = layer->getParent();
     for (const auto& port : layer->getSetInputPort()) { commandCenter.execute(std::make_shared<DeleteInputPort>(port)); }
     for (const auto& port : layer->getSetOutputPort()) { commandCenter.execute(std::make_shared<DeleteOutputPort>(port)); }
-    auto xmlElClone = layer->getXmlElement()->el->DeepClone(layer->getXmlElement()->el->GetDocument());
+    auto xmlElClone = layer->getXmlElement()->DeepClone(layer->getXmlElement()->GetDocument());
     parent->deleteLayer(layer);
-    layer->getXmlElement()->set(xmlElClone);
+    layer->setXmlElement(xmlElClone->ToElement());
     this->doFlag = false;
 }
 
