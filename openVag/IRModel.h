@@ -107,7 +107,7 @@ private:
 class Edge : public std::enable_shared_from_this<Edge> {
 public:
     Edge(tinyxml2::XMLDocument* xmlDocument, const std::shared_ptr<OutputPort>& outputPort, const std::shared_ptr<InputPort>& inputPort);
-    Edge(std::shared_ptr<OutputPort> outputPort, std::shared_ptr<InputPort> inputPort, tinyxml2::XMLElement* edge, std::shared_ptr<Edges> parent);
+    Edge(std::shared_ptr<OutputPort> outputPort, std::shared_ptr<InputPort> inputPort, tinyxml2::XMLElement* xmlElement, std::shared_ptr<Edges> parent);
 
     const ax::NodeEditor::LinkId getId() const { return id; }
 
@@ -177,7 +177,7 @@ struct LayerIDLess;
 
 class Layer : public std::enable_shared_from_this<Layer> {
 public:
-    Layer(tinyxml2::XMLElement* xmlLayer);
+    Layer(tinyxml2::XMLElement* xmlElement);
 
     const ax::NodeEditor::NodeId getId() const { return id; }
     const std::shared_ptr<Layers>& getParent() const { return parent; }
