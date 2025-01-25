@@ -645,15 +645,11 @@ void Edge::setAttributes(std::map<std::string, std::string> mapAttribute) {
 }
 
 Port::Port(tinyxml2::XMLDocument* xmlDocument, std::string xmlId) : id(GetNextId()) {
-    auto xmlPortRaw = xmlDocument->NewElement("port");
-    xmlPortRaw->SetAttribute("id", xmlId.c_str());
-
-    xmlElement = XMLNodeWrapper::make_shared(xmlPortRaw);
+    xmlElement = xmlDocument->NewElement("port");
+    xmlElement->SetAttribute("id", xmlId.c_str());
 }
 
-Port::Port(tinyxml2::XMLElement* xmlElement, std::shared_ptr<Layer> parent) : id(GetNextId()), parent(parent) {
-    this->xmlElement = XMLNodeWrapper::make_shared(xmlElement);
-}
+Port::Port(tinyxml2::XMLElement* xmlElement, std::shared_ptr<Layer> parent) : id(GetNextId()), xmlElement(xmlElement), parent(parent) {} //Todo move to header
 
 const std::shared_ptr<Layers>& Port::getLayers() const {
     return getParent()->getParent();
