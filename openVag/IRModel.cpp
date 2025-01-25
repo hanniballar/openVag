@@ -212,7 +212,7 @@ const std::shared_ptr<Edges>& Layer::getEdges() const {
     return getNetwork()->getEdges();
 }
 
-Layer::Layer(tinyxml2::XMLElement* xmlElement) : id(GetNextId()), xmlElement(xmlElement) {} //ToDo move to header
+Layer::Layer(tinyxml2::XMLElement* xmlElement) : id(GetNextId()), xmlElement(xmlElement) {}
 
 tinyxml2::XMLElement* Layer::getXmlInputElement() const
 {
@@ -643,7 +643,7 @@ Port::Port(tinyxml2::XMLDocument* xmlDocument, std::string xmlId) : id(GetNextId
     xmlElement->SetAttribute("id", xmlId.c_str());
 }
 
-Port::Port(tinyxml2::XMLElement* xmlElement, std::shared_ptr<Layer> parent) : id(GetNextId()), xmlElement(xmlElement), parent(parent) {} //Todo move to header
+Port::Port(tinyxml2::XMLElement* xmlElement, std::shared_ptr<Layer> parent) : id(GetNextId()), xmlElement(xmlElement), parent(parent) {}
 
 const std::shared_ptr<Layers>& Port::getLayers() const {
     return getParent()->getParent();
