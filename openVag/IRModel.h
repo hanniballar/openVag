@@ -65,6 +65,7 @@ public:
     const std::shared_ptr<IRModel>& getIRModel() const;
     void resetParent() { parent.reset(); }
     tinyxml2::XMLElement* getXmlElement() const { return xmlElement; }
+    void setXmlElement(tinyxml2::XMLElement* xmlElement) { this->xmlElement = xmlElement; }
     size_t getXmlPosition() const;
 
     virtual std::set<std::shared_ptr<Edge>, EdgeIDLess> getSetEdge() const = 0;
@@ -117,6 +118,7 @@ public:
     void setParent(const std::shared_ptr<Edges>& _parent) { this->parent = _parent; }
     void resetParent() { parent.reset(); }
     tinyxml2::XMLElement* getXmlElement() const { return xmlElement; }
+    void setXmlElement(tinyxml2::XMLElement* xmlElement) { this->xmlElement = xmlElement; }
     size_t getXmlPosition() const;
 
     const std::shared_ptr<OutputPort>& getOutputPort() const { return outputPort; }
@@ -158,6 +160,7 @@ public:
     const std::shared_ptr<IRModel>& getIRModel() const;
 
     tinyxml2::XMLElement* getXmlElement() const { return xmlElement; }
+    void setXmlElement(tinyxml2::XMLElement* xmlElement) { this->xmlElement = xmlElement; }
 
     MapValueIterator<std::map<ax::NodeEditor::LinkId, std::shared_ptr<Edge>, LinkIdLess>> begin() { return mapLinkIdToEdge.begin(); }
     MapValueIterator<std::map<ax::NodeEditor::LinkId, std::shared_ptr<Edge>, LinkIdLess>> end() { return mapLinkIdToEdge.end(); }
@@ -187,6 +190,8 @@ public:
     const std::shared_ptr<IRModel>& getIRModel() const;
 
     tinyxml2::XMLElement* getXmlElement() const { return xmlElement; }
+    void setXmlElement(tinyxml2::XMLElement* xmlElement) { this->xmlElement = xmlElement; }
+
     tinyxml2::XMLElement* getXmlInputElement() const;
     tinyxml2::XMLElement* getXmlOutputElement() const;
     size_t getXmlPosition() const;
@@ -264,6 +269,7 @@ public:
     size_t size() const { return mapNodeIdToLayer.size(); }
 
     tinyxml2::XMLElement* getXmlElement() const { return xmlElement; }
+    void setXmlElement(tinyxml2::XMLElement* xmlElement) { this->xmlElement = xmlElement; }
     void changeLayerXmlId(std::shared_ptr<Layer> layer, std::string oldXmlId, std::string newXmlId);
     int64_t getMaxLayerXmlId() const;
 
@@ -291,6 +297,7 @@ public:
     const std::shared_ptr<Edges>& getEdges() const { return edges; }
 
     tinyxml2::XMLElement* getXmlElement() const { return xmlElement; }
+    void setXmlElement(tinyxml2::XMLElement* xmlElement) { this->xmlElement = xmlElement; }
 private:
     std::shared_ptr<IRModel> parent;
     tinyxml2::XMLElement* xmlElement;
