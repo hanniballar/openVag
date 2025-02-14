@@ -61,3 +61,8 @@
 * Improved layout speed. Which means models will open faster.
 * Improved frame rate. Edges that connect layers that are not visible are no longer being drawn. 
 
+## [v1.1.3]
+
+### Features
+
+* Added colored layers. Colors choices are stored in openVag.ini.

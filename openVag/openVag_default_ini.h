@@ -88,5 +88,10 @@ DockSpace       ID=0x7C6B3D9B Window=0xA87D555D Pos=108,150 Size=1264,742 Split=
       DockNode  ID=0x00000006 Parent=0x00000003 SizeRef=279,305 HiddenTabBar=1 Selected=0x62307AD6
       DockNode  ID=0x00000007 Parent=0x00000003 SizeRef=279,320 HiddenTabBar=1 Selected=0x94B17C7D
     DockNode    ID=0x00000005 Parent=0x00000002 SizeRef=322,113 HiddenTabBar=1 Selected=0x20E3C5EA
+
+[LayerTypeColor][Data]
+Const=(0.220000, 0.220000, 0.220000, 0.900000)
+Parameter=(0.135000, 0.155000, 0.135000, 0.784314)
+Result=(0.135000, 0.135000, 0.155000, 0.784314)
 )openVag";
 }

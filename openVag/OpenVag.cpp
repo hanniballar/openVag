@@ -10,6 +10,8 @@
 #include "imgui_node_editor.h"
 #include <string_view>
 #include <fstream>
+#include <regex>
+#include <map>
 
 #include "parseIRModel.h"
 #include "IRModel.h"
@@ -96,6 +98,7 @@ static WNDCLASSEXW wc;
 static ax::NodeEditor::EditorContext* m_Context = nullptr;
 
 static std::shared_ptr<IRModel> irModel;
+static std::map<std::string, ImColor> mapLayerTypeToColor;
 static int64_t uniqueId = 1;
 
 static std::string openFile;
@@ -351,6 +354,41 @@ static std::string makeIniFileAvailable() {
     return iniFilename.string();
 }
 
+static void* LayerTypeColor_ReadOpen(ImGuiContext*, ImGuiSettingsHandler*, const char* name)
+{
+    return (void*)&mapLayerTypeToColor;
+}
+
+static void LayerTypeColor_ReadLine(ImGuiContext*, ImGuiSettingsHandler*, void* entry, const char* line)
+{
+    std::string strLine = line;
+    char expresion[] = "(.*?)\\s*=\\s*\\(([-+]?[0-9]*\\.?[0-9]*),\\s*([-+]?[0-9]*\\.?[0-9]*),\\s*([-+]?[0-9]*\\.?[0-9]*),\\s*([-+]?[0-9]*\\.?[0-9]*)\\s*\\)";
+    std::regex r(expresion);
+    std::smatch m;
+    std::regex_search(strLine, m, r);
+    if (m.size() != 6) return;
+    float red, green, blue, alpha;
+#pragma warning(disable: 4996)
+    sscanf(m[2].str().c_str(), "%f", &red);
+    sscanf(m[3].str().c_str(), "%f", &green);
+    sscanf(m[4].str().c_str(), "%f", &blue);
+    sscanf(m[5].str().c_str(), "%f", &alpha);
+#pragma warning(default: 4996)
+    ImColor imColor(red, green, blue, alpha);
+    auto mapLayerTypeToColor = (std::map<std::string, ImColor> *) entry;
+    (*mapLayerTypeToColor)[m[1].str()] = imColor;
+}
+
+static void LayerTypeColor_WriteAll(ImGuiContext* ctx, ImGuiSettingsHandler* handler, ImGuiTextBuffer* buf)
+{
+    buf->appendf("[%s][%s]\n", "LayerTypeColor", "Data");
+    for (const auto& tupleLayerTypeToColor : mapLayerTypeToColor) {
+        const auto& color = tupleLayerTypeToColor.second.Value;
+        buf->appendf("%s=(%f, %f, %f, %f)\n", tupleLayerTypeToColor.first.c_str(), color.x, color.y, color.z, color.w);
+    }
+    buf->append("\n");
+}
+
 bool OpenVag::Create()
 {
     // Create application window
@@ -419,10 +457,13 @@ bool OpenVag::Create()
         g_pd3dSrvDescHeap->GetCPUDescriptorHandleForHeapStart(),
         g_pd3dSrvDescHeap->GetGPUDescriptorHandleForHeapStart());
 
-    // Our state
-    bool show_demo_window = true;
-    bool show_another_window = false;
-    
+    ImGuiSettingsHandler ini_handler;
+    ini_handler.TypeName = "LayerTypeColor";
+    ini_handler.TypeHash = ImHashStr("LayerTypeColor");
+    ini_handler.ReadOpenFn = LayerTypeColor_ReadOpen;
+    ini_handler.ReadLineFn = LayerTypeColor_ReadLine;
+    ini_handler.WriteAllFn = LayerTypeColor_WriteAll;
+    ImGui::AddSettingsHandler(&ini_handler);
 #ifndef NDEBUG
     openFile = "D:\\work\\openVag\\test\\example.xml";
 #endif // !NDEBUG
@@ -552,7 +593,7 @@ bool OpenVag::Run()
 
         if (showAbout && ImGui::Begin("About openVag", &showAbout, ImGuiWindowFlags_AlwaysAutoResize))
         {
-            std::string version = "1.1.2";
+            std::string version = "1.1.3";
             std::string aboutMsg = "openVag version: " + version + " build number: " + git_Describe();
 #ifndef NDEBUG
             aboutMsg += " Debug";
@@ -637,7 +678,7 @@ bool OpenVag::Run()
 
         ImGuiID did = ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_AutoHideTabBar);
 
-        Canvas::ShowCanvas(irModel, commandCenter, relayoutType, m_Context);
+        Canvas::ShowCanvas(irModel, commandCenter, relayoutType, mapLayerTypeToColor, m_Context);
         ax::NodeEditor::SetCurrentEditor(m_Context);
         if (selectFirstLayer) {
                 const auto layers = irModel->getNetwork()->getLayers();
