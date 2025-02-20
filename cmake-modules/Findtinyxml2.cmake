@@ -3,8 +3,6 @@ if (TARGET tinyxml2)
 endif()
 
 set (TINYXML2_ROOT_DIR ${CMAKE_SOURCE_DIR}/external/tinyxml2)
-set(_tinyxml2_SourceDir ${CMAKE_SOURCE_DIR}/external/tinyxml2)
-set(_tinyxml2_BinaryDir ${CMAKE_BINARY_DIR}/external/tinyxml2)
 
 set(_tinyxml2_Sources
     ${TINYXML2_ROOT_DIR}/tinyxml2.cpp
