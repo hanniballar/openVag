@@ -112,7 +112,7 @@ namespace Find {
                 for (const auto& layer : *(irModel->getNetwork()->getLayers()))
                 {
                     const auto& attributeValue = layer->getAttributteValue(selectedLayerAttribute);
-                    if (attributeValue != nullptr && !wildCard(attributeValue, std::string(findBuf))) continue;
+                    if (attributeValue == nullptr || wildCard(attributeValue, std::string(findBuf)) == false) continue;
                     ImGui::PushID(layer->getId().AsPointer());
                     bool isSelected = std::find(selectedNodes.begin(), selectedNodes.end(), layer->getId()) != selectedNodes.end();
                     const auto layerSelectableName = [&]() {
