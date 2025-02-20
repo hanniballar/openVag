@@ -2,10 +2,6 @@ if (TARGET imgui_node_editor)
     return()
 endif()
 set (IMGUI_NODE_EDITOR_ROOT_DIR ${CMAKE_SOURCE_DIR}/external/imgui-node-editor)
-#set(_imgui_node_editor_SourceDir ${IMGUI_NODE_EDITOR_ROOT_DIR})
-#set(_imgui_node_editor_BinaryDir ${CMAKE_BINARY_DIR}/NodeEditor)
-
-#add_subdirectory(${_imgui_node_editor_SourceDir} ${_imgui_node_editor_BinaryDir})
 
 find_package(imgui REQUIRED)
 
