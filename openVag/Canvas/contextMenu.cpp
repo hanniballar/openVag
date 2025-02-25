@@ -240,6 +240,8 @@ namespace Canvas {
                     auto addLayerC = std::make_shared<InsertLayer>(irModel);
                     commandCenter.execute(addLayerC);
                     auto newLayer = addLayerC->getLayer();
+                    ax::NodeEditor::BeginNode(newLayer->getId());
+                    ax::NodeEditor::EndNode();
                     ax::NodeEditor::SetNodePosition(newLayer->getId(), openPopupPosition);
                 }
                 ImGui::EndPopup();

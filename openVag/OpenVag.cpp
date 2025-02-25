@@ -593,7 +593,7 @@ bool OpenVag::Run()
 
         if (showAbout && ImGui::Begin("About openVag", &showAbout, ImGuiWindowFlags_AlwaysAutoResize))
         {
-            std::string version = "1.1.3";
+            std::string version = "1.1.4";
             std::string aboutMsg = "openVag version: " + version + " build number: " + git_Describe();
 #ifndef NDEBUG
             aboutMsg += " Debug";

@@ -66,3 +66,9 @@
 ### Features
 
 * Added colored layers. Colors choices are stored in openVag.ini.
+
+## [v1.1.4]
+
+### Changes
+
+* Fixed new layers no longer need to be selected to be drawn.
