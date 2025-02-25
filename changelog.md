@@ -71,4 +71,5 @@
 
 ### Changes
 
-* Fixed new layers no longer need to be selected to be drawn.
+* Fix: New layers no longer need to be selected to be drawn.
+* Fix: Searching for properties that are not present in all layers will no longer lead to a crash
