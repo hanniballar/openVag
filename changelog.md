@@ -73,3 +73,9 @@
 
 * Fix: New layers no longer need to be selected to be drawn.
 * Fix: Searching for properties that are not present in all layers will no longer lead to a crash
+
+## [v1.1.5]
+
+### Features
+
+* Models can be opened by dropping them into openVag (drag and drop is working)

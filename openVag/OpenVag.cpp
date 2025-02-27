@@ -102,6 +102,10 @@ static std::map<std::string, ImColor> mapLayerTypeToColor;
 static int64_t uniqueId = 1;
 
 static std::string openFile;
+static CommandCenter commandCenter;
+static Canvas::RelayoutType relayoutType = Canvas::RelayoutType::All;
+static bool selectFirstLayer = false;
+static std::string parseIRModelMsg;
 
 int64_t GetNextId() { return uniqueId++; }
 // Helper functions
@@ -307,6 +311,22 @@ FrameContext* WaitForNextFrameResources()
 // Forward declare message handler from imgui_impl_win32.cpp
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+static void openModel(std::string filename) {
+    try {
+        const auto vecModifyIRHandler = irModel->getVecModifyIRHandler();
+        irModel = parseIRModel(filename);
+        for (const auto& handler : vecModifyIRHandler) { irModel->registerHandlerModifyIR(handler); }
+        irModel->sendEventModifyIR();
+
+        commandCenter.reset();
+        openFile = filename;
+    }
+    catch (const std::exception& ex) {
+        parseIRModelMsg = ex.what();
+    }
+    relayoutType = Canvas::RelayoutType::All;
+    selectFirstLayer = true;
+}
 // Win32 message handler
 // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
 // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
@@ -319,6 +339,21 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     switch (msg)
     {
+    case WM_DROPFILES:
+    {
+        HDROP hDrop = reinterpret_cast<HDROP>(wParam);
+        char filename[MAX_PATH];
+        UINT count = DragQueryFileA(hDrop, -1, NULL, 0);
+        for (UINT i = 0; i < count; ++i)
+        {
+            if (DragQueryFileA(hDrop, i, filename, MAX_PATH))
+            {
+                openModel(filename);
+            }
+        }
+        DragFinish(hDrop);
+        return 0;
+    }
     case WM_SIZE:
         if (g_pd3dDevice != nullptr && wParam != SIZE_MINIMIZED)
         {
@@ -407,7 +442,7 @@ bool OpenVag::Create()
         L"openVag",
         LoadIcon(GetModuleHandle(nullptr), IDI_APPLICATION) };
     ::RegisterClassExW(&wc);
-    HWND hwnd = ::CreateWindowW(wc.lpszClassName, L"openVag", WS_OVERLAPPEDWINDOW, 100, 100, 1280, 800, nullptr, nullptr, wc.hInstance, nullptr);
+    HWND hwnd = ::CreateWindowExW(WS_EX_ACCEPTFILES, wc.lpszClassName, L"openVag", WS_OVERLAPPEDWINDOW, 100, 100, 1280, 800, nullptr, nullptr, wc.hInstance, nullptr);
 
     // Initialize Direct3D
     if (!CreateDeviceD3D(hwnd))
@@ -472,7 +507,6 @@ bool OpenVag::Create()
     return true;
 }
 
-static CommandCenter commandCenter;
 static bool showAbout = false;
 
 bool OpenVag::Run()
@@ -508,7 +542,6 @@ bool OpenVag::Run()
         ImGui_ImplDX12_NewFrame();
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
-        Canvas::RelayoutType relayoutType = Canvas::RelayoutType::None;
         bool openIrModel = false;
         bool startSaveAs = false;
         bool pasteSuccsesfull = true;
@@ -593,7 +626,7 @@ bool OpenVag::Run()
 
         if (showAbout && ImGui::Begin("About openVag", &showAbout, ImGuiWindowFlags_AlwaysAutoResize))
         {
-            std::string version = "1.1.4";
+            std::string version = "1.1.5";
             std::string aboutMsg = "openVag version: " + version + " build number: " + git_Describe();
 #ifndef NDEBUG
             aboutMsg += " Debug";
@@ -630,33 +663,18 @@ bool OpenVag::Run()
             openIrModel = false;
         }
 
-        bool selectFirstLayer = false;
-        static std::string parseIRModelMsg;
+        
         if (ImGuiFileDialog::Instance()->Display("OpenFileDlgKey")) {
             if (ImGuiFileDialog::Instance()->IsOk()) {
                 std::string newOpenFile = ImGuiFileDialog::Instance()->GetFilePathName();
-                try {
-                    const auto vecModifyIRHandler = irModel->getVecModifyIRHandler();
-                    irModel = parseIRModel(newOpenFile);
-                    for (const auto& handler : vecModifyIRHandler) { irModel->registerHandlerModifyIR(handler); }
-                    irModel->sendEventModifyIR();
-
-                    commandCenter.reset();
-                    openFile = newOpenFile;
-                }
-                catch(const std::exception& ex) {
-                    ImGui::OpenPopup("Error while parsing IR model");
-                    parseIRModelMsg = ex.what();
-                }
-                relayoutType = Canvas::RelayoutType::All;
-                ax::NodeEditor::SetCurrentEditor(m_Context);
-                ax::NodeEditor::ClearSelection();
-                ax::NodeEditor::SetCurrentEditor(nullptr);
-                selectFirstLayer = true;
+                openModel(newOpenFile);
             }
             ImGuiFileDialog::Instance()->Close();
         }
-
+        if (parseIRModelMsg.size()) {
+            ImGui::OpenPopup("Error while parsing IR model");
+            parseIRModelMsg.empty();
+        }
         if (ImGui::BeginPopupModal("Error while parsing IR model", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
             ImGui::Text(parseIRModelMsg.c_str());
             ImGui::Dummy(ImVec2(ImGui::CalcTextSize("Error while parsing IR model").x, 1));
@@ -681,11 +699,12 @@ bool OpenVag::Run()
         Canvas::ShowCanvas(irModel, commandCenter, relayoutType, mapLayerTypeToColor, m_Context);
         ax::NodeEditor::SetCurrentEditor(m_Context);
         if (selectFirstLayer) {
-                const auto layers = irModel->getNetwork()->getLayers();
-                if (layers->begin() != layers->end()) {
-                    ax::NodeEditor::SelectNode((*(layers->begin()))->getId(), false);
-                    ax::NodeEditor::NavigateToSelection();
-                }
+            selectFirstLayer = false;
+            const auto layers = irModel->getNetwork()->getLayers();
+            if (layers->begin() != layers->end()) {
+                ax::NodeEditor::SelectNode((*(layers->begin()))->getId(), false);
+                ax::NodeEditor::NavigateToSelection();
+            }
         }
         ax::NodeEditor::SetCurrentEditor(nullptr);
         Find::ShowFind(irModel, m_Context);

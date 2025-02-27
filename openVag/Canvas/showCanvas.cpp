@@ -20,7 +20,7 @@
 namespace Canvas {
     static GraphLayout graphLayout({ 30, 20 });
 
-    void ShowCanvas(std::shared_ptr<IRModel> irModel, CommandCenter& commandCenter, RelayoutType reLayoutNodes, const std::map<std::string, ImColor>& mapLayerTypeToColor, ax::NodeEditor::EditorContext* m_Context, bool* p_open)
+    void ShowCanvas(std::shared_ptr<IRModel> irModel, CommandCenter& commandCenter, RelayoutType &reLayoutNodes, const std::map<std::string, ImColor>& mapLayerTypeToColor, ax::NodeEditor::EditorContext* m_Context, bool* p_open)
     {
         if (ImGui::Begin("Canvas")) {
             ax::NodeEditor::SetCurrentEditor(m_Context);
@@ -68,6 +68,8 @@ namespace Canvas {
                 assert(false);
                 break;
             }
+
+            reLayoutNodes = RelayoutType::None;
 
             if (ImGui::Shortcut(ImGuiKey_Delete, ImGuiInputFlags_RouteFocused)) {
                 std::vector<ax::NodeEditor::NodeId> vecSelectedNodeId;
