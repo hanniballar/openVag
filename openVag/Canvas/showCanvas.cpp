@@ -84,16 +84,20 @@ namespace Canvas {
                 
                 for (const auto selectedLinkId : vecSelectedLinkId) {
                     auto edge = irModel->getNetwork()->getEdges()->getEdge(selectedLinkId);
+                    if (edge == nullptr) { continue; }
                     commandCenterCommand.add(std::make_shared<DeleteEdge>(edge));
                 }
 
                 for (const auto selectedNodeId : vecSelectedNodeId) {
                     auto layer = irModel->getNetwork()->getLayers()->getLayer(selectedNodeId);
+                    if (layer == nullptr) { continue; }
                     commandCenterCommand.add(std::make_shared<DeleteLayer>(layer));
                 }
 
-                auto composedCommand = std::make_shared<ComposedCommand>(commandCenterCommand);
-                commandCenter.execute(composedCommand);
+                if (commandCenterCommand.getRedoSize() > 0) {
+                    auto composedCommand = std::make_shared<ComposedCommand>(commandCenterCommand);
+                    commandCenter.execute(composedCommand);
+                }
             }
             if (ImGui::Shortcut(ImGuiMod_Ctrl | ImGuiKey_C, ImGuiInputFlags_RouteFocused)) {
                 copySelectedItems(irModel);

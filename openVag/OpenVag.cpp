@@ -106,9 +106,11 @@ static CommandCenter commandCenter;
 static Canvas::RelayoutType relayoutType = Canvas::RelayoutType::All;
 static bool selectFirstLayer = false;
 static std::string parseIRModelMsg;
+static ax::NodeEditor::Config nodeEditorConfig;
 
 int64_t GetNextId() { return uniqueId++; }
-// Helper functions
+void ResetId(int64_t id = 1) { uniqueId = id; }
+// Helper functions 
 bool CreateDeviceD3D(HWND hWnd)
 {
     // Setup swap chain
@@ -314,18 +316,37 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 static void openModel(std::string filename) {
     try {
         const auto vecModifyIRHandler = irModel->getVecModifyIRHandler();
-        irModel = parseIRModel(filename);
+        auto storeId = GetNextId();
+        ResetId();
+        try {
+            irModel = parseIRModel(filename);
+        }
+        catch (const std::exception& ex) {
+            ResetId(storeId);
+            throw;
+        }
         for (const auto& handler : vecModifyIRHandler) { irModel->registerHandlerModifyIR(handler); }
         irModel->sendEventModifyIR();
 
         commandCenter.reset();
         openFile = filename;
+
+        relayoutType = Canvas::RelayoutType::All;
+        selectFirstLayer = true;
+
+        ax::NodeEditor::SetCurrentEditor(m_Context);
+        auto nodeCount = ax::NodeEditor::GetNodeCount();
+        std::vector<ax::NodeEditor::NodeId> vecNodeId;
+        vecNodeId.resize(nodeCount);
+        ax::NodeEditor::GetOrderedNodeIds(vecNodeId.data(), nodeCount);
+        for (const auto nodeId : vecNodeId) {
+            ax::NodeEditor::DeleteNode(nodeId);
+        }
+        ax::NodeEditor::SetCurrentEditor(nullptr);
     }
     catch (const std::exception& ex) {
         parseIRModelMsg = ex.what();
     }
-    relayoutType = Canvas::RelayoutType::All;
-    selectFirstLayer = true;
 }
 // Win32 message handler
 // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
@@ -452,9 +473,8 @@ bool OpenVag::Create()
         return false;
     }
 
-    ax::NodeEditor::Config config;
-    config.SettingsFile = "openVagConf.json";
-    m_Context = ax::NodeEditor::CreateEditor(&config);
+    nodeEditorConfig.SettingsFile = nullptr;
+    m_Context = ax::NodeEditor::CreateEditor(&nodeEditorConfig);
 
     // Show the window
     ::ShowWindow(hwnd, SW_SHOWDEFAULT);
@@ -626,14 +646,19 @@ bool OpenVag::Run()
 
         if (showAbout && ImGui::Begin("About openVag", &showAbout, ImGuiWindowFlags_AlwaysAutoResize))
         {
-            std::string version = "1.1.5";
+            std::string version = "1.1.6";
             std::string aboutMsg = "openVag version: " + version + " build number: " + git_Describe();
+
 #ifndef NDEBUG
             aboutMsg += " Debug";
 #endif // !NDEBUG
 
             ImGui::Text(aboutMsg.c_str());
-
+            ImGui::TextLinkOpenURL("Homepage", "https://github.com/hanniballar/openVag");
+            ImGui::SameLine();
+            ImGui::TextLinkOpenURL("Releases", "https://github.com/hanniballar/openVag/releases");
+            ImGui::Separator();
+            ImGui::Text("Author: Septimiu Neaga");
             ImGui::End();
         }
 
@@ -673,7 +698,6 @@ bool OpenVag::Run()
         }
         if (parseIRModelMsg.size()) {
             ImGui::OpenPopup("Error while parsing IR model");
-            parseIRModelMsg.empty();
         }
         if (ImGui::BeginPopupModal("Error while parsing IR model", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
             ImGui::Text(parseIRModelMsg.c_str());

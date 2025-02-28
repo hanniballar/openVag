@@ -79,3 +79,11 @@
 ### Features
 
 * Models can be opened by dropping them into openVag (drag and drop is working)
+
+## [v1.1.6]
+
+### Changes
+
+* Fix: Removed commands that did nothing
+* Fix: Prevented occasional crash when deleting a layer
+* Fix: An error message is now shown when a model cannot be opened.
